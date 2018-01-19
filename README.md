@@ -1,4 +1,4 @@
-# datamgmt: A Flexible Container to Transport and Manipulate Data and Associated Resources
+# datamgmt: Data Management Utilities for Curating, Documenting, and Publishing Data
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/datamgmt)](https://cran.r-project.org/package=datamgmt)
 
 - **Authors**: TBD
