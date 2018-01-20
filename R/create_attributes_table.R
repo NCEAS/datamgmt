@@ -111,7 +111,6 @@ create_attributes_table <- function(df, is.attribute.table = F) {
 
 
 
-=======
     numberType=NA
     if (is.numeric(values)){
         if (any(values%%1!=0,na.rm = T)){numberType='real'}
