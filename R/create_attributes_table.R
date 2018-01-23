@@ -1,19 +1,22 @@
 get_numberType <- function(values){
-  values <- unlist(values)
-  numberType=NA
-  if (is.numeric(values)){
-    if (any(round(values)!=values)){numberType='real'}
-    else{
-      if (any(values<0,na.rm = T)){numberType='integer'}
-      else{
-        if (any(values==0,na.rm = T)){numberType='whole'}
+    values <- unlist(values)
+    numberType=NA
+    if (is.numeric(values)){
+        if (all(is.nan(values))){numberType='real'}
         else{
-          numberType='natural'
+            if (any(round(values)!=values)){numberType='real'}
+            else{
+                if (any(values<0,na.rm = T)){numberType='integer'}
+                else{
+                    if (any(values==0,na.rm = T)){numberType='whole'}
+                    else{
+                        numberType='natural'
+                    }
+                }
+            }
         }
-      }
     }
-  }
-  return(numberType)
+    return(numberType)
 }
 
 shiny_AttributeTable <- function(att_table){
@@ -25,16 +28,16 @@ shiny_AttributeTable <- function(att_table){
     rHandsontableOutput("table"),
     actionButton("print", "Print Code")
   )
-  
+
   server <- function(input, output) {
-    
+
     DF_R = reactive({
       if (is.null(input$table)) {
         DF = att_table}else{
           DF = hot_to_r(input$table)
         }
     })
-    
+
     output$table=renderRHandsontable({
       rhandsontable(DF_R())%>%
         hot_cols(renderer = "
@@ -42,10 +45,10 @@ shiny_AttributeTable <- function(att_table){
                                     Handsontable.renderers.NumericRenderer.apply(this, arguments);
                                     if (row%2 ==0) {
                                     td.style.background = '#e8e8e8';
-                                    } 
+                                    }
     }")
     })
-    
+
     observeEvent(input$print, {
       DF_out <- DF_R()
       DF_out$domain <- as.character(DF_out$domain)
@@ -60,23 +63,23 @@ shiny_AttributeTable <- function(att_table){
           output_text,
           ')\n\n')
     })
-    
+
   }
-  
+
   shinyApp(ui, server)
 }
 
 create_attributes_table <- function(df, is.attribute.table = F) {
   require(dplyr)
-  
+
   if (is.attribute.table ==F){
     if(!length((colnames(df)))) {
       stop("column names be populated")
     }
-    
+
     col_names <- colnames(df)
     n <- length(col_names)
-    
+
     if (any(grepl(" ", col_names))) {
       stop(paste0("column names cannot contain whitespace"))
     }
@@ -87,7 +90,7 @@ create_attributes_table <- function(df, is.attribute.table = F) {
       numberType[c] <- get_numberType(df[,c])
     }
     # ----------
-    
+
     att_table <- data.frame(attributeName = col_names,
                             attributeDefinition = rep('', n),
                             unit = rep('', n),
@@ -105,7 +108,7 @@ create_attributes_table <- function(df, is.attribute.table = F) {
                             stringsAsFactors = F)
   }else
   {att_table=df}
-  
+
   shiny_AttributeTable(att_table)
 }
 
