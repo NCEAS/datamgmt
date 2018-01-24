@@ -8,15 +8,19 @@
 get_numberType <- function(values){
     values <- unlist(values)
     numberType=NA
-    if (is.numeric(values)){
-        if (all(is.nan(values))){numberType="real"}
-        else{
-            if (any(round(values)!=values)){numberType="real"}
-            else{
-                if (any(values<0,na.rm = T)){numberType="integer"}
-                else{
-                    if (any(values==0,na.rm = T)){numberType="whole"}
-                    else{
+    if (is.numeric(values)) {
+        if (all(is.nan(values))) {
+            numberType="real"
+        } else {
+            if (any(round(values)!=values)) {
+                numberType="real"
+            } else {
+                if (any(values<0,na.rm = T)) {
+                    numberType="integer"
+                } else {
+                    if (any(values==0,na.rm = T)) {
+                        numberType="whole"
+                    } else {
                         numberType="natural"
                     }
                 }
