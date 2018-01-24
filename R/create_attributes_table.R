@@ -1,3 +1,10 @@
+#' Returns the numberType (either 'real', 'integer', 'whole', or 'natural') of input values
+#'
+#' @param values A vector of values. If vector is non-numeric will return NA
+#' @return The numberType of \code{values} (either 'real', 'integer', 'whole', or 'natural').
+#' @examples
+#' # To get numberType for each column in a data.frame \code{df}:
+#' apply(df, 2, function(x) get_numberType(x))
 get_numberType <- function(values){
     values <- unlist(values)
     numberType=NA
