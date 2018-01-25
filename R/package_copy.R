@@ -6,7 +6,7 @@
 #'
 #' @return (character) The formatId of each data object in the package.
 get_format_id <- function(node, package_identifier, formatType = "DATA") {
-    # TODO - assumed that formatIds are returned in the same order as data pids for 1:1 matching
+    #' TODO - assumed that formatIds are returned in the same order as data pids for 1:1 matching
     format_id_query <- dataone::query(node,
                                       paste0("q=resourceMap:\"",
                                              package_identifier,
@@ -16,12 +16,17 @@ get_format_id <- function(node, package_identifier, formatType = "DATA") {
                                              "&fl=formatId"),
                                       as = "list")
 
-    # if (nrow(format_id_query) == 0) {
-    #     return(0)
-    # }
+    format_id_query <- unlist(format_id_query)
+    format_id_query[is.na(format_id_query)] <- "application/octet-stream"
 
-    return(unlist(format_id_query))
+
+    if (length(format_id_query) == 0) {
+        return(0)
+    }
+
+    return(format_id_query)
 }
+
 
 #' Copy a Data Package without children
 #'
@@ -34,11 +39,11 @@ get_format_id <- function(node, package_identifier, formatType = "DATA") {
 #'
 #' @export
 one_package_copy <- function(resource_map_pid, mn_pull, mn_push) {
-    # TODO - rename this function
-    # TODO - fix file names in sysmeta
-    # TODO - add messages
-    # TODO - add mn token checks
-
+    #' TODO - rename this function
+    #' TODO - fix file names in sysmeta
+    #' TODO - add messages
+    #' TODO - add mn token checks
+    #'
     stopifnot(is.character(resource_map_pid))
 
     response <- list()
@@ -89,7 +94,6 @@ one_package_copy <- function(resource_map_pid, mn_pull, mn_push) {
     return(response)
 }
 
-one_package_copy("resource_map_doi:10.18739/A2RZ6X", mn_pull = mnReal, mn_push = mnTest)
 
 #' Copy a Data Package
 #'
@@ -110,8 +114,8 @@ one_package_copy("resource_map_doi:10.18739/A2RZ6X", mn_pull = mnReal, mn_push =
 #'
 #' @export
 package_copy <- function(mn_pull, mn_push, resource_map_pid) {
-    # TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
-    # TODO - add messages per child package?
+    #' TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
+    #' TODO - add messages per child package?
 
     package <- one_package_copy(resource_map_pid, mn_pull, mn_push)
 
