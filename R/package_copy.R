@@ -6,7 +6,6 @@
 #'
 #' @return (character) The formatId of each data object in the package.
 get_format_id <- function(node, package_identifier, formatType = "DATA") {
-    #' TODO - assumed that formatIds are returned in the same order as data pids for 1:1 matching
     format_id_query <- dataone::query(node,
                                       paste0("q=resourceMap:\"",
                                              package_identifier,
@@ -42,9 +41,10 @@ one_package_copy <- function(resource_map_pid, mn_pull, mn_push) {
     #' TODO - rename this function
     #' TODO - fix file names in sysmeta
     #' TODO - add messages
-    #' TODO - add mn token checks
-    #'
+
     stopifnot(is.character(resource_map_pid))
+    stopifnot(is(mn_pull, "MNode"))
+    stopifnot(is(mn_push, "MNode"))
 
     response <- list()
     package <- arcticdatautils::get_package(mn_pull, resource_map_pid, file_names = TRUE)
