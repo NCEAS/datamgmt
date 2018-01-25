@@ -40,7 +40,6 @@ get_format_id <- function(node, package_identifier, formatType = "DATA") {
 one_package_copy <- function(resource_map_pid, mn_pull, mn_push) {
     #' TODO - rename this function
     #' TODO - fix file names in sysmeta
-    #' TODO - add messages
 
     stopifnot(is.character(resource_map_pid))
     stopifnot(is(mn_pull, "MNode"))
@@ -51,6 +50,7 @@ one_package_copy <- function(resource_map_pid, mn_pull, mn_push) {
     response[["child_packages"]] <- package$child_packages
 
     # Download and write EML to new node
+    message(paste0("Downloading metadata from package: ", package$metadata))
     eml_path <- tempfile(fileext = ".xml")
     writeBin(dataone::getObject(mn_pull, package$metadata), eml_path)
     new_eml_pid <- publish_object(mn_push, eml_path, arcticdatautils::format_eml())
@@ -71,6 +71,7 @@ one_package_copy <- function(resource_map_pid, mn_pull, mn_push) {
     format_ids <- get_format_id(mn_pull, resource_map_pids)
 
     # Download pids, save in tempfiles, and publish to new node
+    message(paste0("Uploading data objects from package: ", package$metadata))
     if (n_data_pids) {
         new_data_pids <- unlist(lapply(seq_len(n_data_pids), function(i) {
             dataObj <- tryCatch(dataone::getObject(mn_pull, data_pids[i]),
