@@ -13,7 +13,7 @@ get_numberType <- function(values){
         if (all(is.nan(values))) {
             numberType="real"
         } else {
-            if (any(round(values)!=values)) {
+            if (any(round(values)!=values,na.rm=T)) {
                 numberType="real"
             } else {
                 if (any(values<0,na.rm = T)) {
