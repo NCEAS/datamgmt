@@ -79,7 +79,7 @@ edit_attributes_table <- function(att_table){
         br(),
         br(),
         actionButton("print_meta", "Print Custom Units Table"),
-        h5("Edit custom unit table table as needed, then print table code to console."),
+        h5("Edit custom unit table table as needed (after finishing attribute table above), then print table code to console."),
         rHandsontableOutput("meta_table", width = "100%", height = 1000)
     )
     ### Server
@@ -225,7 +225,7 @@ edit_attributes_table <- function(att_table){
         })
 
     }
-    shinyApp(ui, server)
+    shinyApp(ui, server,options = list(launch.browser=T))
 }
 
 #' Allows editing of an attribute table and custom units table in a shiny environment
