@@ -44,9 +44,6 @@ edit_attributes_table <- function(att_table){
     # Get standardUnits
     unitList <- get_unitList()
     standardUnits <- unitList$units
-    sU_unique <- standardUnits[!is.na(standardUnits$parentSI) & !is.na(standardUnits$unitType),]
-    sU_unique <- sU_unique[c("unitType","parentSI")]
-    sU_unique <- sU_unique[(!duplicated(sU_unique)),]
     # table functions
     build_additional_meta_intial <- function(){
         additional_meta <- data.frame(matrix(ncol=3,nrow=0))
@@ -97,9 +94,6 @@ edit_attributes_table <- function(att_table){
         DF_att = reactive({
             DF_att_full()
         })
-        # DF_unitType_parentSI = reactive({
-        #     build_unitType_parentSI(DF_att_full(),standardUnits,sU_unique)
-        # })
         DF_additional_meta = reactive({
             if (is.null(input$att_table)) {
                 build_additional_meta_intial()}else{
@@ -217,7 +211,6 @@ edit_attributes_table <- function(att_table){
             DF_out_att$domain <- as.character(DF_out_att$domain)
             DF_out_att$numberType <- as.character(DF_out_att$numberType)
             DF_out_att[DF_out_att == ""] = NA
-            DF_out_att$definition = ifelse(DF_out_att$definition =="",DF_out_att$attributeDefinition,DF_out_att$definition)
             output_text_func(DF_out_att)
         })
         observeEvent(input$print_meta, {
