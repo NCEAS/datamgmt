@@ -241,6 +241,7 @@ edit_attributes_table <- function(att_table){
 #' @return Prints attribute table and custom units table to console
 #' @examples
 create_attributes_table <- function(df,
+                                    is.attribute.table = F,
                                     attributeDefinition = NULL,
                                     unit = NULL,
                                     measurementScale = NULL,
@@ -250,14 +251,38 @@ create_attributes_table <- function(df,
                                     numberType = NULL,
                                     missingValueCode = NULL,
                                     missingValueCodeExplanation = NULL){
+
     ### Libraries
     require(dplyr)
+    # Initialize attributes if input is attribute table
+    attributeName <- NULL
+    if(is.attribute.table==T){
+        colnames_input <- colnames(df)
+        colnames_att_table <- c("attributeName",
+                                "attributeDefinition",
+                                "unit",
+                                "measurementScale",
+                                "domain",
+                                "formatString",
+                                "definition",
+                                "numberType",
+                                "missingValueCode",
+                                "missingValueCodeExplanation")
+        for(c in colnames_att_table){
+            if (c %in% colnames_input){
+                var <- df[,c]
+                assign(c,var)}
+        }
+    }
     # Get column names
     if(!length((colnames(df)))){
         stop("column names be populated")
     }
-    col_names <- colnames(df)
-    n <- length(col_names)
+    # Get attributeName
+    if (is.null(attributeName)){
+        attributeName <- colnames(df)
+    }
+    n <- length(attributeName)
     # Get numberType
     numberType_levels <- c("real","natural","whole","integer","")
     if (is.null(numberType)){
@@ -327,7 +352,7 @@ create_attributes_table <- function(df,
     }
     # Get unitType
 
-    att_table <- data.frame(attributeName = col_names,
+    att_table <- data.frame(attributeName = attributeName,
                             domain = domain,
                             attributeDefinition = attributeDefinition,
                             definition = definition,
@@ -335,8 +360,8 @@ create_attributes_table <- function(df,
                             formatString = formatString,
                             numberType = numberType,
                             unit = unit,
-                            missingValueCode = rep("", n),
-                            missingValueCodeExplanation = rep("", n),
+                            missingValueCode = missingValueCode,
+                            missingValueCodeExplanation = missingValueCodeExplanation,
                             stringsAsFactors = F)
     att_table[is.na(att_table)] = ""
     edit_attributes_table(att_table)
