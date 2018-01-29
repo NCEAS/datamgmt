@@ -1,4 +1,5 @@
 #' Return the formatId of each data object in a package
+#' TODO explain why you need formatIDs
 #'
 #' @param node (MNode/CNode) The Node to query for Object sizes
 #' @param resource_map_pid (character) The identifier of the Data Package's Resource Map
@@ -8,6 +9,7 @@
 #' @return (character) The formatId, fileName, and identifier of each data object in a package.
 solr_package_copy <- function(node, package_identifier, formatType = "DATA") {
     #' TODO better name for this function?
+    #' TODO suggestion: get_object_info
     query <- dataone::query(node,
                             paste0("q=resourceMap:\"",
                                    package_identifier,
@@ -17,6 +19,7 @@ solr_package_copy <- function(node, package_identifier, formatType = "DATA") {
                             as = "data.frame")
 
     # Replace NA fields
+    # TODO explain why
     query$formatId[which(is.na(query$formatId))] <- "application/octet-stream"
     query$fileName[which(is.na(query$fileName))] <- query$identifier
 
@@ -36,11 +39,13 @@ solr_package_copy <- function(node, package_identifier, formatType = "DATA") {
 #'
 #' @param mn_pull (MNode) The Member Node to download from.
 #' @param mn_push (MNode) The Member Node to upload to.
+#' TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #'
 #' @return (list) List of all the identifiers in the new Data Package.
 one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
     #' TODO - better name for this function?
+    #' TODO maybe copy_package and copy_package_family. I think it helps to start with the verb, in any case.
     stopifnot(is.character(resource_map_pid))
     stopifnot(is(mn_pull, "MNode"))
     stopifnot(is(mn_push, "MNode"))
@@ -52,12 +57,14 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Download and write EML to new node
     message(paste0("Downloading metadata from package: ", package$metadata))
+    # TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
     eml_path <- file.path(tempdir(), "science_metadata.xml")
     writeBin(dataone::getObject(mn_pull, package$metadata), eml_path)
     new_eml_pid <- arcticdatautils::publish_object(mn_push,
                                                   eml_path,
                                                   arcticdatautils::format_eml())
     response["metadata"] <- new_eml_pid
+    # TODO double check bracketing here vs in line 56 (response[["child_packages"]]). You may be ok but I'm not sure how to test
 
     # Initialize data pids vector
     data_pids <- vector("character")
@@ -75,9 +82,13 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
     temp_dir <- tempdir()
     data_paths <- unlist(lapply(seq_len(n_data_pids), function(i) {
         file.path(temp_dir, file_names[i])}))
+    # TODO more readable alternative:
+    # temp_dir <- tempdir()
+    # data_paths <- file.path(temp_dir, file_names)
 
     # Download pids, save in tempfiles, and publish to new node
     if (n_data_pids) {
+        # TODO define condition. (if it exists?? or > 0?)
 
         message(paste0("Uploading data objects from package: ", package$metadata))
 
@@ -85,11 +96,13 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
         new_data_pids <- unlist(lapply(seq_len(n_data_pids), function(i) {
             dataObj <- tryCatch(dataone::getObject(mn_pull, data_pids[i]),
                                 error = function(e) {return("error")})
+            # TODO explain this part in comments
 
             # Write object to temporary file
             tryCatch(writeBin(dataObj, data_paths[i]), error = function(e) {
                 message(paste0("\n Unable to write ", data_pids[i]))
             })
+            # TODO maybe take out trycatch here? or maybe define use-case?
 
             arcticdatautils::publish_object(mn_push, data_paths[i], format_ids[i])
 
