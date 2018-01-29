@@ -11,7 +11,7 @@
 #'
 #' @return (data.frame) Data frame containing query results.
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
