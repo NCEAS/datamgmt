@@ -118,7 +118,7 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
 #' @param mn_push (MNode) The Member Node to upload to.
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn_pull <- getMNode(cn, "urn:node:ARCTIC")

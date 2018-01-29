@@ -16,3 +16,13 @@ package_copy(mn_pull, mn_push, resource_map_pid)
 \description{
 This function copies a data package from one DataOne member node to another.
 }
+\examples{
+\dontrun{
+cn <- CNode("PROD")
+mn_pull <- getMNode(cn, "urn:node:ARCTIC")
+cn <- CNode('STAGING')
+mn_push <- getMNode(cnTest,'urn:node:mnTestARCTIC')
+package_copy(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
+}
+
+}
