@@ -1,84 +1,89 @@
-#' add_creator_id
+#' add_party_orcid
 #'
-#' This function allows you to add an ORCID or reference ID to a creator in EML.
+#' This function allows you to add an ORCID to a ResponsibleParty in an EML
 #' @param eml EML script to modify
+#' @param surName surName of person to assign ORCID to
+#' @param givenName givenName of person to assign ORCID to
 #' @param orcid ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'
-#' @param id reference ID. Character string to set reference ID for creators with additional roles (i.e. metadataProvider, etc.)
-#' @param surname creator surname (last name), defaults to first creator if not specified. Not case-sensitive.
+#' @param replace (TRUE/FALSE) If replace is set to FALSE, ORCIDs that already exist will not be overwritten
 #'
-#' @keywords eml creator orcid id
-#'
-#' @details All prameters other than the EML are optional, but since the point of the function is to modify either the orcid, ref id, or both, you better specify at least one. Requires the crayon package.
-#'
-#' @export
-#'
-#' @examples
-#' library(dataone)
-#' library(arcticdatautils)
-#' library(EML)
-#'
-#' cnTest <- dataone::CNode('STAGING')
-#' mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
-#' eml_pid <- arcticdatautils::create_dummy_metadata(mnTest)
-#' eml1 <- EML::read_eml(rawToChar(getObject(mnTest, eml_pid)))
-#' add_creator_id(eml1, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
+#' @keywords EML ORCID
+#' @return Modified EML
 
-add_creator_id <- function(eml,
-                           orcid = NULL,
-                           id = NULL,
-                           surname = NULL) { #not sensitive to capitalization
-    library(crayon)
+add_party_orcid <- function(eml,
+                            surName,
+                            givenName,
+                            orcid,
+                            replace= F) {
 
-    #variable checks:
-    for (args in c(orcid, id, surname)) {
-        if (!(is.null(args) | is.character(args))) {
-            stop(paste(args, "must be a character string."))
+    parties <- c("creator","contact","metadataProvider","associatedParty","publisher")
+
+    if (!grepl("https://orcid.org/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}",orcid)){
+        stop("orcid not of form 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'")
+    }
+
+    for (party in parties){
+        switch(party,
+               "creator" = {
+                   ResponsibleParty = eml@dataset@creator
+               },
+               "contact" = {
+                   ResponsibleParty = eml@dataset@contact
+               },
+               "metadataProvider" = {
+                   ResponsibleParty = eml@dataset@metadataProvider
+               },
+               "associatedParty" = {
+                   ResponsibleParty = eml@dataset@associatedParty
+               },
+               "publisher" = {
+                   ResponsibleParty = eml@dataset@publisher
+               })
+        for(i in seq_along(ResponsibleParty)){
+            individualNameList <- ResponsibleParty[[i]]@individualName
+            for (j in seq_along(individualNameList)){
+                if (individualNameList[[j]]@surName@.Data == surName){
+                    givenNameList <- individualNameList[[j]]@givenName
+                    for (k in seq_along(givenNameList)){
+                        if (givenNameList[[k]] == givenName){
+                            if(length(ResponsibleParty[[i]]@userId)==0 | replace==TRUE){
+                                switch(party,
+                                       "creator" = {
+                                           eml@dataset@creator[[i]]@userId = c(new('userId',
+                                                                                   .Data = orcid,
+                                                                                   directory = "https://orcid.org"))
+                                       },
+                                       "contact" = {
+                                           eml@dataset@contact[[i]]@userId = c(new('userId',
+                                                                                   .Data = orcid,
+                                                                                   directory = "https://orcid.org"))
+                                       },
+                                       "metadataProvider" = {
+                                           eml@dataset@metadataProvider[[i]]@userId = c(new('userId',
+                                                                                            .Data = orcid,
+                                                                                            directory = "https://orcid.org"))
+                                       },
+                                       "associatedParty" = {
+                                           eml@dataset@associatedParty[[i]]@userId = c(new('userId',
+                                                                                           .Data = orcid,
+                                                                                           directory = "https://orcid.org"))
+                                       },
+                                       "publisher" = {
+                                           eml@dataset@publisher[[i]]@userId = c(new('userId',
+                                                                                     .Data = orcid,
+                                                                                     directory = "https://orcid.org"))
+                                       })
+                                cat('\norcid set for',party,'\n')}
+                            else{
+                                warning("Orcid already exists for ",party,". If would like to replace existing set replace to TRUE",call.=F)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
-    #grab creators and save to new variable
-    creatorList <- eml@dataset@creator@.Data
-
-    #determine surname position to access correct creator
-    #if none are specified, the first creator will be modified
-    if (is.null(surname)) {
-        cat(green("Since surname was not specified, the first creator entry will be modified. "))
-        pos <- 1
-    } else {
-        #make vector of creator surnames
-        surNames <- rep(NA, times = length(creatorList))
-        for (i in 1:length(creatorList)) {
-            creator1 <- creatorList[[i]]
-            surName1 <- creator1@individualName@.Data[[1]]@surName@.Data
-            surNames[i] <- surName1
-        }
-
-        #if specified surname exists, then edit entry (caps-proof)
-        surname_u <- toupper(surname)
-        surNames_u <- toupper(surNames)
-        if (surname_u %in% surNames_u) {
-            pos <- which(surNames_u == surname_u)
-        } else {
-            stop(red("Surname not found. Check your spelling."))
-        }
-    }
-
-    #add orcid if specified
-    if (!is.null(orcid)) {
-        creatorList[[pos]]@userId <- c(new('userId',
-                                           .Data = orcid,
-                                           directory = "https://orcid.org"))
-    }
-
-    #add reference id if specified
-    if (!is.null(id)) {
-        creatorList[[pos]]@id[[1]] <- as.character(id)
-    }
-
-    #add updated creatorList back into eml
-    eml@dataset@creator@.Data <- creatorList
-
-    cat(green("The following entry has been changed:"))
-    print(creatorList[[pos]]) #prints changed entry
-    return(invisible(eml)) #returns full eml
+    invisible(eml)
 }
+
