@@ -25,3 +25,12 @@ data_objects_exist(mn, pids, write_to_csv = FALSE, folder_path = NULL,
 This function is primarily intended to assist Mark Schildhauer in preparation
 for the Carbon synthesis working group.
 }
+\examples{
+\dontrun{
+cn <- CNode("PROD")
+mn <- getMNode(cn, "urn:node:ARCTIC")
+data_objects_exist(mn,
+c("doi:10.5065/D60P0X4S", "urn:uuid:3ea5629f-a10e-47eb-b5ce-de10f8ef325b"))
+}
+
+}
