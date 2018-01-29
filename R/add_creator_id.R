@@ -8,7 +8,14 @@
 #'
 #' @keywords eml creator orcid id
 #'
-#' @details All prameters other than the EML are optional, but since the point of the function is to modify either the orcid, ref id, or both, you better specify at least one. Requires the crayon package.
+#' @details
+#' The function invisibly returns the full EML, which
+#' can be saved to a variable. It also prints the changed creator
+#' entry so that it's easy to check that the appropriate change was
+#' made. All prameters other than the EML are optional, but since
+#' the point of the function is to modify either the orcid, ref id,
+#' or both, you need to specify at least one. Requires the
+#' crayon package.
 #'
 #' @export
 #'
@@ -35,9 +42,12 @@ add_creator_id <- function(eml,
             stop(paste(args, "must be a character string."))
         }
     }
+    if (is.null(orcid) & is.null(id)) {
+        stop("Need either an orcid or id.")
+    }
 
     #grab creators and save to new variable
-    creatorList <- eml@dataset@creator@.Data
+    creatorList <- eml@dataset@creator
 
     #determine surname position to access correct creator
     #if none are specified, the first creator will be modified
@@ -49,7 +59,7 @@ add_creator_id <- function(eml,
         surNames <- rep(NA, times = length(creatorList))
         for (i in 1:length(creatorList)) {
             creator1 <- creatorList[[i]]
-            surName1 <- creator1@individualName@.Data[[1]]@surName@.Data
+            surName1 <- creator1@individualName[[1]]@surName@.Data
             surNames[i] <- surName1
         }
 
@@ -80,5 +90,5 @@ add_creator_id <- function(eml,
 
     cat(green("The following entry has been changed:"))
     print(creatorList[[pos]]) #prints changed entry
-    return(invisible(eml)) #returns full eml
+    invisible(eml) #returns full eml
 }
