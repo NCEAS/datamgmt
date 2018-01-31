@@ -1,5 +1,9 @@
-#' Return the formatId of each data object in a package
-#' TODO explain why you need formatIDs
+#' Return the object metadata of each data object in a Data Package
+#'
+#' This function returns the formatId, fileName and identifier of each data
+#' object in a Data Package.  This is a helper function for the function
+#' 'clone_package' - which copies a dataOne Data Package from one member node to
+#' another.
 #'
 #' @param node (MNode/CNode) The Node to query for Object sizes
 #' @param resource_map_pid (character) The identifier of the Data Package's Resource Map
@@ -7,9 +11,7 @@
 #' formatType. One of METADATA, RESOURCE, or DATA or * for all types
 #'
 #' @return (character) The formatId, fileName, and identifier of each data object in a package.
-solr_package_copy <- function(node, package_identifier, formatType = "DATA") {
-    #' TODO better name for this function?
-    #' TODO suggestion: get_object_info
+get_object_metadata <- function(node, package_identifier, formatType = "DATA") {
     query <- dataone::query(node,
                             paste0("q=resourceMap:\"",
                                    package_identifier,
@@ -19,7 +21,6 @@ solr_package_copy <- function(node, package_identifier, formatType = "DATA") {
                             as = "data.frame")
 
     # Replace NA fields
-    # TODO explain why
     query$formatId[which(is.na(query$formatId))] <- "application/octet-stream"
     query$fileName[which(is.na(query$fileName))] <- query$identifier
 
@@ -30,22 +31,92 @@ solr_package_copy <- function(node, package_identifier, formatType = "DATA") {
     return(query)
 }
 
-
-#' Copy a Data Package without its child packages.
+#' Return data object identifiers from 'dataTable' and 'otherEntity' objects
+#' in an EML file
 #'
-#' The wrapper function 'package_copy' should be used instead.
-#' This function copies a data package from one DataOne member node to another,
-#' excluding any child data packages.
+#' This function is a helper function for 'clone_package'.  It checks that all
+#' of the data objects pids present in the metadata match those that the
+#' resource map points to.  It also returns the data pids in the order in which
+#' they appear in the EML: dataTable pids first and then otherEntity pids.  We
+#' cannot update the new .xml file without this information.
+#'
+#' @param eml (EML) EML object
+#'
+#' @return (list) List of all the identifiers in the EML.  Sorted into dataTable
+#' and otherEntity identifiers
+compare_eml_to_package_pids <- function(eml, package_data_pids) {
+    #' TODO better name for this function?
+
+    n_dataTable = length(eml@dataset@dataTable)
+    n_otherEntity = length(eml@dataset@otherEntity)
+    pids_from_eml <- list()
+
+    if ((n_dataTable + n_otherEntity) != length(package_data_pids)) {
+        stop(message("Number of 'dataTable' and 'otherEntity' objects ",
+                     n_dataTable + n_otherEntity,
+                     " does not equal the number of data objects ",
+                     length(package_data_pids)))
+    }
+
+    if(n_dataTable > 0 | n_otherEntity > 0) {
+
+        # format dataTable pids
+        dataTable_pids <- unlist(lapply(seq_len(n_dataTable), function(i) {
+            pid_link <- eml@dataset@dataTable[[i]]@physical@.Data[[1]]@distribution@.Data[[1]]@online@url
+            pid_link <- as.character(pid_link)
+
+            split_string <- strsplit(pid_link, split = "\\/")
+            pid <- tail(split_string[[1]], n = 1)
+
+        }))
+        pids_from_eml[["dataTable"]] <- dataTable_pids
+
+        # format otherEntity pids
+        otherEntity_pids <- unlist(lapply(seq_len(n_otherEntity), function(i) {
+            pid_link <- eml@dataset@otherEntity[[i]]@physical@.Data[[1]]@distribution@.Data[[1]]@online@url
+            pid_link <- as.character(pid_link)
+
+            split_string <- strsplit(pid_link, split = "\\/")
+            pid <- tail(split_string[[1]], n = 1)
+
+        }))
+        pids_from_eml[["otherEntity"]] <- otherEntity_pids
+
+        # Check that pids from EML are correct (in package$data)
+        pids_in_eml <- unlist(pids_from_eml)
+        if (any(!(pids_in_eml %in% package_data_pids))) {
+
+            indices <- which(!(pids_in_eml %in% package_data_pids))
+            incorrect_pids <- paste(pids_in_eml[indices], collapse = ", ")
+
+            stop(message(paste0("Incorrect data object pids present in the EML: ",
+                                incorrect_pids,
+                                ". Please check that all 'dataTable' and 'otherEntity' objects have accurate physical sections.")))
+        }
+
+    } else {
+        stop(message("No 'dataTable' or 'otherEntity' objects present in EML"))
+    }
+
+    return(pids_from_eml)
+}
+
+#' Clone a Data Package without its child packages.
+#'
+#' The wrapper function 'clone_package' should be used instead. This function
+#' copies a data package from one DataOne member node to another, excluding any
+#' child data packages.
 #'
 #' @param mn_pull (MNode) The Member Node to download from.
 #' @param mn_push (MNode) The Member Node to upload to.
-#' TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #'
 #' @return (list) List of all the identifiers in the new Data Package.
-one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
-    #' TODO - better name for this function?
-    #' TODO maybe copy_package and copy_package_family. I think it helps to start with the verb, in any case.
+clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
+    #' TODO switch remaining for loops to applys
+    #' TODO add more messages
+    #' TODO better way to set physical in Update Metadata section.
+    #' TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
     stopifnot(is.character(resource_map_pid))
     stopifnot(is(mn_pull, "MNode"))
     stopifnot(is(mn_push, "MNode"))
@@ -55,16 +126,10 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
     response <- list()
     response[["child_packages"]] <- package$child_packages
 
-    # Download and write EML to new node
+    # Download EML
     message(paste0("Downloading metadata from package: ", package$metadata))
-    # TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
-    eml_path <- file.path(tempdir(), "science_metadata.xml")
-    writeBin(dataone::getObject(mn_pull, package$metadata), eml_path)
-    new_eml_pid <- arcticdatautils::publish_object(mn_push,
-                                                  eml_path,
-                                                  arcticdatautils::format_eml())
-    response["metadata"] <- new_eml_pid
-    # TODO double check bracketing here vs in line 56 (response[["child_packages"]]). You may be ok but I'm not sure how to test
+    #' TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
+    eml <- read_eml(rawToChar(getObject(mn_pull, package$metadata)))
 
     # Initialize data pids vector
     data_pids <- vector("character")
@@ -73,48 +138,90 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
     }
 
     # Solr query data formatId, fileName, and identifier
-    solr_query <- solr_package_copy(mn_pull, resource_map_pids)
+    solr_query <- get_object_metadata(mn_pull, resource_map_pid)
     file_names <- solr_query$fileName
     format_ids <- solr_query$formatId
 
     # Create temporary file paths
-    n_data_pids <- length(data_pids)
-    temp_dir <- tempdir()
-    data_paths <- unlist(lapply(seq_len(n_data_pids), function(i) {
-        file.path(temp_dir, file_names[i])}))
-    # TODO more readable alternative:
-    # temp_dir <- tempdir()
-    # data_paths <- file.path(temp_dir, file_names)
+    data_paths <- file.path(tempdir(), file_names)
 
     # Download pids, save in tempfiles, and publish to new node
-    if (n_data_pids) {
-        # TODO define condition. (if it exists?? or > 0?)
+    n_data_pids <- length(data_pids)
 
+    if (n_data_pids > 0) {
         message(paste0("Uploading data objects from package: ", package$metadata))
 
-        # Get Data object from member node
-        new_data_pids <- unlist(lapply(seq_len(n_data_pids), function(i) {
-            dataObj <- tryCatch(dataone::getObject(mn_pull, data_pids[i]),
-                                error = function(e) {return("error")})
-            # TODO explain this part in comments
+        # Compare pids in EML to pids in Data Package and return list
+        old_data_pids <- compare_eml_to_package_pids(eml, package$data)
 
-            # Write object to temporary file
-            tryCatch(writeBin(dataObj, data_paths[i]), error = function(e) {
-                message(paste0("\n Unable to write ", data_pids[i]))
-            })
-            # TODO maybe take out trycatch here? or maybe define use-case?
+        # This sets the upload order to all dataTables first, then otherEnts
+        # Packages can contain data tables and otherEnts - this sets the order
+        # of the pids to the order in which they appear in first: dataTables and
+        # second: otherEntities
+        data_pids <- unlist(old_data_pids)
 
-            arcticdatautils::publish_object(mn_push, data_paths[i], format_ids[i])
+        new_data_pids <- vector("character")
+        for (i in seq_len(n_data_pids)) {
 
-        }))
+            # Attempt getObject up to 3 times
+            n_attempts <- 0
+            dataObj <- "upload_error"
+
+            while (dataObj[1] == "upload_error" & n_attempts < 3) {
+                dataObj <- tryCatch({
+                    dataone::getObject(mn_pull, data_pids[i])
+
+                    # Write object to temporary file
+                    writeBin(dataObj, data_paths[i])
+
+                    new_data_pids[i] <- arcticdatautils::publish_object(mn_push,
+                                                                        data_paths[i],
+                                                                        format_ids[i])
+                },
+                error = function(e) {return("upload_error")})
+
+                n_attempts <- n_attempts + 1
+            }
+        }
 
         response[["data"]] <- new_data_pids
-        new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid, new_data_pids)
+
+        ## Update metadata
+        message("Updating metadata")
+        n_dataTable <- length(old_data_pids$dataTable)
+        n_otherEntity <- length(old_data_pids$otherEntity)
+        new_physical <- pid_to_eml_physical(mn_push, new_data_pids)
+
+        # First update dataTables using the order from old_data_pids
+        for(i in seq_len(n_dataTable)) {
+            eml@dataset@dataTable@.Data[[i]]@physical <- new("ListOfphysical",
+                                                             list(new_physical[[i]]))
+        }
+
+        for(i in seq_len(n_otherEntity)) {
+            eml@dataset@otherEntity[[i]]@physical <- new("ListOfphysical",
+                                                         list(new_physical[[i+ n_dataTable]]))
+        }
+
 
     } else {
 
         response[["data"]] <- character(0)
-        new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid)
+    }
+
+    # Write EML
+    eml_path <- file.path(tempdir(), "science_metadata.xml")
+    write_eml(eml, eml_path)
+    new_eml_pid <- arcticdatautils::publish_object(mn_push,
+                                                   eml_path,
+                                                   arcticdatautils::format_eml())
+    response[["metadata"]] <- new_eml_pid
+
+    # Create resource map
+    if (length(new_data_pids) > 0) {
+        new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid, new_data_pids)
+    } else {
+    new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid)
     }
 
     response[["resource_map"]] <- new_resource_map_pid
@@ -122,10 +229,12 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
     return(response)
 }
 
-
-#' Copy a Data Package
+#' Clone a Data Package
 #'
-#' This function copies a data package from one DataOne member node to another.
+#' This function copies a Data Package from one DataOne member node to another.
+#' It can also be used to copy an older version of a Data Package to the same
+#' member node in order to restore it, provided that the old Package is then
+#' obsoleted by the copied version.
 #'
 #' @param mn_pull (MNode) The Member Node to download from.
 #' @param mn_push (MNode) The Member Node to upload to.
@@ -133,28 +242,28 @@ one_package_copy <- function(mn_pull, mn_push, resource_map_pid) {
 #'
 #' @examples
 #' \dontrun{
-#' cn <- CNode("PROD")
-#' mn_pull <- getMNode(cn, "urn:node:ARCTIC")
-#' cn <- CNode('STAGING')
-#' mn_push <- getMNode(cnTest,'urn:node:mnTestARCTIC')
-#' package_copy(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
+#' cn_pull <- CNode("PROD")
+#' mn_pull <- getMNode(cn_pull, "urn:node:ARCTIC")
+#' cn_push <- CNode('STAGING')
+#' mn_push <- getMNode(cn_push,'urn:node:mnTestARCTIC')
+#' clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
 #' }
 #'
 #' @export
-package_copy <- function(mn_pull, mn_push, resource_map_pid) {
+clone_package <- function(mn_pull, mn_push, resource_map_pid) {
     #' TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
     #' TODO - add messages per child package?
 
-    # Copy initial package without children
-    package <- one_package_copy(resource_map_pid, mn_pull, mn_push)
+    # Clone initial package without children
+    package <- clone_one_package(mn_pull, mn_push, resource_map_pid)
 
     if (length(package$child_packages) != 0) {
 
         n_child_packages <- length(package$child_packages)
 
-        # Copy child packages
+        # Clone child packages
         child_packages <- unlist(lapply(seq_len(n_child_packages), function(i) {
-            one_package_copy(package$child_packages[i], mn_pull, mn_push)
+            clone_one_package(mn_pull, mn_push, package$child_packages[i])
         }))
 
         # Select resource_map_pid(s) of child packages
