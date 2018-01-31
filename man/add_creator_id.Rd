@@ -19,7 +19,13 @@ add_creator_id(eml, orcid = NULL, id = NULL, surname = NULL)
 This function allows you to add an ORCID or reference ID to a creator in EML.
 }
 \details{
-All prameters other than the EML are optional, but since the point of the function is to modify either the orcid, ref id, or both, you better specify at least one. Requires the crayon package.
+The function invisibly returns the full EML, which
+can be saved to a variable. It also prints the changed creator
+entry so that it's easy to check that the appropriate change was
+made. All prameters other than the EML are optional, but since
+the point of the function is to modify either the orcid, ref id,
+or both, you need to specify at least one. Requires the
+crayon package.
 }
 \examples{
 library(dataone)
