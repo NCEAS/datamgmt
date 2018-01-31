@@ -10,6 +10,8 @@
 #' @param formatType (character) Optional. Filter to just Objects of the given
 #' formatType. One of METADATA, RESOURCE, or DATA or * for all types
 #'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
 #' @return (character) The formatId, fileName, and identifier of each data object in a package.
 get_object_metadata <- function(node, package_identifier, formatType = "DATA") {
     query <- dataone::query(node,
@@ -41,6 +43,10 @@ get_object_metadata <- function(node, package_identifier, formatType = "DATA") {
 #' cannot update the new .xml file without this information.
 #'
 #' @param eml (EML) EML object
+#' @param package_data_pids (character) All of the Data identifiers in a Data
+#' Package.  These can be selected with get_package(mn, resource_map)$data
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (list) List of all the identifiers in the EML.  Sorted into dataTable
 #' and otherEntity identifiers
@@ -51,6 +57,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
     n_otherEntity = length(eml@dataset@otherEntity)
     pids_from_eml <- list()
 
+    # Check that number of dataTable and OtherEntity objects == number of pids in the Package
     if ((n_dataTable + n_otherEntity) != length(package_data_pids)) {
         stop(message("Number of 'dataTable' and 'otherEntity' objects ",
                      n_dataTable + n_otherEntity,
@@ -65,6 +72,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
             pid_link <- eml@dataset@dataTable[[i]]@physical@.Data[[1]]@distribution@.Data[[1]]@online@url
             pid_link <- as.character(pid_link)
 
+            # Select the pid --> characters after the last "/"
             split_string <- strsplit(pid_link, split = "\\/")
             pid <- tail(split_string[[1]], n = 1)
 
@@ -76,16 +84,18 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
             pid_link <- eml@dataset@otherEntity[[i]]@physical@.Data[[1]]@distribution@.Data[[1]]@online@url
             pid_link <- as.character(pid_link)
 
+            # Select the pid --> characters after the last "/"
             split_string <- strsplit(pid_link, split = "\\/")
             pid <- tail(split_string[[1]], n = 1)
 
         }))
         pids_from_eml[["otherEntity"]] <- otherEntity_pids
 
-        # Check that pids from EML are correct (in package$data)
+        # Check that pids from EML are in package$data
         pids_in_eml <- unlist(pids_from_eml)
         if (any(!(pids_in_eml %in% package_data_pids))) {
 
+            # Select which pids in EML are not in package$data
             indices <- which(!(pids_in_eml %in% package_data_pids))
             incorrect_pids <- paste(pids_in_eml[indices], collapse = ", ")
 
@@ -95,6 +105,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
         }
 
     } else {
+
         stop(message("No 'dataTable' or 'otherEntity' objects present in EML"))
     }
 
@@ -111,11 +122,13 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
 #' @param mn_push (MNode) The Member Node to upload to.
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
 #' @return (list) List of all the identifiers in the new Data Package.
 clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
     #' TODO switch remaining for loops to applys
     #' TODO add more messages
-    #' TODO better way to set physical in Update Metadata section.
+    #' TODO better way to set physical in Update Metadata section?
     #' TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
     stopifnot(is.character(resource_map_pid))
     stopifnot(is(mn_pull, "MNode"))
@@ -154,10 +167,10 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
         # Compare pids in EML to pids in Data Package and return list
         old_data_pids <- compare_eml_to_package_pids(eml, package$data)
 
-        # This sets the upload order to all dataTables first, then otherEnts
-        # Packages can contain data tables and otherEnts - this sets the order
-        # of the pids to the order in which they appear in first: dataTables and
-        # second: otherEntities
+        # This sets the upload order to all dataTables first, then otherEnts.
+        # Packages can contain dataTable and otherEntity objects - this sets the
+        # order of the pids to the order in which they appear in first: dataTables
+        # and second: otherEntities.  We can then systematically update the EML.
         data_pids <- unlist(old_data_pids)
 
         new_data_pids <- vector("character")
@@ -186,13 +199,14 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
         response[["data"]] <- new_data_pids
 
-        ## Update metadata
+        ## Update physical metadata for new_data_pids
         message("Updating metadata")
+
         n_dataTable <- length(old_data_pids$dataTable)
         n_otherEntity <- length(old_data_pids$otherEntity)
         new_physical <- pid_to_eml_physical(mn_push, new_data_pids)
 
-        # First update dataTables using the order from old_data_pids
+        # First update dataTables using the number from old_data_pids
         for(i in seq_len(n_dataTable)) {
             eml@dataset@dataTable@.Data[[i]]@physical <- new("ListOfphysical",
                                                              list(new_physical[[i]]))
@@ -239,6 +253,8 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 #' @param mn_pull (MNode) The Member Node to download from.
 #' @param mn_push (MNode) The Member Node to upload to.
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @examples
 #' \dontrun{
