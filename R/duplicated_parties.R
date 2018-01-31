@@ -42,7 +42,7 @@ duplicated_parties <- function(eml) {
                 givenNameList <- individualNameList[[j]]@givenName
                 for (k in seq_along(givenNameList)){
                     givenName <- givenNameList[[k]]@.Data
-                    if(length(id_value)==0){
+                    if(length(id)==0){
                         id <-  paste0(surName,"_",givenName)
                     }
                     new_party <- data.frame(surName,givenName,id)
