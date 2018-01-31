@@ -17,7 +17,7 @@ clone_one_package(mn_pull, mn_push, resource_map_pid)
 (list) List of all the identifiers in the new Data Package.
 TODO switch remaining for loops to applys
 TODO add more messages
-TODO better way to set physical in Update Metadata section.
+TODO better way to set physical in Update Metadata section?
 TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
 TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
 }
@@ -25,4 +25,7 @@ TODO since messages print in red (scary!), you might want to consider the crayon
 The wrapper function 'clone_package' should be used instead. This function
 copies a data package from one DataOne member node to another, excluding any
 child data packages.
+}
+\author{
+Dominic Mullen, \email{dmullen17@gmail.com}
 }
