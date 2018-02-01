@@ -8,88 +8,80 @@ check_package <- function(mn, resource_map) {
     stopifnot(is(mn, "MNode"))
     stopifnot(is.character(resource_map))
 
-    pkg <- arcticdatautils::get_package(mn, resource_map)
+    cat("\nRunning Check on Package...")
+    pkg <- arcticdatautils::get_package(mn, resource_map, file_names = TRUE)
     eml <- EML::read_eml(rawToChar(getObject(mn, pkg$metadata)))
+
+    pids <- vapply(unlist(eml_get(eml, "url")), function(x) {
+        stringr::str_match_all(x, "https?:\\/\\/.+\\.dataone\\.org\\/cn\\/v\\d\\/resolve\\/(.+)")[[1]][2]
+    }, "", USE.NAMES = FALSE)
+
+    if(length(pids) != length(pkg$data)){
+        stop("Number of dataTables and otherEntities is ", length(pids),
+                ". Number of data in package is ", length(pids))
+    }
+
+    pkg_in_pid <- (pkg$data %in% pids)
+    if(!all(pkg_in_pid)){
+        stop("The following pids are in the package and not in the EML.", paste("\n",pkg$data[!pkg_in_pid]))
+    }
+
+    cat("\nThe pids in the package are the same as the pids in the EML.")
+
+    objectNames <- unlist(eml_get(eml, "objectName"))
+    pkg_Names <- names(pkg$data)
+
+    Names_in_EML <- (pkg_Names %in% objectNames)
+    if(!all(Names_in_EML)){
+        stop("The following file names are listed in the package and not the EML", paste("\n",pkg_Names[!Names_in_EML]))
+    }
+
+    cat("\nThe data names in the package are the same as the data names in the EML.")
 
     creators <- eml@dataset@creator
     if (length(creators) == 0) {
-        stop("No creators are included in eml")
+        stop("The EML needs a creator.")
     }
 
-    creator_ORCIDs <- c()
-    for (c in seq_along(creators)) {
-        userId_List <- creators[[c]]@userId
-        if (length(userId_List)==0){
-            stop("Each creator needs an ORCID")
-        }
-        for (u in seq_along(userId_List)) {
-            userId <- userId_List[[u]]@.Data
-            isORCID <- grepl("https://orcid.org/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}",userId)
-            if (isORCID) {
-                creator_ORCIDs <- append(creator_ORCIDs,sub("https://","http://",userId,fixed = T))
-            } else {
-                stop(paste0(userId," is not of the ORCID form https://orcid.org/AAAA-BBBB-CCCC-DDDD"))
-            }
-        }
+    creator_ORCIDs <- unlist(eml_get(creators,"userId"))
 
+    isORCID <-  grepl("https:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}",creator_ORCIDs)
+
+    if(!all(isORCID)){
+        stop(creator_ORCIDs[!isORCID], " is not of the form https://orcid.org/AAAA-BBBB-CCCC-DDDD")
     }
 
-    pids <- c(pkg$metadata, pkg$resource_map, pkg$data)
-    for (pid in pids) {
+    if(length(creator_ORCIDs)!=length(creators)){
+        warning("Each Creator should have an ORCID.")
+    }
+
+    creator_ORCIDs <- sub("https://","http://",creator_ORCIDs,fixed = T)
+
+
+    all_pids <- c(pkg$metadata, pkg$resource_map, pkg$data)
+    permissions <- c("read","write","changePermission")
+
+    for (pid in all_pids) {
         sysmeta <- dataone::getSystemMetadata(mn, pid)
+
         if (!(sysmeta@rightsHolder %in% creator_ORCIDs)) {
-            stop(paste0("rightsHolder is not set to one of the creators in ", pid))
+            stop("rightsHolder is not set to one of the creators for ", pid)
         }
-        permissions <- c("read","write","changePermission")
+
         for (c in seq_along(creator_ORCIDs)) {
             for (permission in permissions) {
+
                 if (!(datapack::hasAccessRule(sysmeta, creator_ORCIDs[[c]], permission))) {
                     stop(paste0(creator_ORCIDs[[c]]," does not have ", permission, " access in ", pid))
+
                 }
             }
         }
+
+        cat("\nrightsHolder and access set correctly for ", pid)
+
     }
 
-    cat("\nAll creators are rightsHolders for all objects\n")
-    cat("\nAll creators have read, write, changePermission access for all objects\n")
-
-    test_data <- function(object) {
-        for (i in seq_along(object)) {
-            physical <- object[[i]]@physical
-            for (p in seq_along(physical)) {
-                distribution <- physical[[p]]@distribution
-                for (d in seq_along(distribution)) {
-                    url <- distribution[[d]]@online@url@.Data
-                    url_pid <- stringr::str_extract(url, "[^/]*$")
-                    inData <- (url_pid %in% pkg$data)
-                    if (!inData) {
-                        stop(paste0(physical[[p]]@objectName, " has different physical and sysmeta pids"))
-                    } else {
-                        datanum <- which(url_pid == pkg$data)
-                        sysmeta_data <- dataone::getSystemMetadata(mn, pkg$data[datanum])
-                        isName <- (sysmeta_data@fileName == physical[[p]]@objectName)
-                        if(!isName) {
-                            stop(paste0(physical[[p]]@objectName," has sysmeta fileName ", sysmeta_data@fileName))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    dataTables <- length(eml@dataset@dataTable)
-    otherEntities <- length(eml@dataset@otherEntity)
-
-    if (dataTables>0) {
-        test_data(eml@dataset@dataTable)
-    }
-
-    cat("\nAll dataTables have the correct filename and pid set\n")
-
-    if (otherEntities > 0) {
-        test_data(eml@dataset@otherEntity)
-    }
-
-    cat("\nAll otherEntities have the correct filename and pid set\n")
 }
+
 
