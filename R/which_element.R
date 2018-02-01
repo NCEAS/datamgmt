@@ -38,6 +38,5 @@ which_element <- function(eml,element,value) {
     }))
 
     return(location)
-print("hi!")
 }
 
