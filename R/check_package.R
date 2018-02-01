@@ -2,7 +2,7 @@
 #'
 #' This function perform checks on a package before publishing
 #' @param mn MNode
-#' @param resourcemap resource_map pid
+#' @param resource_map resource_map pid
 check_package <- function(mn, resource_map) {
 
     stopifnot(is(mn, "MNode"))
