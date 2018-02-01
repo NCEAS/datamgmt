@@ -1,6 +1,6 @@
 #' which_element
 #'
-#' This function returns locations within an EML list object that contain an \code{element} == \code{value}
+#' This function returns locations within an EML list object that contain an instance where \code{element == value}
 #' @param eml an EML list object
 #' @param element element to evaluate
 #' @param value string to match \code{element} to
