@@ -35,7 +35,7 @@ get_numberType <- function(values){
 #'
 #' @param att_table An attribute table
 #' @return Prints attribute table and custom units table to console
-edit_attributes_table <- function(att_table){
+shiny_attributes_table <- function(att_table){
     ### Libraries
     require(shiny)
     require(rhandsontable)
@@ -81,7 +81,7 @@ edit_attributes_table <- function(att_table){
         actionButton("print_meta", "Print Custom Units Table"),
         h5("Edit custom unit table table as needed (after finishing attribute table above), then print table code to console."),
         rHandsontableOutput("meta_table", width = "100%", height = 1000)
-    )
+        )
     ### Server
     server <- function(input, output) {
         # Attribute Table Reactive
@@ -103,71 +103,77 @@ edit_attributes_table <- function(att_table){
         output$att_table=renderRHandsontable({
             rhandsontable(DF_att())%>%
                 hot_table(highlightCol = TRUE, highlightRow = TRUE)%>%
-                hot_col(col = "attributeDefinition",
+                hot_col(col = "attributeName",
                         renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (value === '') {
-                        td.style.background = 'pink';
-                        }}")%>%
-                hot_col(col = "measurementScale",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
-                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (value === '') {
+                        if(!isNaN(value)){
                         td.style.background = 'pink';
                         }}")%>%
                 hot_col(col = "domain",
                         renderer= "function(instance, td, row, col, prop, value, cellProperties) {
-                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (value === '') {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments)
+                        if(!isNaN(value)){
                         td.style.background = 'pink';
                         }}")%>%
-                hot_col(col = "unit",
+                hot_col(col = "attributeDefinition",
                         renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (instance.getData()[row][1] == 'numericDomain' & value == '') {
+                        if(!isNaN(value)){
+                        td.style.background = 'pink';
+                        }}")%>%
+                hot_col(col = "definition",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        if (instance.getData()[row][1] == 'textDomain' & !isNaN(value)) {
                         td.style.background = 'pink';
                         }
-                        else if (instance.getData()[row][1] != 'numericDomain' & value != ''){
+                        else if (instance.getData()[row][1] != 'textDomain' & isNaN(value)){
                         td.style.background = 'grey';
                         }
                         }")%>%
+                hot_col(col = "measurementScale",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        if(!isNaN(value)){
+                        td.style.background = 'pink';
+                        }}")%>%
+                hot_col(col = "formatString",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        if (instance.getData()[row][1] == 'dateTimeDomain' & !isNaN(value)) {
+                        td.style.background = 'pink';
+                        }
+                        else if (instance.getData()[row][1] != 'dateTimeDomain' & isNaN(value)){
+                        td.style.background = 'grey';
+                        }
+}")%>%
                 hot_col(col = "numberType",
                         renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (instance.getData()[row][1] == 'numericDomain' & value == '') {
+                        if (instance.getData()[row][1] == 'numericDomain' & !isNaN(value)) {
                         td.style.background = 'pink';
                         }
-                        else if (instance.getData()[row][1] != 'numericDomain' & value != ''){
+                        else if (instance.getData()[row][1] != 'numericDomain' & isNaN(value)){
+                        td.style.background = 'grey';
+                        }
+                        }")%>%
+                hot_col(col = "unit",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        if (instance.getData()[row][1] == 'numericDomain' & !isNaN(value)) {
+                        td.style.background = 'pink';
+                        }
+                        else if (instance.getData()[row][1] != 'numericDomain' & isNaN(value)){
                         td.style.background = 'grey';
                         }
                         }")%>%
                 hot_col(col = "missingValueCodeExplanation",
                         renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (instance.getData()[row][8] != '' & value == '') {
+                        if (instance.getData()[row][8] != '' & !isNaN(value)) {
                         td.style.background = 'pink';
                         }
-                        else if (instance.getData()[row][8] == '' & value != ''){
-                        td.style.background = 'grey';
-                        }
-                        }")%>%
-                hot_col(col = "formatString",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
-                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (instance.getData()[row][1] == 'dateTimeDomain' & value == '') {
-                        td.style.background = 'pink';
-                        }
-                        else if (instance.getData()[row][1] != 'dateTimeDomain' & value != ''){
-                        td.style.background = 'grey';
-                        }
-                        }")%>%
-                hot_col(col = "definition",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
-                        Handsontable.renderers.TextRenderer.apply(this, arguments);
-                        if (instance.getData()[row][1] == 'textDomain' & value == '') {
-                        td.style.background = 'pink';
-                        }
-                        else if (instance.getData()[row][1] != 'textDomain' & value != ''){
+                        else if (instance.getData()[row][8] == '' & isNaN(value)){
                         td.style.background = 'grey';
                         }
                         }")
@@ -224,9 +230,9 @@ edit_attributes_table <- function(att_table){
                 }
         })
 
-    }
+                        }
     shinyApp(ui, server,options = list(launch.browser=T))
-}
+    }
 
 #' Allows editing of an attribute table and custom units table in a shiny environment
 #'
@@ -234,7 +240,6 @@ edit_attributes_table <- function(att_table){
 #' @return Prints attribute table and custom units table to console
 #' @examples
 create_attributes_table <- function(df,
-                                    is.attribute.table = F,
                                     attributeDefinition = NULL,
                                     unit = NULL,
                                     measurementScale = NULL,
@@ -247,9 +252,11 @@ create_attributes_table <- function(df,
 
     ### Libraries
     require(dplyr)
-    # Initialize attributes if input is attribute table
     attributeName <- NULL
-    if(is.attribute.table==T){
+    # Initialize attributes if input is attribute table
+    isAttlist <- is(df,"attributeList")
+    if (isAttlist){
+        df <- EML::get_attributes(df)$attributes
         colnames_input <- colnames(df)
         colnames_att_table <- c("attributeName",
                                 "attributeDefinition",
@@ -267,9 +274,9 @@ create_attributes_table <- function(df,
                 assign(c,var)}
         }
     }
-    # Get column names
+    # Test column names
     if(!length((colnames(df)))){
-        stop("column names be populated")
+        stop("column names must be populated")
     }
     # Get attributeName
     if (is.null(attributeName)){
@@ -343,7 +350,6 @@ create_attributes_table <- function(df,
     if (length(missingValueCodeExplanation)!=n){
         stop("missingValueCodeExplanation is not the same length as input data frame")
     }
-    # Get unitType
 
     att_table <- data.frame(attributeName = attributeName,
                             domain = domain,
@@ -357,5 +363,10 @@ create_attributes_table <- function(df,
                             missingValueCodeExplanation = missingValueCodeExplanation,
                             stringsAsFactors = F)
     att_table[is.na(att_table)] = ""
-    edit_attributes_table(att_table)
+    shiny_attributes_table(att_table)
 }
+
+
+df <- eml@dataset@dataTable[[1]]@attributeList
+create_attributes_table(df)
+
