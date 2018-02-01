@@ -173,6 +173,7 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
         # and second: otherEntities.  We can then systematically update the EML.
         data_pids <- unlist(old_data_pids)
 
+        # Upload data objects and update metadata
         new_data_pids <- vector("character")
         for (i in seq_len(n_data_pids)) {
 
@@ -269,6 +270,8 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 clone_package <- function(mn_pull, mn_push, resource_map_pid) {
     #' TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
     #' TODO - add messages per child package?
+    #' TODO - possible function names? 1) clone_package 2) duplicate_package 3) copy_package
+    #' TODO - query all pids for unique rightsHolders and add to Sysmeta
 
     # Clone initial package without children
     package <- clone_one_package(mn_pull, mn_push, resource_map_pid)
