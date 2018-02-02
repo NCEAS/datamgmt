@@ -29,3 +29,6 @@ clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
 }
 
 }
+\author{
+Dominic Mullen, \email{dmullen17@gmail.com}
+}
