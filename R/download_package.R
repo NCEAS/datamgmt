@@ -1,8 +1,9 @@
 #' Remove and substitute special characters in a dataOne identifier
 #'
-#' This is a helper function for the 'download_package' function. Remove special
-#' characters from a package identifier for use as a filename prefix. Can be
-#' generalized for use with any pid.
+#' This is a helper function for the 'download_package' function.  This was
+#' created as a helper so that users can edit the helper, rather than 'download_package'
+#' if they want differing special character substitions.  Substitues special
+#' characters from a package identifier. Can be generalized for use with any pid.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
