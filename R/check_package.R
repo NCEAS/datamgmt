@@ -3,12 +3,11 @@
 #' This function perform checks on a package before publishing.
 #' The function checks that all data in the package is consistent between the EML and systemMetadata.
 #' The function checks that all data, metadata, and resource maps have proper rights and access set.
-#' @param mn MNode
-#' @param resource_map resource_map pid
+#' @param mn (MNode/CNode) The Node the Data Package is located on.
+#' @param resource_map (character) The identifier of the Data Package's Resource Map
 #'
 #' @examples
 #' check_package(mn, "resource_map_urn:uuid:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX")
-#'
 check_package <- function(mn, resource_map) {
 
     stopifnot(is(mn, "MNode"))
@@ -22,13 +21,13 @@ check_package <- function(mn, resource_map) {
         stringr::str_match_all(x, "https?:\\/\\/.+\\.dataone\\.org\\/cn\\/v\\d\\/resolve\\/(.+)")[[1]][2]
     }, "", USE.NAMES = FALSE)
 
-    if(length(pids) != length(pkg$data)){
+    if (length(pids) != length(pkg$data)) {
         stop("Number of dataTables and otherEntities is ", length(pids),
              ". Number of data in package is ", length(pids))
     }
 
     pkg_in_pid <- (pkg$data %in% pids)
-    if(!all(pkg_in_pid)){
+    if (!all(pkg_in_pid)) {
         stop("The following pids are in the package and not in the EML.", paste("\n",pkg$data[!pkg_in_pid]))
     }
 
@@ -38,8 +37,8 @@ check_package <- function(mn, resource_map) {
     pkg_Names <- names(pkg$data)
 
     Names_in_EML <- (pkg_Names %in% objectNames)
-    if(!all(Names_in_EML)){
-        stop("The following file names are listed in the package and not the EML", paste("\n",pkg_Names[!Names_in_EML]))
+    if (!all(Names_in_EML)) {
+        stop("The following file names are listed in the package and not the EML", paste("\n", pkg_Names[!Names_in_EML]))
     }
 
     cat("\nThe data names in the package are the same as the data names in the EML.")
@@ -49,7 +48,7 @@ check_package <- function(mn, resource_map) {
         stop("The EML needs a creator.")
     }
 
-    creator_ORCIDs <- unlist(eml_get(creators,"userId"))
+    creator_ORCIDs <- unlist(eml_get(creators, "userId"))
 
     isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}",creator_ORCIDs)
 
@@ -62,6 +61,7 @@ check_package <- function(mn, resource_map) {
     }
 
     creator_ORCIDs <- sub("https://","http://",creator_ORCIDs,fixed = T)
+
 
     all_pids <- c(pkg$metadata, pkg$resource_map, pkg$data)
     permissions <- c("read","write","changePermission")
