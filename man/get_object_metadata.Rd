@@ -23,3 +23,6 @@ object in a Data Package.  This is a helper function for the function
 'clone_package' - which copies a dataOne Data Package from one member node to
 another.
 }
+\author{
+Dominic Mullen, \email{dmullen17@gmail.com}
+}
