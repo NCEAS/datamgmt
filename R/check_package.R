@@ -1,8 +1,14 @@
 #' check_package
 #'
-#' This function perform checks on a package before publishing
+#' This function perform checks on a package before publishing.
+#' The function checks that all data in the package is consistent between the EML and systemMetadata.
+#' The function checks that all data, metadata, and resource maps have proper rights and access set.
 #' @param mn MNode
 #' @param resource_map resource_map pid
+#'
+#' @examples
+#' check_package(mn, "resource_map_urn:uuid:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX")
+#'
 check_package <- function(mn, resource_map) {
 
     stopifnot(is(mn, "MNode"))
@@ -45,18 +51,17 @@ check_package <- function(mn, resource_map) {
 
     creator_ORCIDs <- unlist(eml_get(creators,"userId"))
 
-    isORCID <-  grepl("https:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}",creator_ORCIDs)
+    isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}",creator_ORCIDs)
 
     if(!all(isORCID)){
-        stop(creator_ORCIDs[!isORCID], " is not of the form https://orcid.org/AAAA-BBBB-CCCC-DDDD")
+        stop(creator_ORCIDs[!isORCID], " is not of the form https://orcid.org/1111-2222-3333-4444")
     }
 
-    if(length(creator_ORCIDs)!=length(creators)){
+    if(length(creator_ORCIDs) != length(creators)){
         warning("Each Creator should have an ORCID.")
     }
 
     creator_ORCIDs <- sub("https://","http://",creator_ORCIDs,fixed = T)
-
 
     all_pids <- c(pkg$metadata, pkg$resource_map, pkg$data)
     permissions <- c("read","write","changePermission")
@@ -65,23 +70,22 @@ check_package <- function(mn, resource_map) {
         sysmeta <- dataone::getSystemMetadata(mn, pid)
 
         if (!(sysmeta@rightsHolder %in% creator_ORCIDs)) {
-            stop("rightsHolder is not set to one of the creators for ", pid)
+            warning("rightsHolder is not set to one of the creators for ", pid)
         }
 
         for (c in seq_along(creator_ORCIDs)) {
             for (permission in permissions) {
 
                 if (!(datapack::hasAccessRule(sysmeta, creator_ORCIDs[[c]], permission))) {
-                    stop(paste0(creator_ORCIDs[[c]]," does not have ", permission, " access in ", pid))
+                    warning(paste0(creator_ORCIDs[[c]]," does not have ", permission, " access in ", pid))
 
                 }
             }
         }
 
-        cat("\nrightsHolder and access set correctly for ", pid)
+        cat("\nrightsHolder and access set correctly for", pid)
 
     }
 
 }
-
 
