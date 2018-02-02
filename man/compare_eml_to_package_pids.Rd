@@ -9,6 +9,9 @@ compare_eml_to_package_pids(eml, package_data_pids)
 }
 \arguments{
 \item{eml}{(EML) EML object}
+
+\item{package_data_pids}{(character) All of the Data identifiers in a Data
+Package.  These can be selected with get_package(mn, resource_map)$data}
 }
 \value{
 (list) List of all the identifiers in the EML.  Sorted into dataTable
@@ -21,4 +24,7 @@ of the data objects pids present in the metadata match those that the
 resource map points to.  It also returns the data pids in the order in which
 they appear in the EML: dataTable pids first and then otherEntity pids.  We
 cannot update the new .xml file without this information.
+}
+\author{
+Dominic Mullen, \email{dmullen17@gmail.com}
 }

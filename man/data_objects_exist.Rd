@@ -34,3 +34,6 @@ c("doi:10.5065/D60P0X4S", "urn:uuid:3ea5629f-a10e-47eb-b5ce-de10f8ef325b"))
 }
 
 }
+\author{
+Dominic Mullen, \email{dmullen17@gmail.com}
+}
