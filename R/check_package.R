@@ -13,12 +13,12 @@ check_package <- function(mn, resource_map) {
     stopifnot(is(mn, "MNode"))
     stopifnot(is.character(resource_map))
 
-    cat("\nRunning Check on Package...")
+    cat("\nRunning Check on Package...\n")
     pkg <- arcticdatautils::get_package(mn, resource_map, file_names = TRUE)
     eml <- EML::read_eml(rawToChar(getObject(mn, pkg$metadata)))
 
     patterns = c("https?:\\/\\/.+\\.dataone\\.org\\/cn\\/v\\d\\/resolve\\/",
-                 "ecogrid:\\/\\/knbz\\/")
+                 "ecogrid:\\/\\/knb\\/")
     pids <- vapply(unlist(eml_get(eml, "url")), function(x) {
         gsub(paste0(patterns,collapse = "|"),"",x)
     }, "", USE.NAMES = FALSE)
@@ -33,7 +33,7 @@ check_package <- function(mn, resource_map) {
         stop("The following pids are in the package and not in the EML.", paste("\n",pkg$data[!pkg_in_pid]))
     }
 
-    cat("\nThe pids in the package are the same as the pids in the EML.")
+    cat("The pids in the package are the same as the pids in the EML.\n")
 
     objectNames <- unlist(eml_get(eml, "objectName"))
     pkg_Names <- names(pkg$data)
@@ -43,7 +43,7 @@ check_package <- function(mn, resource_map) {
         stop("The following file names are listed in the package and not the EML", paste("\n", pkg_Names[!Names_in_EML]))
     }
 
-    cat("\nThe data names in the package are the same as the data names in the EML.")
+    cat("The data names in the package are the same as the data names in the EML.\n")
 
     creators <- eml@dataset@creator
     if (length(creators) == 0) {
@@ -85,9 +85,8 @@ check_package <- function(mn, resource_map) {
             }
         }
 
-        cat("\nrightsHolder and access set correctly for", pid)
+        cat("rightsHolder and access set correctly for", pid,"\n")
 
     }
-
 }
 
