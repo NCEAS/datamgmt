@@ -17,8 +17,10 @@ check_package <- function(mn, resource_map) {
     pkg <- arcticdatautils::get_package(mn, resource_map, file_names = TRUE)
     eml <- EML::read_eml(rawToChar(getObject(mn, pkg$metadata)))
 
+    patterns = c("https?:\\/\\/.+\\.dataone\\.org\\/cn\\/v\\d\\/resolve\\/",
+                 "ecogrid:\\/\\/knbz\\/")
     pids <- vapply(unlist(eml_get(eml, "url")), function(x) {
-        stringr::str_match_all(x, "https?:\\/\\/.+\\.dataone\\.org\\/cn\\/v\\d\\/resolve\\/(.+)")[[1]][2]
+        gsub(paste0(patterns,collapse = "|"),"",x)
     }, "", USE.NAMES = FALSE)
 
     if (length(pids) != length(pkg$data)) {
