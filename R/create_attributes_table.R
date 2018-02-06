@@ -32,147 +32,139 @@ get_numberType <- function(values) {
 
 #' Allows editing of an attribute table and custom units table in a shiny environment
 #'
-#' @param df A data frame of values or eml attributeList
-#' @param attributeDefinition (optional) A vector of attributeDefinitions
-#' @param unit (optional) A vector of units
-#' @param measurementScale (optional) A vector of measurementScales
-#' @param domain (optional) A vector of domains
-#' @param formatString (optional) A vector of formatStrings
-#' @param definition (optional) A vector of definitions
-#' @param numberType (optional) A vector of numberTypes
-#' @param missingValueCode (optional) A vector of missingValueCodes
-#' @param missingValueCodeExplanation (optional) A vector of missingValueCodeExplanations
+#' @param data The data.frame of data that needs an attribute table
+#' @param attributes_table A existing attributes table for \code{data} that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in \code{attributes_table}, then this function will use those values instead of automatically generating values from \code{data}).
 #'
 #' @examples
-#' df <- read.csv("Test.csv")
-#' create_attributes_table(df)
+#' data <- read.csv("Test.csv")
+#' create_attributes_table(data, NULL)
 #'
-#' df <- eml@@dataset@@dataTable[[1]]@@attributeList
-#' create_attributes_table(df)
+#'attributes_table <- EML::get_attributes(eml@@dataset@@dataTable[[i]]@@attributeList)$attributes
+#' create_attributes_table(NULL, attributes_table)
+#'
+#' create_attributes_table(data, attributes_table)
 #' @export
-create_attributes_table <- function(df,
-                                    attributeDefinition = NULL,
-                                    unit = NULL,
-                                    measurementScale = NULL,
-                                    domain = NULL,
-                                    formatString = NULL,
-                                    definition = NULL,
-                                    numberType = NULL,
-                                    missingValueCode = NULL,
-                                    missingValueCodeExplanation = NULL){
+create_attributes_table <- function(data = NULL,
+                                    attributes_table = NULL){
 
-    # Libraries
-    require(dplyr)
-    attributeName <- NULL
 
-    # Initialize attributes if input is attribute table
-    if (is(df,"attributeList")) {
-        att_table <- EML::get_attributes(df)$attributes
-        colnames_input <- colnames(att_table)
-        colnames_att_table <- c("attributeName",
-                                "attributeDefinition",
-                                "unit",
-                                "measurementScale",
-                                "domain",
-                                "formatString",
-                                "definition",
-                                "numberType",
-                                "missingValueCode",
-                                "missingValueCodeExplanation")
+    if(is.null(data) & is.null(attributes_table)){
+        stop("One of data and/or attributes_table must be entered")
+    }
+
+    if(is.null(attributes_table)){
+        stopifnot(is(data,"data.frame"))
+        if(!length((colnames(data)))) {
+            stop("column names must be populated in data if no attributes_table is entered")
+        }
+    }
+
+    if(is.null(data)){
+        stopifnot(is(attributes_table,"data.frame"))
+    }
+
+    colnames_att_table <- c("attributeName",
+                            "attributeDefinition",
+                            "unit",
+                            "measurementScale",
+                            "domain",
+                            "formatString",
+                            "definition",
+                            "numberType",
+                            "missingValueCode",
+                            "missingValueCodeExplanation")
+
+    # Initialize attributes with attribute_table
+        colnames_input <- colnames(attributes_table)
+
+        if(!("attributeName" %in% colnames_input) && !is.null(attributes_table)){
+            stop("attribute_table must have a column 'attributeName'")
+        }
+
         for(c in colnames_att_table) {
             if (c %in% colnames_input) {
-                var <- att_table[,c]
-                assign(c,var)}
+                var <- attributes_table[,c]
+                assign(c,var)
+        } else {
+            assign(c,NULL)}
         }
-        df = NULL
-    }
+
 
     # Get attributeName
-    if (is.null(attributeName)) {
-
-        if(!length((colnames(df)))) {
-            stop("column names must be populated")
+    if (!is.null(attributeName)){
+        data_colnames <- colnames(data)
+        data_in_att <- (data_colnames %in% attributeName)
+        if(!all(data_in_att)){
+            stop("Data and attributes_table must have the same variables. The following are in data and not in attributes_table:\n",
+                 paste(data_colnames[!data_in_att],collapse=", "))
         }
-
-        attributeName <- colnames(df)
-
+        data <- data[,attributeName]
+    } else {
+        attributeName <- colnames(data)
     }
+
     n <- length(attributeName)
 
     # Get numberType
     numberType_levels <- c("real","natural","whole","integer","")
-    if (is.null(numberType)) {
-        numberType <- unlist(lapply(df, function(x) get_numberType(x)))}
-    if (length(numberType)!=n) {
-        stop("numberType is not the same length as input data frame")
+    if (is.null(numberType) || all(is.na(numberType))) {
+        if (!is.null(data)){
+        numberType <- unlist(lapply(data, function(x) get_numberType(x)))
+        } else {
+            numberType <- rep("", n)}
     }
     numberType <- factor(numberType,levels=numberType_levels)
     names(numberType) <- NULL
-
-    # Get attributeDefinition
-    if (is.null(attributeDefinition)){
-        attributeDefinition <- rep("", n)}
-    if (length(attributeDefinition)!=n){
-        stop("attributeDefinition is not the same length as input data frame")
-    }
-    # Get unit
-    if (is.null(unit)){
-        unit <- rep("", n)}
-    if (length(unit)!=n){
-        stop("unit is not the same length as input data frame")
-    }
 
     # Get domain
     is_Date_func <- function(values) {
         tryCatch(length(as.Date(values))>0,
                  error = function(err) {FALSE})}
-    dateType <- unlist(lapply(df,function(x) is_Date_func(x)))
-    names(dateType) <- NULL
+
     domain_levels <- c("numericDomain","textDomain","enumeratedDomain","dateTimeDomain","")
-    if (is.null(domain)) {
+    if (is.null(domain) || all(is.na(domain))) {
+        if (!is.null(data)){
+        dateType <- unlist(lapply(data,function(x) is_Date_func(x)),use.names = FALSE)
         domain <- ifelse(!is.na(numberType),"numericDomain",
-                         ifelse(dateType,"dateTimeDomain",""))}
-    if (length(domain)!=n) {
-        stop("domain is not the same length as input data frame")
+                         ifelse(dateType,"dateTimeDomain",""))
+        } else {
+            domain <- rep("", n)
+        }
     }
     domain <- factor(domain,levels=domain_levels)
 
     # Get measurementScale
     measurementScale_levels <- c("nominal","ordinal","dateTime", "ratio","interval","")
-    if (is.null(measurementScale)) {
-        measurementScale <- ifelse(domain=="dateTimeDomain","dateTime","")}
-    if (length(measurementScale)!=n) {
-        stop("measurementScale is not the same length as input data frame")
+    if (is.null(measurementScale) || all(is.na(measurementScale))) {
+        measurementScale <- ifelse(domain=="dateTimeDomain","dateTime","")
+    } else {
+        measurementScale <- rep("", n)
     }
     measurementScale <- factor(measurementScale,levels=measurementScale_levels)
+
+    # Get attributeDefinition
+    if (is.null(attributeDefinition)){
+        attributeDefinition <- rep("", n)}
+
+    # Get unit
+    if (is.null(unit)){
+        unit <- rep("", n)}
 
     # Get formatString
     if (is.null(formatString)) {
         formatString <- rep("", n)}
-    if (length(formatString)!=n) {
-        stop("formatString is not the same length as input data frame")
-    }
 
     # Get definition
     if (is.null(definition)) {
         definition <- rep("", n)}
-    if (length(definition)!=n) {
-        stop("definition is not the same length as input data frame")
-    }
 
     # Get missingValueCode
     if (is.null(missingValueCode)) {
         missingValueCode <- rep("", n)}
-    if (length(missingValueCode)!=n) {
-        stop("missingValueCode is not the same length as input data frame")
-    }
 
     # Get missingValueCodeExplanation
     if (is.null(missingValueCodeExplanation)) {
         missingValueCodeExplanation <- rep("", n)}
-    if (length(missingValueCodeExplanation)!=n) {
-        stop("missingValueCodeExplanation is not the same length as input data frame")
-    }
 
     att_table <- data.frame(attributeName = attributeName,
                             domain = domain,
@@ -185,19 +177,20 @@ create_attributes_table <- function(df,
                             missingValueCode = missingValueCode,
                             missingValueCodeExplanation = missingValueCodeExplanation,
                             stringsAsFactors = F)
+
     att_table[is.na(att_table)] = ""
-    shiny_attributes_table(att_table, df)
+
+    shiny_attributes_table(att_table, data)
 }
 
 #' Build shiny UI for editing attributes table within function create_attributes_table()
 #'
 #' @param att_table an attribute table built from create_attributes_table()
 #'
-shiny_attributes_table <- function(att_table, df){
+shiny_attributes_table <- function(att_table, data){
 
     require(shiny)
     require(EML)
-    require(dplyr)
     require(rhandsontable)
 
     cur_version = packageVersion("rhandsontable")
@@ -212,7 +205,7 @@ shiny_attributes_table <- function(att_table, df){
     build_factors <- function(inputdf, inputdf2) {
 
         attributeName <- inputdf[inputdf$domain == "enumeratedDomain", "attributeName"]
-        inputdf2 <- inputdf2[inputdf2$attributeName %in% attributeName,]
+        #inputdf2 <- inputdf2[inputdf2$attributeName %in% attributeName,]
         attributeName <- attributeName[!(attributeName %in% inputdf2$attributeName)]
 
         if(length(attributeName) == 0) {
@@ -222,7 +215,7 @@ shiny_attributes_table <- function(att_table, df){
 
         } else {
 
-        code <- unlist(unique(df[attributeName]), use.name = F)
+        code <- unlist(unique(data[attributeName]), use.name = F)
         n <- length(code)
         attributeName <- rep(paste0(attributeName),n)
         definition <- rep("",n)
@@ -417,13 +410,11 @@ shiny_attributes_table <- function(att_table, df){
             rhandsontable(DF_factors())%>%
                 hot_table(highlightCol = TRUE, highlightRow = TRUE)%>%
                 hot_col(col = "attributeName",
-                        readOnly = TRUE,
                         renderer = "
                         function (instance, td, row, col, prop, value, cellProperties) {
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
                         td.style.fontWeight = 'bold'}")%>%
-                hot_col(col = "code",
-                        readOnly = TRUE)%>%
+                hot_col(col = "code")%>%
                 hot_col(col = "definition",
                         strict = FALSE,
                         renderer= "function(instance, td, row, col, prop, value, cellProperties) {
@@ -446,11 +437,10 @@ shiny_attributes_table <- function(att_table, df){
                 }
                 values <- paste0(substr(values,1,(nchar(values)-1)),")")
                 output_text[c] <- paste0(c," = ",values,",\n")}
-            output_text[length(output_text)] <- sub("[,]\\n$","",output_text[length(output_text)])
 
             cat("\n\ndata.frame(\n",
                 output_text,
-                ")\n\n")}
+                "stringsAsFactors = FALSE)\n\n")}
 
         # Output from print command
         observeEvent(input$print_att, {
