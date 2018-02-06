@@ -14,12 +14,17 @@
 #'
 #' @export
 
-update_object2 <- function(mn,
+update_package_object <- function(mn,
                            data_pid,
                            new_data_path,
                            rm_pid,
                            format_id = NULL,
                            public = FALSE) {
+
+    #function checks:
+    stopifnot(is.character(data_pid))
+    stopifnot(is.character(new_data_path))
+    stopifnot(is.character(rm_pid))
 
     new_data_pid <- update_object(mn,
                                   data_pid,
