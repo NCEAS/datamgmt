@@ -38,3 +38,28 @@ test_that("specified data object is changed; rest of package is intact", {
 
     expect_equal(latest_version, new_data_pid)
 })
+
+test_that("argument checks work", {
+    cnTest <- dataone::CNode('STAGING')
+    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
+    expect_error(update_package_object(LETTERS,
+                                       data_pid = "something",
+                                       new_data_path = "something",
+                                       rm_pid = "something"))
+
+    expect_error(update_package_object(mnTest,
+                                       data_pid = c(1, 2),
+                                       new_data_path = "something",
+                                       rm_pid = "something"))
+
+    expect_error(update_package_object(mnTest,
+                                       data_pid = "something",
+                                       new_data_path = TRUE,
+                                       rm_pid = "something"))
+
+    expect_error(update_package_object(mnTest,
+                                       data_pid = "something",
+                                       new_data_path = "something",
+                                       rm_pid = 1))
+})

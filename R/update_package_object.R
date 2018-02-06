@@ -21,10 +21,12 @@ update_package_object <- function(mn,
                            format_id = NULL,
                            public = FALSE) {
 
-    #function checks:
-    stopifnot(is.character(data_pid))
-    stopifnot(is.character(new_data_path))
-    stopifnot(is.character(rm_pid))
+    #argument checks:
+    library(assertthat)
+    assert_that(is(mnTest, "MNode"),
+                is.character(data_pid),
+                is.character(new_data_path),
+                is.character(rm_pid))
 
     new_data_pid <- update_object(mn,
                                   data_pid,
