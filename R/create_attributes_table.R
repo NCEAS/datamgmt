@@ -523,8 +523,8 @@ shiny_attributes_table <- function(att_table, data){
                 }
         })
 
-        observe({
-            if (input$quit > 0) stopApp()
+        observeEvent(input$quit, {
+            stopApp()
         })
 
     }
