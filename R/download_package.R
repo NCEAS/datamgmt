@@ -1,4 +1,4 @@
-#' Remove and substitute special characters in a dataOne identifier
+#' Remove and substitute special characters in a string.
 #'
 #' This is a helper function for the 'download_package' function.  This was
 #' created as a helper so that users can edit the helper, rather than 'download_package'
@@ -10,7 +10,7 @@
 #' @param pid (character) The identifier a dataOne object
 #'
 #' @return (character) The formatted identifer as a string
-pid_to_prefix <- function(pid) {
+remove_special_characters <- function(pid) {
     pid <- gsub(":", ";", pid)
     pid <- gsub("\\/", "_", pid)
     pid <- gsub("\\.", "$", pid)
@@ -31,7 +31,7 @@ pid_to_prefix <- function(pid) {
 excel_to_csv <- function(path,
                          prefix = NULL) {
     stopifnot(file.exists(path))
-    #stopifnot(is.character(prefix))
+    stopifnot(is.character(prefix))
 
     # Stop if the user doesn't have the readxl package installed
     if (!requireNamespace("readxl")) {
@@ -42,14 +42,17 @@ excel_to_csv <- function(path,
     # Try to read excel file and split into csvs
     tryCatch({
         sheets <- excel_sheets(path)
+        excel_name <- basename(path)
 
         lapply(seq_along(sheets), function(i) {
             csv = read_excel(path, sheet = sheets[i])
 
             if (!is.null(prefix)) {
-                file_path <- file.path(dirname(path), paste0(prefix, sheets[i], ".csv"))
+                file_path <- file.path(dirname(path),
+                                       paste0(prefix, sheets[i], "_", excel_name, ".csv"))
             } else {
-                file_path <- file.path(dirname(path), paste0(sheets[i], ".csv"))
+                file_path <- file.path(dirname(path),
+                                       paste0(sheets[i], "_", excel_name, ".csv"))
             }
 
             write.csv(csv, file_path , row.names = FALSE)})
@@ -61,16 +64,48 @@ excel_to_csv <- function(path,
     return(invisible())
 }
 
-#' Calculate the total size of the Objects in a Data Package
+#' Append one list to another.
 #'
-#' @param node (MNode/CNode) The Node to query for Object sizes
+#' This function appends one list to another list. It can also be used to
+#' prepend, just reverse the order of the lists.
+#'
+#' @param list1 (list) The list to append to.
+#' @param list2 (list) The list being appended.
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' @example
+#' \dontrun{
+#' appended_lists <- append_lists(list(1:3), list("a", "b", mean))
+#' }
+#'
+append_lists <- function(list1, list2) {
+    #' TODO Make this function handle infinite lists!
+    stopifnot(is.list(list1))
+    stopifnot(is.list(list2))
+    stopifnot(length(list1) > 0)
+    stopifnot(length(list2) > 0)
+
+    n1 <- length(list1)
+    n2 <- length(list2)
+
+    for (i in 1:n2) {
+        list1[[n1+i]] <- list2[[i]]
+    }
+
+    return(list1)
+}
+
+#' Calculate the total size (in bytes) of the Objects in a Data Package
+#'
+#' @param mn (MNode/CNode) The Node to query for Object sizes
 #' @param resource_map_pid (character) The identifier of the Data Package's Resource Map
 #' @param formatType (character) Optional. Filter to just Objects of the given formatType. One of METADATA, RESOURCE, or DATA or * for all types
 #'
 #' @author Bryce Mecum
 #'
 #' @return (numeric) The sum of all Object sizes in the Data Package
-get_package_size <- function(node, package_identifier, formatType = "*") {
+get_package_size <- function(mn, resource_map_pid, formatType = "*") {
     size_query <- dataone::query(node,
                                  paste0("q=resourceMap:\"",
                                         package_identifier,
@@ -101,6 +136,7 @@ get_package_size <- function(node, package_identifier, formatType = "*") {
 #' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.
 #' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
+#' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
 #' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
@@ -121,7 +157,7 @@ download_package <- function(mn,
                              prefix_file_names = FALSE,
                              convert_excel_to_csv = FALSE,
                              check_first = TRUE) {
-    #' TODO: How many child levels should it support? -- currently one. 3 or 4 max
+    #' TODO: How many child levels should it support? -- currently one. 3 or 4 max - could probably do this with a while loop.
     #' TODO: resource_map_pid argument accepts metadata pids - could change to not accept metadata pids
     #' TODO: Add option for downloading in folder structure that mirrors nesting - rather than only all files in one folder
     #' TODO: Convert check download size to helper function?
@@ -184,11 +220,12 @@ download_package <- function(mn,
         stop("No data selected.  Double check the package you entered contains data files")
     }
 
-    # Create filename prefixes
-    all_packages <- c(package, child_packages)
+    # Create list of packages
+    all_packages <- append_lists(list(package), child_packages)
+    # Remove special characters from each package metadata identifier and rep for # of data objects in each package
     if (prefix_file_names == TRUE) {
-        filename_prefixes <- unlist(lapply(all_packages, function(package) {
-            prefix <- pid_to_prefix(all_packages$metadata)
+        filename_prefixes <- unlist(lapply(all_packages, function(all_packages) {
+            prefix <- remove_special_characters(all_packages$metadata)
             return(rep(prefix, length(all_packages$data)))
         }))
     }
@@ -204,21 +241,6 @@ download_package <- function(mn,
                 get_package_size(mn, pid)
             }, 0)
         )
-
-        # Simplify downloadSize to readable format
-        if (downloadSize >= 1e+12) {
-            downloadSize <- round(downloadSize/(1e+12), digits = 2)
-            unit = " terabytes"
-        } else if (1e+12 > downloadSize & downloadSize >= 1e+9) {
-            downloadSize <- round(downloadSize/(1e+9), digits = 2)
-            unit = " gigabytes"
-        } else if (1e+9 > downloadSize & downloadSize >= 1e+6) {
-            downloadSize <- round(downloadSize/(1e+6), digits = 2)
-            unit = " megabytes"
-        } else if (1e+6 > downloadSize) {
-            downloadSize = round(downloadSize/1000, digits = 2)
-            unit = " kilobytes"
-        }
 
         # Prompt user if they wish to continue based on total download size
         message(paste0("\nYour download is approximately ", downloadSize, unit, "\n"))
@@ -302,6 +324,7 @@ download_package <- function(mn,
 #' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.
 #' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
+#' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
 #' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
@@ -310,7 +333,8 @@ download_package <- function(mn,
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
-#' download_packages(mn, c("resource_map_doi:10.18739/A21G1P" "resource_map_doi:10.18739/A2RZ6X"))
+#' download_packages(mn, c("resource_map_doi:10.18739/A21G1P" "resource_map_doi:10.18739/A2RZ6X"),
+#' check_download_size = FALSE, prefix_file_names = TRUE, convert_excel_to_csv == TRUE)
 #' }
 #'
 #' @export
