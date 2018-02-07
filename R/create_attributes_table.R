@@ -32,145 +32,140 @@ get_numberType <- function(values) {
 
 #' Allows editing of an attribute table and custom units table in a shiny environment
 #'
-#' @param df A data frame of values or eml attributeList
-#' @param attributeDefinition (optional) A vector of attributeDefinitions
-#' @param unit (optional) A vector of units
-#' @param measurementScale (optional) A vector of measurementScales
-#' @param domain (optional) A vector of domains
-#' @param formatString (optional) A vector of formatStrings
-#' @param definition (optional) A vector of definitions
-#' @param numberType (optional) A vector of numberTypes
-#' @param missingValueCode (optional) A vector of missingValueCodes
-#' @param missingValueCodeExplanation (optional) A vector of missingValueCodeExplanations
+#' @param data The data.frame of data that needs an attribute table
+#' @param attributes_table A existing attributes table for \code{data} that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in \code{attributes_table}, then this function will use those values instead of automatically generating values from \code{data}).
 #'
 #' @examples
-#' df <- read.csv("Test.csv")
-#' create_attributes_table(df)
+#' create_attributes_table(NULL, NULL)
 #'
-#' df <- eml@@dataset@@dataTable[[1]]@@attributeList
-#' create_attributes_table(df)
+#' data <- read.csv("Test.csv")
+#' create_attributes_table(data, NULL)
+#'
+#'attributes_table <- EML::get_attributes(eml@@dataset@@dataTable[[i]]@@attributeList)$attributes
+#' create_attributes_table(NULL, attributes_table)
+#'
+#' create_attributes_table(data, attributes_table)
 #' @export
-create_attributes_table <- function(df,
-                                    attributeDefinition = NULL,
-                                    unit = NULL,
-                                    measurementScale = NULL,
-                                    domain = NULL,
-                                    formatString = NULL,
-                                    definition = NULL,
-                                    numberType = NULL,
-                                    missingValueCode = NULL,
-                                    missingValueCodeExplanation = NULL){
+create_attributes_table <- function(data = NULL, attributes_table = NULL){
 
-    # Libraries
-    require(dplyr)
-    attributeName <- NULL
-
-    # Initialize attributes if input is attribute table
-    if (is(df,"attributeList")) {
-        df <- EML::get_attributes(df)$attributes
-        colnames_input <- colnames(df)
-        colnames_att_table <- c("attributeName",
-                                "attributeDefinition",
-                                "unit",
-                                "measurementScale",
-                                "domain",
-                                "formatString",
-                                "definition",
-                                "numberType",
-                                "missingValueCode",
-                                "missingValueCodeExplanation")
-        for(c in colnames_att_table) {
-            if (c %in% colnames_input) {
-                var <- df[,c]
-                assign(c,var)}
+    if(!is.null(data)){
+        stopifnot(is(data,"data.frame"))
+        if(!length((colnames(data)))) {
+            stop("column names must be populated in data if no attributes_table is entered")
         }
     }
 
-    # Test column names
-    if(!length((colnames(df)))) {
-        stop("column names must be populated")
+    if(!is.null(attributes_table)){
+        stopifnot(is(attributes_table,"data.frame"))
     }
 
-    # Get attributeName
-    if (is.null(attributeName)) {
-        attributeName <- colnames(df)
+    colnames_att_table <- c("attributeName",
+                            "attributeDefinition",
+                            "unit",
+                            "measurementScale",
+                            "domain",
+                            "formatString",
+                            "definition",
+                            "numberType",
+                            "missingValueCode",
+                            "missingValueCodeExplanation")
+
+    # Initialize attributes with attribute_table
+    colnames_input <- colnames(attributes_table)
+
+    if(!("attributeName" %in% colnames_input) && !is.null(attributes_table)){
+        stop("attribute_table must have a column 'attributeName'")
     }
+
+    for(c in colnames_att_table) {
+        if (c %in% colnames_input) {
+            var <- attributes_table[,c]
+            assign(c,var)
+        } else {
+            assign(c,NULL)}
+    }
+
+
+    # Get attributeName
+
+    if(is.null(data) & is.null(attributes_table)){
+        attributeName <- ""
+    }
+
+    if (!is.null(attributeName)){
+        data_colnames <- colnames(data)
+        data_in_att <- (data_colnames %in% attributeName)
+        if(!all(data_in_att)){
+            stop("Data and attributes_table must have the same variables. The following are in data and not in attributes_table:\n",
+                 paste(data_colnames[!data_in_att],collapse=", "))
+        }
+        data <- data[,attributeName]
+    } else {
+        attributeName <- colnames(data)
+    }
+
     n <- length(attributeName)
 
     # Get numberType
     numberType_levels <- c("real","natural","whole","integer","")
-    if (is.null(numberType)) {
-        numberType <- unlist(lapply(df, function(x) get_numberType(x)))}
-    if (length(numberType)!=n) {
-        stop("numberType is not the same length as input data frame")
+    if (is.null(numberType) || all(is.na(numberType))) {
+        if (!is.null(data)){
+            numberType <- unlist(lapply(data, function(x) get_numberType(x)))
+        } else {
+            numberType <- rep("", n)}
     }
     numberType <- factor(numberType,levels=numberType_levels)
     names(numberType) <- NULL
-
-    # Get attributeDefinition
-    if (is.null(attributeDefinition)){
-        attributeDefinition <- rep("", n)}
-    if (length(attributeDefinition)!=n){
-        stop("attributeDefinition is not the same length as input data frame")
-    }
-    # Get unit
-    if (is.null(unit)){
-        unit <- rep("", n)}
-    if (length(unit)!=n){
-        stop("unit is not the same length as input data frame")
-    }
 
     # Get domain
     is_Date_func <- function(values) {
         tryCatch(length(as.Date(values))>0,
                  error = function(err) {FALSE})}
-    dateType <- unlist(lapply(df,function(x) is_Date_func(x)))
-    names(dateType) <- NULL
+
     domain_levels <- c("numericDomain","textDomain","enumeratedDomain","dateTimeDomain","")
-    if (is.null(domain)) {
-        domain <- ifelse(!is.na(numberType),"numericDomain",
-                         ifelse(dateType,"dateTimeDomain",""))}
-    if (length(domain)!=n) {
-        stop("domain is not the same length as input data frame")
+    if (is.null(domain) || all(is.na(domain))) {
+        if (!is.null(data)){
+            dateType <- unlist(lapply(data,function(x) is_Date_func(x)),use.names = FALSE)
+            domain <- ifelse(!is.na(numberType),"numericDomain",
+                             ifelse(dateType,"dateTimeDomain",""))
+        } else {
+            domain <- rep("", n)
+        }
     }
     domain <- factor(domain,levels=domain_levels)
 
     # Get measurementScale
     measurementScale_levels <- c("nominal","ordinal","dateTime", "ratio","interval","")
-    if (is.null(measurementScale)) {
-        measurementScale <- ifelse(domain=="dateTimeDomain","dateTime","")}
-    if (length(measurementScale)!=n) {
-        stop("measurementScale is not the same length as input data frame")
+    if (is.null(measurementScale) || all(is.na(measurementScale))) {
+        measurementScale <- ifelse(domain=="dateTimeDomain","dateTime","")
+    } else {
+        measurementScale <- rep("", n)
     }
     measurementScale <- factor(measurementScale,levels=measurementScale_levels)
+
+    # Get attributeDefinition
+    if (is.null(attributeDefinition)){
+        attributeDefinition <- rep("", n)}
+
+    # Get unit
+    if (is.null(unit)){
+        unit <- rep("", n)}
 
     # Get formatString
     if (is.null(formatString)) {
         formatString <- rep("", n)}
-    if (length(formatString)!=n) {
-        stop("formatString is not the same length as input data frame")
-    }
 
     # Get definition
     if (is.null(definition)) {
         definition <- rep("", n)}
-    if (length(definition)!=n) {
-        stop("definition is not the same length as input data frame")
-    }
 
     # Get missingValueCode
     if (is.null(missingValueCode)) {
         missingValueCode <- rep("", n)}
-    if (length(missingValueCode)!=n) {
-        stop("missingValueCode is not the same length as input data frame")
-    }
 
     # Get missingValueCodeExplanation
     if (is.null(missingValueCodeExplanation)) {
         missingValueCodeExplanation <- rep("", n)}
-    if (length(missingValueCodeExplanation)!=n) {
-        stop("missingValueCodeExplanation is not the same length as input data frame")
-    }
 
     att_table <- data.frame(attributeName = attributeName,
                             domain = domain,
@@ -183,19 +178,107 @@ create_attributes_table <- function(df,
                             missingValueCode = missingValueCode,
                             missingValueCodeExplanation = missingValueCodeExplanation,
                             stringsAsFactors = F)
+
     att_table[is.na(att_table)] = ""
-    shiny_attributes_table(att_table)
+
+    shiny_attributes_table(att_table, data)
 }
+
+#' Build shiny custom units table
+#'
+#' @param inputdf attributes table
+#' @param standardUnits standardUnits table
+#' @param inputdf2 current units table
+#' @param unq_unitType unique standardUnits unitTypes
+#' @param unq_parentSI unique standardUnits parentSI
+build_custom_units <- function(inputdf, standardUnits, inputdf2, unq_unitType, unq_parentSI) {
+
+    old_units <- inputdf2$id
+    new_units <- inputdf$unit
+    inputdf2 <- inputdf2[inputdf2$id %in% new_units,]
+
+    # select unique/non standard units
+    new_units <- new_units[!(new_units %in% old_units)]
+    new_units <- new_units[!(new_units %in% standardUnits$id)]
+    new_units <- new_units[!duplicated(new_units)]
+    new_units <- new_units[new_units != ""]
+    new_units <- new_units[!is.na(new_units)]
+
+    if(length(new_units) == 0) {
+        new_units <- data.frame(matrix(ncol=3, nrow=0))
+        colnames(new_units) <- c("id","unitType","parentSI")
+
+    } else {
+        new_units <- as.data.frame(new_units)
+        colnames(new_units) <- "id"
+        new_units$unitType <- ""
+        new_units$parentSI <- ""
+    }
+
+    units_table <- rbind(new_units,inputdf2)
+
+    units_table$unitType <- factor(units_table$unitType, levels = unq_unitType, ordered=T)
+
+    units_table$parentSI <- factor(units_table$parentSI, levels = unq_parentSI, ordered=T)
+
+    return(units_table)
+}
+
+#' Build shiny factors table
+#'
+#' @param inputdf attributes table
+#' @param inputdf2 current factors table
+#' @param data initial data inputed by user
+build_factors <- function(inputdf, inputdf2 , data) {
+
+    attributeName <- inputdf[inputdf$domain == "enumeratedDomain", "attributeName"]
+    #inputdf2 <- inputdf2[inputdf2$attributeName %in% attributeName,]
+    attributeName <- attributeName[!(attributeName %in% inputdf2$attributeName)]
+
+    if(length(attributeName) == 0 || is.null(data)) {
+
+        new_factor <- data.frame(matrix(ncol=3,nrow=0), stringsAsFactors = F)
+        colnames(new_factor) <- c("attributeName", "code", "definition")
+
+    } else {
+
+        code <- unlist(unique(data[attributeName]), use.name = F)
+        n <- length(code)
+        attributeName <- rep(paste0(attributeName),n)
+        definition <- rep("",n)
+        new_factor <- data.frame(attributeName, code, definition, stringsAsFactors = F)
+    }
+
+    factors_table <- rbind(new_factor, inputdf2)
+    return(factors_table)
+}
+
+#' Outputs data.frame to text for shiny app
+#'
+#' @param df data.frame
+output_text_func <- function(df){
+    output_text <- c()
+    for(c in colnames(df)){
+        values <- "c("
+        for(r in 1:length(df[,c])){
+            if (is.na(df[r,c])){
+                values <- paste0(values,df[r,c],",")}else{
+                    values <- paste0(values,"'",df[r,c],"',")}
+        }
+        values <- paste0(substr(values,1,(nchar(values)-1)),")")
+        output_text[c] <- paste0(c," = ",values,",\n")}
+
+    cat("\n\ndata.frame(\n",
+        output_text,
+        "stringsAsFactors = FALSE)\n\n")}
 
 #' Build shiny UI for editing attributes table within function create_attributes_table()
 #'
 #' @param att_table an attribute table built from create_attributes_table()
-#'
-shiny_attributes_table <- function(att_table){
+shiny_attributes_table <- function(att_table, data){
 
     require(shiny)
     require(EML)
-    require(dplyr)
     require(rhandsontable)
 
     cur_version = packageVersion("rhandsontable")
@@ -206,44 +289,22 @@ shiny_attributes_table <- function(att_table){
     unitList <- get_unitList()
     standardUnits <- unitList$units
 
-    # Build Custom Units Table
-    build_custom_units <- function(inputdf,standardUnits,inputdf2) {
+    unq_unitType <- unique(c(standardUnits$unitType,""))
+    unq_unitType <- unq_unitType[order(unq_unitType)]
 
-        old_units <- inputdf2$id
-        new_units <- inputdf$unit
-        inputdf2 <- inputdf2[inputdf2$id %in% new_units,]
-
-        # select unique/non standard units
-        new_units <- new_units[!(new_units %in% old_units)]
-        new_units <- new_units[!(new_units %in% standardUnits$id)]
-        new_units <- new_units[!duplicated(new_units)]
-        new_units <- new_units[new_units != ""]
-        new_units <- new_units[!is.na(new_units)]
-
-        if(length(new_units) == 0) {
-            new_units <- data.frame(matrix(ncol=3, nrow=0))
-            colnames(new_units) <- c("id","unitType","parentSI")
-
-        } else {
-            new_units <- as.data.frame(new_units)
-            colnames(new_units) <- "id"
-            new_units$unitType <- ""
-            new_units$parentSI <- ""
-
-            unq_unitType <- unique(c(standardUnits$unitType,""))
-            unq_unitType <- unq_unitType[order(unq_unitType)]
-            new_units$unitType <- factor(new_units$unitType, levels = unq_unitType, ordered=T)
-
-            unq_parentSI <- unique(c(standardUnits$parentSI,""))
-            unq_parentSI <- unq_parentSI[order(unq_parentSI)]
-            new_units$parentSI <- factor(new_units$parentSI, levels = unq_parentSI, ordered=T)}
-
-        units_table <- rbind(new_units,inputdf2)
-        return(units_table)
-    }
+    unq_parentSI <- unique(c(standardUnits$parentSI,""))
+    unq_parentSI <- unq_parentSI[order(unq_parentSI)]
 
     # UI
     ui <- fluidPage(
+        br(),
+        tags$button(
+            id = "quit",
+            type = "button",
+            class = "btn action-button btn-danger btn-lg",
+            onclick = "setTimeout(function(){window.close();},100);",
+            "Quit App"
+        ),
         h3("Create attribute table and custom units tables"),
         br(),
         actionButton("print_att", "Print Attribute Table"),
@@ -253,10 +314,40 @@ shiny_attributes_table <- function(att_table){
         rHandsontableOutput("att_table"),
         br(),
         br(),
-        actionButton("print_units", "Print Custom Units Table"),
-        h5("Edit custom unit table table as needed (after finishing attribute table above), then print table code to console."),
-        rHandsontableOutput("custom_unit_table")
+
+        fluidRow(
+
+            column(6,
+                   actionButton("print_units", "Print Custom Units Table")
+            ),
+
+            column(6,
+                   actionButton("print_factors", "Print Factors Table")
+            )
+        ),
+
+        fluidRow(
+
+            column(6,
+                   h5("Edit custom unit table table as needed, then print table code to console.")
+            ),
+
+            column(6,
+                   h5("Edit factors table for enumerated domains as needed, then print table code to console.")
+            )
+        ),
+
+        fluidRow(
+
+            column(6,
+                   rHandsontableOutput("custom_unit_table", height = 500)
+            ),
+
+            column(6,
+                   rHandsontableOutput("factors_table")
+            )
         )
+    )
 
     # Server
     server <- function(input, output) {
@@ -271,16 +362,23 @@ shiny_attributes_table <- function(att_table){
 
         DF_custom_units = reactive( {
             if (is.null(input$custom_unit_table)) {
-                custom_unit_table <- data.frame(matrix(ncol=3,nrow=0))
+                custom_unit_table <- data.frame(matrix(ncol = 3, nrow = 0))
                 colnames(custom_unit_table) <- c("id", "unitType", "parentSI")
-                custom_unit_table}
-
-            else {
-                build_custom_units(DF_att(),standardUnits,hot_to_r(input$custom_unit_table))}
+                custom_unit_table
+            } else {
+                build_custom_units(DF_att(), standardUnits,hot_to_r(input$custom_unit_table), unq_unitType, unq_parentSI)
+            }
         } )
 
+        DF_factors = reactive( {
+            if (is.null(input$factors_table)) {
+                factors_table <- data.frame(matrix(ncol = 3, nrow = 0))
+                colnames(factors_table) <- c("attributeName", "code", "definition")
+                factors_table
+            } else {
+                build_factors(DF_att(), hot_to_r(input$factors_table), data)}
+        } )
 
-        # Attribute Table Interface
         output$att_table=renderRHandsontable({
             rhandsontable(DF_att())%>%
                 hot_table(highlightCol = TRUE, highlightRow = TRUE)%>%
@@ -290,20 +388,20 @@ shiny_attributes_table <- function(att_table){
                         if(!isNaN(value)){
                         td.style.background = 'pink';
                         }}")%>%
-            hot_col(col = "domain",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "domain",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments)
                     if(!isNaN(value)){
                     td.style.background = 'pink';
                     }}")%>%
-            hot_col(col = "attributeDefinition",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "attributeDefinition",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if(!isNaN(value)){
                     td.style.background = 'pink';
                     }}")%>%
-            hot_col(col = "definition",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "definition",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'textDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -312,14 +410,14 @@ shiny_attributes_table <- function(att_table){
                     td.style.background = 'grey';
                     }
                     }")%>%
-            hot_col(col = "measurementScale",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "measurementScale",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if(!isNaN(value)){
                     td.style.background = 'pink';
                     }}")%>%
-            hot_col(col = "formatString",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "formatString",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'dateTimeDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -328,8 +426,8 @@ shiny_attributes_table <- function(att_table){
                     td.style.background = 'grey';
                     }
 }")%>%
-            hot_col(col = "numberType",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "numberType",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'numericDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -338,8 +436,8 @@ shiny_attributes_table <- function(att_table){
                     td.style.background = 'grey';
                     }
                     }")%>%
-            hot_col(col = "unit",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "unit",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'numericDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -348,8 +446,8 @@ shiny_attributes_table <- function(att_table){
                     td.style.background = 'grey';
                     }
                     }")%>%
-            hot_col(col = "missingValueCodeExplanation",
-                    renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                hot_col(col = "missingValueCodeExplanation",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (isNaN(instance.getData()[row][8]) & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -358,7 +456,8 @@ shiny_attributes_table <- function(att_table){
                     td.style.background = 'grey';
                     }
                     }")
-    })
+        })
+
         output$custom_unit_table=renderRHandsontable({
             rhandsontable(DF_custom_units())%>%
                 hot_table(highlightCol = TRUE, highlightRow = TRUE)%>%
@@ -369,30 +468,31 @@ shiny_attributes_table <- function(att_table){
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
                         td.style.fontWeight = 'bold'}")%>%
                 hot_col(col = "unitType",
-                        width = '250px',
-                        type = "autocomplete")%>%
+                        type = "dropdown",
+                        width = '250px')%>%
                 hot_col(col = "parentSI",
-                        width = '200px',
-                        type = "autocomplete")
+                        width = '200px')
         })
 
-
-        output_text_func <- function(df){
-            output_text <- c()
-            for(c in colnames(df)){
-                values <- "c("
-                for(r in 1:length(df[,c])){
-                    if (is.na(df[r,c])){
-                        values <- paste0(values,df[r,c],",")}else{
-                            values <- paste0(values,"'",df[r,c],"',")}
-                }
-                values <- paste0(substr(values,1,(nchar(values)-1)),")")
-                output_text[c] <- paste0(c," = ",values,",\n")}
-            output_text[length(output_text)] <- sub("[,]\\n$","",output_text[length(output_text)])
-
-            cat("\n\ndata.frame(\n",
-                output_text,
-                ")\n\n")}
+        output$factors_table=renderRHandsontable({
+            rhandsontable(DF_factors())%>%
+                hot_table(highlightCol = TRUE, highlightRow = TRUE)%>%
+                hot_col(col = "attributeName",
+                        type = "text",
+                        renderer = "
+                        function (instance, td, row, col, prop, value, cellProperties) {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        td.style.fontWeight = 'bold'}")%>%
+                hot_col(col = "code",
+                        type = "text")%>%
+                hot_col(col = "definition",
+                        type = "text",
+                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        Handsontable.renderers.TextRenderer.apply(this, arguments);
+                        if(!isNaN(value)){
+                        td.style.background = 'pink';
+                        }}")
+        })
 
         # Output from print command
         observeEvent(input$print_att, {
@@ -402,6 +502,7 @@ shiny_attributes_table <- function(att_table){
             DF_out_att[DF_out_att == ""] = NA
             output_text_func(DF_out_att)
         })
+
         observeEvent(input$print_units, {
             DF_out_unit <- DF_custom_units()
             if (nrow(DF_out_unit)>0){
@@ -412,9 +513,21 @@ shiny_attributes_table <- function(att_table){
                     cat("\n\nNothing to print!\n\n")
                 }
         })
-                    }
 
-    shinyApp(ui, server,options = list(launch.browser=T))
+        observeEvent(input$print_factors, {
+            DF_out_unit <- DF_factors()
+            if (nrow(DF_out_unit)>0){
+                DF_out_unit[DF_out_unit == ""] = NA
+                output_text_func(DF_out_unit)}else{
+                    cat("\n\nNothing to print!\n\n")
+                }
+        })
+
+        observeEvent(input$quit, {
+            stopApp()
+        })
+
     }
 
-
+    shinyApp(ui, server,options = list(launch.browser=T))
+}
