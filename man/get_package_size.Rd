@@ -2,22 +2,22 @@
 % Please edit documentation in R/download_package.R
 \name{get_package_size}
 \alias{get_package_size}
-\title{Calculate the total size of the Objects in a Data Package}
+\title{Calculate the total size (in bytes) of the Objects in a Data Package}
 \usage{
-get_package_size(node, package_identifier, formatType = "*")
+get_package_size(mn, resource_map_pid, formatType = "*")
 }
 \arguments{
-\item{node}{(MNode/CNode) The Node to query for Object sizes}
-
-\item{formatType}{(character) Optional. Filter to just Objects of the given formatType. One of METADATA, RESOURCE, or DATA or * for all types}
+\item{mn}{(MNode/CNode) The Node to query for Object sizes}
 
 \item{resource_map_pid}{(character) The identifier of the Data Package's Resource Map}
+
+\item{formatType}{(character) Optional. Filter to just Objects of the given formatType. One of METADATA, RESOURCE, or DATA or * for all types}
 }
 \value{
 (numeric) The sum of all Object sizes in the Data Package
 }
 \description{
-Calculate the total size of the Objects in a Data Package
+Calculate the total size (in bytes) of the Objects in a Data Package
 }
 \author{
 Bryce Mecum

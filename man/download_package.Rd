@@ -22,6 +22,8 @@ download_package(mn, resource_map_pid, download_directory = getwd(),
 
 \item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.}
 
+\item{convert_excel_to_csv}{(logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv}
+
 \item{check_first}{(logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.}
 }
 \description{
