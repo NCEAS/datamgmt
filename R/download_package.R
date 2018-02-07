@@ -120,6 +120,33 @@ get_package_size <- function(mn, resource_map_pid, formatType = "*") {
     sum(as.integer(size_query$size))
 }
 
+#' Format bytes to human readable format
+#'
+#' This is a helper function for 'download_package'
+#'
+#' @param download_size (character) Total size in bytes
+#'
+convert_bytes <- function(download_size) {
+    #' TODO - make this function more robust using gdata::humanReadable as a template
+    stopifnot(is.character(download_size))
+
+    if (download_size >= 1e+12) {
+        download_size <- round(download_size/(1e+12), digits = 2)
+        unit = " terabytes"
+    } else if (1e+12 > download_size & download_size >= 1e+9) {
+        download_size <- round(download_size/(1e+9), digits = 2)
+        unit = " gigabytes"
+    } else if (1e+9 > download_size & download_size >= 1e+6) {
+        download_size <- round(download_size/(1e+6), digits = 2)
+        unit = " megabytes"
+    } else if (1e+6 > download_size) {
+        download_size = round(download_size/1000, digits = 2)
+        unit = " kilobytes"
+    }
+
+    return(paste0(download_size, " ", unit))
+}
+
 #' Download a Data Package
 #'
 #' This function downloads all of the Data Objects in a Data Package to the local filesystem.
@@ -220,31 +247,23 @@ download_package <- function(mn,
         stop("No data selected.  Double check the package you entered contains data files")
     }
 
-    # Create list of packages
-    all_packages <- append_lists(list(package), child_packages)
-    # Remove special characters from each package metadata identifier and rep for # of data objects in each package
-    if (prefix_file_names == TRUE) {
-        filename_prefixes <- unlist(lapply(all_packages, function(all_packages) {
-            prefix <- remove_special_characters(all_packages$metadata)
-            return(rep(prefix, length(all_packages$data)))
-        }))
-    }
-
     # Check total download size
     if (check_download_size) {
         child_package_resource_map_pids <- lapply(child_packages, function(package) {
             package$resource_map
         })
 
-        downloadSize <- sum(
+        download_size <- sum(
             vapply(c(resource_map_pid, child_package_resource_map_pids), function(pid) {
                 get_package_size(mn, pid)
             }, 0)
         )
 
+        download_size_message <- convert_bytes(download_size)
+
         # Prompt user if they wish to continue based on total download size
-        message(paste0("\nYour download is approximately ", downloadSize, unit, "\n"))
-        continue <- readline(prompt = paste0("Proceed with the download (", downloadSize, unit, ")? Input yes/no: "))
+        message(paste0("\nYour download is approximately ", download_size_message, "\n"))
+        continue <- readline(prompt = paste0("Proceed with the download (", download_size_message, ")? Input yes/no: "))
 
         while (!(continue %in% c("yes", "no"))) {
             message("Type yes or no without quotation marks or capitals\n")
@@ -255,6 +274,18 @@ download_package <- function(mn,
         if (continue == "no") {
             stop("Download cancelled by user")
         }
+    }
+
+    # Create filename prefixes
+    if (prefix_file_names == TRUE) {
+        # List all packages together
+        all_packages <- append_lists(list(package), child_packages)
+
+        # Remove special characters from each package metadata identifier and rep for # of data objects in each package
+        filename_prefixes <- unlist(lapply(all_packages, function(all_packages) {
+            prefix <- remove_special_characters(all_packages$metadata)
+            return(rep(prefix, length(all_packages$data)))
+        }))
     }
 
     # Download data pids to selected directory
