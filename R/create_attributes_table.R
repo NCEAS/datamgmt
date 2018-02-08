@@ -306,6 +306,7 @@ shiny_attributes_table <- function(att_table, data){
             "Quit App"
         ),
         br(),
+        br(),
         actionButton("print_att", "Print Attribute Table"),
         h5("Edit attribute table as needed, then print attribute table code to console.
            Red boxes must be completed for complete metadata.
