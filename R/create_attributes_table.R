@@ -305,7 +305,6 @@ shiny_attributes_table <- function(att_table, data){
             onclick = "setTimeout(function(){window.close();},100);",
             "Quit App"
         ),
-        h3("Create attribute table and custom units tables"),
         br(),
         actionButton("print_att", "Print Attribute Table"),
         h5("Edit attribute table as needed, then print attribute table code to console.
