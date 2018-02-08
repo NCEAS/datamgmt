@@ -28,10 +28,8 @@ remove_special_characters <- function(pid) {
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
 #'
 #' @return (invisible())
-excel_to_csv <- function(path,
-                         prefix = NULL) {
+excel_to_csv <- function(path) {
     stopifnot(file.exists(path))
-    stopifnot(is.character(prefix))
 
     # Stop if the user doesn't have the readxl package installed
     if (!requireNamespace("readxl")) {
@@ -44,16 +42,18 @@ excel_to_csv <- function(path,
         sheets <- excel_sheets(path)
         excel_name <- basename(path)
 
+        excel_name <- gsub(".xlsx", "", excel_name, ignore.case = TRUE)
+        excel_name <- gsub(".xls", "", excel_name, ignore.case = TRUE)
+
+
         lapply(seq_along(sheets), function(i) {
             csv = read_excel(path, sheet = sheets[i])
 
-            if (!is.null(prefix)) {
-                file_path <- file.path(dirname(path),
-                                       paste0(prefix, sheets[i], "_", excel_name, ".csv"))
-            } else {
-                file_path <- file.path(dirname(path),
-                                       paste0(sheets[i], "_", excel_name, ".csv"))
-            }
+            file_path <- file.path(dirname(path),
+                                   paste0(sheets[i],
+                                          "_",
+                                          excel_name,
+                                          ".csv"))
 
             write.csv(csv, file_path , row.names = FALSE)})
 
@@ -106,9 +106,9 @@ append_lists <- function(list1, list2) {
 #'
 #' @return (numeric) The sum of all Object sizes in the Data Package
 get_package_size <- function(mn, resource_map_pid, formatType = "*") {
-    size_query <- dataone::query(node,
+    size_query <- dataone::query(mn,
                                  paste0("q=resourceMap:\"",
-                                        package_identifier,
+                                        resource_map_pid,
                                         "\"+AND+formatType:",
                                         formatType, "&fl=size"),
                                  as = "data.frame")
@@ -124,11 +124,11 @@ get_package_size <- function(mn, resource_map_pid, formatType = "*") {
 #'
 #' This is a helper function for 'download_package'
 #'
-#' @param download_size (character) Total size in bytes
+#' @param download_size (numeric) Total size in bytes
 #'
 convert_bytes <- function(download_size) {
     #' TODO - make this function more robust using gdata::humanReadable as a template
-    stopifnot(is.character(download_size))
+    stopifnot(is.numeric(download_size))
 
     if (download_size >= 1e+12) {
         download_size <- round(download_size/(1e+12), digits = 2)
@@ -244,98 +244,106 @@ download_package <- function(mn,
 
     # Check that data exists
     if (length(data_pids) == 0) {
-        stop("No data selected.  Double check the package you entered contains data files")
-    }
+        message(warning("No data selected.  Double check the package you entered contains data files"))
 
-    # Check total download size
-    if (check_download_size) {
-        child_package_resource_map_pids <- lapply(child_packages, function(package) {
-            package$resource_map
-        })
+    } else {
 
-        download_size <- sum(
-            vapply(c(resource_map_pid, child_package_resource_map_pids), function(pid) {
-                get_package_size(mn, pid)
-            }, 0)
-        )
-
-        download_size_message <- convert_bytes(download_size)
-
-        # Prompt user if they wish to continue based on total download size
-        message(paste0("\nYour download is approximately ", download_size_message, "\n"))
-        continue <- readline(prompt = paste0("Proceed with the download (", download_size_message, ")? Input yes/no: "))
-
-        while (!(continue %in% c("yes", "no"))) {
-            message("Type yes or no without quotation marks or capitals\n")
-            continue <- readline(prompt = "Proceed with the download? Input yes/no: ")
-        }
-
-        # Cancel download if "no" was entered
-        if (continue == "no") {
-            stop("Download cancelled by user")
-        }
-    }
-
-    # Create filename prefixes
-    if (prefix_file_names == TRUE) {
-        # List all packages together
-        all_packages <- append_lists(list(package), child_packages)
-
-        # Remove special characters from each package metadata identifier and rep for # of data objects in each package
-        filename_prefixes <- unlist(lapply(all_packages, function(all_packages) {
-            prefix <- remove_special_characters(all_packages$metadata)
-            return(rep(prefix, length(all_packages$data)))
-        }))
-    }
-
-    # Download data pids to selected directory
-    n_data_objects <- length(data_pids)
-    file_names <- names(data_pids)
-    progressBar <- txtProgressBar(min = 0, max = n_data_objects, style = 3)
-    message(paste0("\nDownloading data objects to ", download_directory))
-
-    lapply(seq_len(n_data_objects), function(i) {
-        # If file_names[i] is NA, name it using the pid
-        file_name <- ifelse(is.na(file_names[i]), gsub('[^[:alnum:]]', '_', data_pids[i]), file_names[i])
-
-        if (prefix_file_names == TRUE) {
-            file_name <- paste0(filename_prefixes[i], "__", file_names[i])
-        }
-        out_path <- file.path(download_directory, file_name)
-
-        if (file.exists(out_path)) {
-            warning(call. = FALSE,
-                    paste0("The file ", out_path, " already exists. Skipping download."))
-        } else {
-            # Attempt to download object up to 3 times
-            n_tries <- 0
-            dataObj <- "download_error"
-
-            while (dataObj[1] == "download_error" & n_tries < 3) {
-                dataObj <- tryCatch(dataone::getObject(mn,
-                                                       data_pids[i],
-                                                       check = check_first),
-                                    error = function(e) {return("download_error")})
-                n_tries <- n_tries + 1
-            }
-
-            tryCatch(writeBin(dataObj, out_path), error = function(e) {
-                message(paste0("\n Unable to download ", file_name, ". Please download manually or
-                               contact the Arctic Data Center for assistance."))
+        # Check total download size
+        if (check_download_size) {
+            child_package_resource_map_pids <- lapply(child_packages, function(package) {
+                package$resource_map
             })
 
-            # Convert excel workbooks to csv
-            if (prefix_file_names == TRUE & convert_excel_to_csv == TRUE) {
-                excel_to_csv(out_path, filename_prefixes[i])
+            download_size <- sum(
+                vapply(c(resource_map_pid, child_package_resource_map_pids), function(pid) {
+                    get_package_size(mn, pid)
+                }, 0)
+            )
+
+            download_size_message <- convert_bytes(download_size)
+
+            # Prompt user if they wish to continue based on total download size
+            message(paste0("\nYour download is approximately ", download_size_message, "\n"))
+            continue <- readline(prompt = paste0("Proceed with the download (", download_size_message, ")? Input yes/no: "))
+
+            while (!(continue %in% c("yes", "no"))) {
+                message("Type yes or no without quotation marks or capitals\n")
+                continue <- readline(prompt = "Proceed with the download? Input yes/no: ")
             }
 
+            # Cancel download if "no" was entered
+            if (continue == "no") {
+                stop("Download cancelled by user")
             }
-        setTxtProgressBar(progressBar, i)
-    })
+        }
 
-    close(progressBar)
+        # Create filename prefixes
+        if (prefix_file_names == TRUE) {
+            # List all packages together
+            if (length(child_packages) > 0) {
+                all_packages <- append_lists(list(package), child_packages)
+            } else {
+                all_packages <- list(package)
+            }
 
+            # Remove special characters from each package metadata identifier and rep for # of data objects in each package
+            filename_prefixes <- unlist(lapply(all_packages, function(all_packages) {
+                prefix <- remove_special_characters(all_packages$metadata)
+                return(rep(prefix, length(all_packages$data)))
+            }))
+        }
+
+        # Download data pids to selected directory
+        n_data_objects <- length(data_pids)
+        file_names <- names(data_pids)
+        progressBar <- txtProgressBar(min = 0, max = n_data_objects, style = 3)
+        message(paste0("\nDownloading data objects to ", download_directory))
+
+        lapply(seq_len(n_data_objects), function(i) {
+            # If file_names[i] is NA, name it using the pid
+            file_name <- ifelse(is.na(file_names[i]), gsub('[^[:alnum:]]', '_', data_pids[i]), file_names[i])
+
+            if (prefix_file_names == TRUE) {
+                file_name <- paste0(filename_prefixes[i], "__", file_names[i])
+            }
+            out_path <- file.path(download_directory, file_name)
+
+            if (file.exists(out_path)) {
+                warning(call. = FALSE,
+                        paste0("The file ", out_path, " already exists. Skipping download."))
+            } else {
+                # Attempt to download object up to 3 times
+                n_tries <- 0
+                dataObj <- "download_error"
+
+                while (dataObj[1] == "download_error" & n_tries < 3) {
+                    dataObj <- tryCatch(dataone::getObject(mn,
+                                                           data_pids[i],
+                                                           check = check_first),
+                                        error = function(e) {return("download_error")})
+                    n_tries <- n_tries + 1
+                }
+
+                tryCatch(writeBin(dataObj, out_path), error = function(e) {
+                    message(paste0("\n Unable to download ", file_name, ". Please download manually or
+                               contact the Arctic Data Center for assistance."))
+                })
+
+                # Convert excel workbooks to csv
+                if (convert_excel_to_csv == TRUE) {
+                    if (grepl(".xls", out_path, ignore.case = TRUE)) {
+                        excel_to_csv(out_path)
+                    }
+                }
+
+            }
+            setTxtProgressBar(progressBar, i)
+        })
+        close(progressBar)
+
+    }
     return(invisible())
+
 }
 
 #' Download one or multiple Data Packages
@@ -359,6 +367,8 @@ download_package <- function(mn,
 #' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' \code{\link{download_package}}
 #'
 #' @example
 #' \dontrun{
