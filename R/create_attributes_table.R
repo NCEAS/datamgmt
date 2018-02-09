@@ -393,28 +393,28 @@ shiny_attributes_table <- function(att_table, data){
                 hot_table(highlightCol = TRUE, highlightRow = TRUE)%>%
 
                 hot_col(col = "attributeName",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                         Handsontable.renderers.TextRenderer.apply(this, arguments);
                         if(!isNaN(value)){
                         td.style.background = 'pink';
                         }}")%>%
 
                 hot_col(col = "domain",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments)
                     if(!isNaN(value)){
                     td.style.background = 'pink';
                     }}")%>%
 
                 hot_col(col = "attributeDefinition",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if(!isNaN(value)){
                     td.style.background = 'pink';
                     }}")%>%
 
                 hot_col(col = "definition",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'textDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -432,7 +432,7 @@ shiny_attributes_table <- function(att_table, data){
                     }}")%>%
 
                 hot_col(col = "formatString",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'dateTimeDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -442,7 +442,7 @@ shiny_attributes_table <- function(att_table, data){
                     }}")%>%
 
                 hot_col(col = "numberType",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'numericDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
@@ -453,7 +453,7 @@ shiny_attributes_table <- function(att_table, data){
                     }")%>%
 
                 hot_col(col = "unit",
-                        renderer= "function(instance, td, row, col, prop, value, cellProperties) {
+                        renderer = "function(instance, td, row, col, prop, value, cellProperties) {
                     Handsontable.renderers.TextRenderer.apply(this, arguments);
                     if (instance.getData()[row][1] == 'numericDomain' & !isNaN(value)) {
                     td.style.background = 'pink';
