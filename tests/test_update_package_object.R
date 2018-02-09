@@ -4,7 +4,13 @@ library(dataone)
 
 context("Update object & resource map")
 
+mnTest <- env_load()$mn
+
 test_that("specified data object is changed; rest of package is intact", {
+    if (!is_token_set(mnTest)) {
+        skip("No token set. Skipping test.")
+    }
+
     cnTest <- dataone::CNode('STAGING')
     mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
@@ -26,12 +32,11 @@ test_that("specified data object is changed; rest of package is intact", {
     #test: other objects are retained
     expect_equal(all(pkg$data[-2] %in% pkg_new$data), TRUE)
 
-
     #test: metadata stays the same
     expect_equal(pkg$metadata, pkg_new$metadata)
 
     #test: new data pid is a version of old data pid
-    versions <- get_all_versions(mnTest, data_pid)
+    versions <- arcticdatautils::get_all_versions(mnTest, data_pid)
     latest_version <- versions[length(versions)]
 
     new_data_pid <- pkg_new$data[!pkg_new$data %in% pkg$data]
@@ -43,8 +48,10 @@ test_that("argument checks work", {
     cnTest <- dataone::CNode('STAGING')
     mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
+    file_path <- tempfile(fileext = ".csv")
+
     expect_error(update_package_object(LETTERS,
-                                       data_pid = "something",
+                                       data_pid = file_path,
                                        new_data_path = "something",
                                        rm_pid = "something"))
 
@@ -55,11 +62,16 @@ test_that("argument checks work", {
 
     expect_error(update_package_object(mnTest,
                                        data_pid = "something",
-                                       new_data_path = TRUE,
+                                       new_data_path = "something", #should throw error bc file doesn't exist
                                        rm_pid = "something"))
 
     expect_error(update_package_object(mnTest,
                                        data_pid = "something",
+                                       new_data_path = TRUE,
+                                       rm_pid = "something"))
+
+    expect_error(update_package_object(mnTest,
+                                       data_pid = file_path,
                                        new_data_path = "something",
                                        rm_pid = 1))
 })
