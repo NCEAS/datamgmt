@@ -11,9 +11,9 @@
 #'
 #' @return (character) The formatted identifer as a string
 remove_special_characters <- function(pid) {
-    pid <- gsub(":", ";", pid)
-    pid <- gsub("\\/", "_", pid)
-    pid <- gsub("\\.", "$", pid)
+    pid <- gsub(":", "", pid)
+    pid <- gsub("\\/", "", pid)
+    pid <- gsub("\\.", "", pid)
 
     return(pid)
 }
@@ -28,7 +28,7 @@ remove_special_characters <- function(pid) {
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
 #'
 #' @return (invisible())
-excel_to_csv <- function(path) {
+excel_to_csv <- function(path, prefix = NULL) {
     stopifnot(file.exists(path))
 
     # Stop if the user doesn't have the readxl package installed
@@ -49,11 +49,14 @@ excel_to_csv <- function(path) {
         lapply(seq_along(sheets), function(i) {
             csv = read_excel(path, sheet = sheets[i])
 
-            file_path <- file.path(dirname(path),
-                                   paste0(sheets[i],
-                                          "_",
-                                          excel_name,
-                                          ".csv"))
+            if (!is.null(prefix)) {
+                excel_name <- gsub(prefix, "", excel_name)
+                file_name <- paste0(prefix, "_", sheets[i], "_", excel_name, ".csv")
+            } else {
+                file_name <- paste0(sheets[i], "_", excel_name, ".csv")
+            }
+
+            file_path <- file.path(dirname(path), file_name)
 
             write.csv(csv, file_path , row.names = FALSE)})
 
@@ -195,6 +198,12 @@ download_package <- function(mn,
              "The pbapply package is required to show progress. Please install it and try again.")
     }
 
+    # Stop if the user doesn't have the readxl package installed
+    if (!requireNamespace("readxl")) {
+        stop(call. = FALSE,
+             "The readxl package is required to show progress. Please install it and try again.")
+    }
+
     # Check that input arguments are in the correct format
     stopifnot(is.character(resource_map_pid))
     stopifnot(is.character(download_directory))
@@ -332,18 +341,18 @@ download_package <- function(mn,
                 # Convert excel workbooks to csv
                 if (convert_excel_to_csv == TRUE) {
                     if (grepl(".xls", out_path, ignore.case = TRUE)) {
-                        excel_to_csv(out_path)
+                        excel_to_csv(out_path, filename_prefixes[i])
                     }
                 }
-
             }
+
             setTxtProgressBar(progressBar, i)
         })
+
         close(progressBar)
-
     }
-    return(invisible())
 
+    return(invisible())
 }
 
 #' Download one or multiple Data Packages
