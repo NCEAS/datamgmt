@@ -34,6 +34,16 @@ Setting \code{check_download_size} to \code{TRUE} is recommended if you are unce
 This function will also download any data objects it finds in any child Data Packages of the input data package.
 If you would only like to download data from one Data Package, set \code{download_child_packages} to \code{FALSE}.
 }
+\examples{
+\dontrun{
+cn <- CNode("PROD")
+mn <- getMNode(cn, "urn:node:ARCTIC")
+download_packages(mn, c("resource_map_doi:10.18739/A21G1P" "resource_map_doi:10.18739/A2RZ6X"),
+check_download_size = FALSE, prefix_file_names = TRUE, convert_excel_to_csv == TRUE)
+}
+}
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}
+
+\code{\link{download_package}}
 }

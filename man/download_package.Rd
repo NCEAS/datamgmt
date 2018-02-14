@@ -36,6 +36,18 @@ Setting \code{check_download_size} to \code{TRUE} is recommended if you are unce
 This function will also download any data objects it finds in any child Data Packages of the input data package.
 If you would only like to download data from one Data Package, set \code{download_child_packages} to \code{FALSE}.
 }
+\examples{
+\dontrun{
+cn <- CNode("PROD")
+mn <- getMNode(cn, "urn:node:ARCTIC")
+download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269")
+}
+
+TODO: How many child levels should it support? -- currently one. 3 or 4 max - could probably do this with a while loop.
+TODO: resource_map_pid argument accepts metadata pids - could change to not accept metadata pids
+TODO: Add option for downloading in folder structure that mirrors nesting - rather than only all files in one folder
+TODO: Convert check download size to helper function?
+}
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}
 }

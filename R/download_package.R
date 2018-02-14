@@ -77,7 +77,7 @@ excel_to_csv <- function(path, prefix = NULL) {
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' appended_lists <- append_lists(list(1:3), list("a", "b", mean))
 #' }
@@ -171,14 +171,13 @@ convert_bytes <- function(download_size) {
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
 #' download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269")
 #' }
 #'
-#' @export
 download_package <- function(mn,
                              resource_map_pid,
                              download_directory = getwd(),
@@ -379,15 +378,15 @@ download_package <- function(mn,
 #'
 #' \code{\link{download_package}}
 #'
-#' @example
+#' @export
+#'
+#' @examples
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
 #' download_packages(mn, c("resource_map_doi:10.18739/A21G1P" "resource_map_doi:10.18739/A2RZ6X"),
 #' check_download_size = FALSE, prefix_file_names = TRUE, convert_excel_to_csv == TRUE)
 #' }
-#'
-#' @export
 download_packages <- function(mn, resource_map_pids, ...) {
 
     stopifnot(all(is.character(resource_map_pids)))
