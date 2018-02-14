@@ -28,7 +28,7 @@ remove_special_characters <- function(pid) {
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
 #'
 #' @return (invisible())
-excel_to_csv <- function(path, prefix = NULL) {
+excel_to_csv_prefix <- function(path, prefix = NULL) {
     stopifnot(file.exists(path))
 
     # Stop if the user doesn't have the readxl package installed
@@ -61,7 +61,7 @@ excel_to_csv <- function(path, prefix = NULL) {
             write.csv(csv, file_path , row.names = FALSE)})
 
     },
-    error = function(e) {message("Unable to read in file: ", path)}
+    error = function(e) {message("Error converting: ", path, " to csv\n")}
     )
 
     return(invisible())
@@ -340,7 +340,7 @@ download_package <- function(mn,
                 # Convert excel workbooks to csv
                 if (convert_excel_to_csv == TRUE) {
                     if (grepl(".xls", out_path, ignore.case = TRUE)) {
-                        excel_to_csv(out_path, filename_prefixes[i])
+                        excel_to_csv_prefix(out_path, filename_prefixes[i])
                     }
                 }
             }
