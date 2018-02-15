@@ -35,14 +35,14 @@ excel_to_csv <- function(path, directory = NULL, ...) {
         sheets <- readxl::excel_sheets(path)
 
         lapply(seq_along(sheets), function(i) {
-            csv = readxl::read_excel(path, sheet = sheets[i])
+            csv = readxl::read_excel(path, sheet = sheets[i], ...)
 
             if (length(sheets) == 1) {
                 file_name <- paste0(excel_name, ".csv")
             } else {
-                file_name <- paste0(sheets[i], "_", excel_name, ".csv")}
+                file_name <- paste0(excel_name, "_", sheets[i], ".csv")}
+            
             file_path <- file.path(directory, file_name)
-
             write.csv(csv, file_path , row.names = FALSE)})
 
     },
