@@ -40,20 +40,28 @@ excel_to_csv_prefix <- function(path, prefix = NULL) {
     # Try to read excel file and split into csvs
     tryCatch({
         sheets <- excel_sheets(path)
+
         excel_name <- basename(path)
-
-        excel_name <- gsub(".xlsx", "", excel_name, ignore.case = TRUE)
-        excel_name <- gsub(".xls", "", excel_name, ignore.case = TRUE)
-
+        excel_name <- gsub("\\.xls[x]?$", "", excel_name, ignore.case = TRUE)
 
         lapply(seq_along(sheets), function(i) {
             csv = read_excel(path, sheet = sheets[i])
 
             if (!is.null(prefix)) {
                 excel_name <- gsub(prefix, "", excel_name)
-                file_name <- paste0(prefix, "_", sheets[i], "_", excel_name, ".csv")
+
+                if (length(sheets) == 1) {
+                    file_name <- paste0(prefix, "_", excel_name, ".csv")
+                } else {
+                    file_name <- paste0(prefix, "_", excel_name, "_", sheets[i], ".csv")
+                }
+
             } else {
-                file_name <- paste0(sheets[i], "_", excel_name, ".csv")
+                if (length(sheets) == 1) {
+                    file_name <- paste0(excel_name, ".csv")
+                } else {
+                    file_name <- paste0(excel_name, "_", sheets[i], ".csv")
+                }
             }
 
             file_path <- file.path(dirname(path), file_name)
