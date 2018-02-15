@@ -28,8 +28,7 @@ excel_to_csv <- function(path, directory = NULL, ...) {
     }
 
     excel_name <- basename(path)
-    excel_name <- gsub(".xlsx", "", excel_name, ignore.case = TRUE)
-    excel_name <- gsub(".xls", "", excel_name, ignore.case = TRUE)
+    excel_name <- gsub(".xls?$", "", excel_name, ignore.case = TRUE)
 
     # Try to read excel file and split into csvs
     tryCatch({
