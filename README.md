@@ -9,6 +9,12 @@
 
 The *datamgmt* R package provides ...
 
+## Style
+We generally follow the [tidyverse style conventions](http://style.tidyverse.org/), with the following specific style preferences: 
+
+- underscore for all variable names unless referring to an EML object (i.e. otherEntity, publicationDate, etc.)
+- all functions should include argument checks in the form of `stopifnot` statements
+
 ## Quick Start
 
 To be written...
