@@ -5,6 +5,7 @@
 #'
 #' @param path (character) File location of the excel workbook.
 #' @param directory (character) Optional.  Directory to download csv files to.
+#' @param ... Optional.  Allows arguments from \link[readxl]{read_excel}
 #' Defaults to the base directory that \code{path} is located in.
 #'
 #' @export
@@ -35,7 +36,7 @@ excel_to_csv <- function(path, directory = NULL, ...) {
         sheets <- excel_sheets(path)
 
         lapply(seq_along(sheets), function(i) {
-            csv = read_excel(path, sheet = sheets[i])
+            csv = read_excel(path, sheet = sheets[i], ...)
 
             file_name <- paste0(sheets[i], "_", excel_name, ".csv")
             file_path <- file.path(directory, file_name)
