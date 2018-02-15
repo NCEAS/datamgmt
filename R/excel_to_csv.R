@@ -28,16 +28,19 @@ excel_to_csv <- function(path, directory = NULL, ...) {
     }
 
     excel_name <- basename(path)
-    excel_name <- gsub(".xls?$", "", excel_name, ignore.case = TRUE)
+    excel_name <- gsub("\\.xls[x]?$", "", excel_name, ignore.case = TRUE)
 
     # Try to read excel file and split into csvs
     tryCatch({
-        sheets <- excel_sheets(path)
+        sheets <- readxl::excel_sheets(path)
 
         lapply(seq_along(sheets), function(i) {
-            csv = read_excel(path, sheet = sheets[i], ...)
+            csv = readxl::read_excel(path, sheet = sheets[i])
 
-            file_name <- paste0(sheets[i], "_", excel_name, ".csv")
+            if (length(sheets) == 1) {
+                file_name <- paste0(excel_name, ".csv")
+            } else {
+                file_name <- paste0(sheets[i], "_", excel_name, ".csv")}
             file_path <- file.path(directory, file_name)
 
             write.csv(csv, file_path , row.names = FALSE)})
