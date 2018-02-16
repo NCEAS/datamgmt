@@ -1,0 +1,519 @@
+\nonstopmode{}
+\documentclass[letterpaper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\usepackage[utf8]{inputenc} % @SET ENCODING@
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `datamgmt'}}
+\par\bigskip{\large \today}
+\end{center}
+\begin{description}
+\raggedright{}
+\inputencoding{utf8}
+\item[Type]\AsIs{Package}
+\item[Title]\AsIs{Data Management Utilities for Curating, Documenting, and
+Publishing Data}
+\item[Version]\AsIs{0.1.0}
+\item[Author]\AsIs{Who wrote it}
+\item[Maintainer]\AsIs{The package maintainer }\email{yourself@somewhere.net}\AsIs{}
+\item[Description]\AsIs{More about what it does (maybe more than one line)
+Use four spaces when indenting paragraphs within the Description.}
+\item[License]\AsIs{Apache License (== 2.0)}
+\item[Encoding]\AsIs{UTF-8}
+\item[LazyData]\AsIs{true}
+\item[Suggests]\AsIs{testthat}
+\item[RoxygenNote]\AsIs{6.0.1}
+\end{description}
+\Rdcontents{\R{} topics documented:}
+\inputencoding{utf8}
+\HeaderA{add\_creator\_id}{add\_creator\_id}{add.Rul.creator.Rul.id}
+\keyword{creator}{add\_creator\_id}
+\keyword{eml}{add\_creator\_id}
+\keyword{id}{add\_creator\_id}
+\keyword{orcid}{add\_creator\_id}
+%
+\begin{Description}\relax
+This function allows you to add an ORCID or reference ID to a creator in EML.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+add_creator_id(eml, orcid = NULL, id = NULL, surname = NULL)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{eml}] EML script to modify
+
+\item[\code{orcid}] ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'
+
+\item[\code{id}] reference ID. Character string to set reference ID for creators with additional roles (i.e. metadataProvider, etc.)
+
+\item[\code{surname}] creator surname (last name), defaults to first creator if not specified. Not case-sensitive.
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Details}\relax
+The function invisibly returns the full EML, which
+can be saved to a variable. It also prints the changed creator
+entry so that it's easy to check that the appropriate change was
+made. All prameters other than the EML are optional, but since
+the point of the function is to modify either the orcid, ref id,
+or both, you need to specify at least one. Requires the
+crayon package.
+\end{Details}
+%
+\begin{Examples}
+\begin{ExampleCode}
+library(dataone)
+library(arcticdatautils)
+library(EML)
+
+cnTest <- dataone::CNode('STAGING')
+mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+eml_pid <- arcticdatautils::create_dummy_metadata(mnTest)
+eml1 <- EML::read_eml(rawToChar(getObject(mnTest, eml_pid)))
+add_creator_id(eml1, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{build\_custom\_units}{Build shiny custom units table}{build.Rul.custom.Rul.units}
+%
+\begin{Description}\relax
+Build shiny custom units table
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+build_custom_units(inputdf, standardUnits, inputdf2, unq_unitType, unq_parentSI)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{inputdf}] attributes table
+
+\item[\code{standardUnits}] standardUnits table
+
+\item[\code{inputdf2}] current units table
+
+\item[\code{unq\_unitType}] unique standardUnits unitTypes
+
+\item[\code{unq\_parentSI}] unique standardUnits parentSI
+\end{ldescription}
+\end{Arguments}
+\inputencoding{utf8}
+\HeaderA{build\_factors}{Build shiny factors table}{build.Rul.factors}
+%
+\begin{Description}\relax
+Build shiny factors table
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+build_factors(inputdf, inputdf2, data)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{inputdf}] attributes table
+
+\item[\code{inputdf2}] current factors table
+
+\item[\code{data}] initial data inputed by user
+\end{ldescription}
+\end{Arguments}
+\inputencoding{utf8}
+\HeaderA{clone\_one\_package}{Clone a Data Package without its child packages.}{clone.Rul.one.Rul.package}
+%
+\begin{Description}\relax
+The wrapper function 'clone\_package' should be used instead. This function
+copies a data package from one DataOne member node to another, excluding any
+child data packages.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+clone_one_package(mn_pull, mn_push, resource_map_pid)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{mn\_pull}] (MNode) The Member Node to download from.
+
+\item[\code{mn\_push}] (MNode) The Member Node to upload to.
+
+\item[\code{resource\_map\_pid}] (chraracter) The identifier of the Resource Map for the package to download.
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+(list) List of all the identifiers in the new Data Package.
+TODO switch remaining for loops to applys
+TODO add more messages
+TODO better way to set physical in Update Metadata section?
+TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
+TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
+\end{Value}
+%
+\begin{Author}\relax
+Dominic Mullen, \email{dmullen17@gmail.com}
+\end{Author}
+\inputencoding{utf8}
+\HeaderA{clone\_package}{Clone a Data Package}{clone.Rul.package}
+%
+\begin{Description}\relax
+This function copies a Data Package from one DataOne member node to another.
+It can also be used to copy an older version of a Data Package to the same
+member node in order to restore it, provided that the old Package is then
+obsoleted by the copied version.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+clone_package(mn_pull, mn_push, resource_map_pid)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{mn\_pull}] (MNode) The Member Node to download from.
+
+\item[\code{mn\_push}] (MNode) The Member Node to upload to.
+
+\item[\code{resource\_map\_pid}] (chraracter) The identifier of the Resource Map for the package to download.
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Author}\relax
+Dominic Mullen, \email{dmullen17@gmail.com}
+\end{Author}
+%
+\begin{Examples}
+\begin{ExampleCode}
+## Not run: 
+cn_pull <- CNode("PROD")
+mn_pull <- getMNode(cn_pull, "urn:node:ARCTIC")
+cn_push <- CNode('STAGING')
+mn_push <- getMNode(cn_push,'urn:node:mnTestARCTIC')
+clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
+
+## End(Not run)
+
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{compare\_eml\_to\_package\_pids}{Return data object identifiers from 'dataTable' and 'otherEntity' objects in an EML file}{compare.Rul.eml.Rul.to.Rul.package.Rul.pids}
+%
+\begin{Description}\relax
+This function is a helper function for 'clone\_package'.  It checks that all
+of the data objects pids present in the metadata match those that the
+resource map points to.  It also returns the data pids in the order in which
+they appear in the EML: dataTable pids first and then otherEntity pids.  We
+cannot update the new .xml file without this information.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+compare_eml_to_package_pids(eml, package_data_pids)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{eml}] (EML) EML object
+
+\item[\code{package\_data\_pids}] (character) All of the Data identifiers in a Data
+Package.  These can be selected with get\_package(mn, resource\_map)\$data
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+(list) List of all the identifiers in the EML.  Sorted into dataTable
+and otherEntity identifiers
+TODO better name for this function?
+\end{Value}
+%
+\begin{Author}\relax
+Dominic Mullen, \email{dmullen17@gmail.com}
+\end{Author}
+\inputencoding{utf8}
+\HeaderA{create\_attributes\_table}{Allows editing of an attribute table and custom units table in a shiny environment}{create.Rul.attributes.Rul.table}
+%
+\begin{Description}\relax
+Allows editing of an attribute table and custom units table in a shiny environment
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+create_attributes_table(data = NULL, attributes_table = NULL)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{data}] The data.frame of data that needs an attribute table
+
+\item[\code{attributes\_table}] A existing attributes table for \code{data} that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in \code{attributes\_table}, then this function will use those values instead of automatically generating values from \code{data}).
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Examples}
+\begin{ExampleCode}
+create_attributes_table(NULL, NULL)
+
+data <- read.csv("Test.csv")
+create_attributes_table(data, NULL)
+
+attributes_table <- EML::get_attributes(eml@dataset@dataTable[[i]]@attributeList)$attributes
+create_attributes_table(NULL, attributes_table)
+
+create_attributes_table(data, attributes_table)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{data\_objects\_exist}{Check if data objects exist in a list of Data Packages.}{data.Rul.objects.Rul.exist}
+%
+\begin{Description}\relax
+This function is primarily intended to assist Mark Schildhauer in preparation
+for the Carbon synthesis working group.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+data_objects_exist(mn, pids, write_to_csv = FALSE, folder_path = NULL,
+  file_name = NULL)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{mn}] (MNode/CNode) The Node to query for Object sizes
+
+\item[\code{pids}] (character) The identifier of the Data Packages' Metadata
+
+\item[\code{write\_to\_csv}] (logical) Optional. Write the query results to a csv
+
+\item[\code{folder\_path}] (character) Optional. Folder to write results to
+
+\item[\code{file\_name}] (character) Optional. Name of results file in csv format
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+(data.frame) Data frame containing query results.
+\end{Value}
+%
+\begin{Author}\relax
+Dominic Mullen, \email{dmullen17@gmail.com}
+\end{Author}
+%
+\begin{Examples}
+\begin{ExampleCode}
+## Not run: 
+cn <- CNode("PROD")
+mn <- getMNode(cn, "urn:node:ARCTIC")
+data_objects_exist(mn,
+c("doi:10.5065/D60P0X4S", "urn:uuid:3ea5629f-a10e-47eb-b5ce-de10f8ef325b"))
+
+## End(Not run)
+
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{excel\_to\_csv}{Convert excel workbook to multiple csv files}{excel.Rul.to.Rul.csv}
+%
+\begin{Description}\relax
+Converts an excel workbook into multiple csv files (one per tab).  Names the
+files in the following format: sheetName\_excelName.csv.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+excel_to_csv(path, directory = NULL, ...)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{path}] (character) File location of the excel workbook.
+
+\item[\code{directory}] (character) Optional.  Directory to download csv files to.
+Defaults to the base directory that \code{path} is located in.
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+(invisible())
+\end{Value}
+%
+\begin{Author}\relax
+Dominic Mullen \email{dmullen17@gmail.com}
+\end{Author}
+\inputencoding{utf8}
+\HeaderA{factor\_att\_table}{Creates factors for attributes table}{factor.Rul.att.Rul.table}
+%
+\begin{Description}\relax
+Creates factors for attributes table
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+factor_att_table(inputdf)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{inputdf}] attributes table
+\end{ldescription}
+\end{Arguments}
+\inputencoding{utf8}
+\HeaderA{get\_eml\_pids}{Return data identifiers from within an EML}{get.Rul.eml.Rul.pids}
+%
+\begin{Description}\relax
+This function returns data object identifers present within an EML (electronic
+metadata language) document.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_eml_pids(eml)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{eml}] () an EML object
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+Returns a list of data object pids in the eml
+\end{Value}
+\inputencoding{utf8}
+\HeaderA{get\_numberType}{Returns the numberType (either "real", "integer", "whole", or "natural") of input values}{get.Rul.numberType}
+%
+\begin{Description}\relax
+Returns the numberType (either "real", "integer", "whole", or "natural") of input values
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_numberType(values)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{values}] A vector of values. If vector is non-numeric will return NA
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+The numberType of \code{values} (either "real", "integer", "whole", or "natural").
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+# To get numberType for each column in a data.frame \code{df}:
+unlist(lapply(df, function(x) get_numberType(x)))
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{get\_object\_metadata}{Return the object metadata of each data object in a Data Package}{get.Rul.object.Rul.metadata}
+%
+\begin{Description}\relax
+This function returns the formatId, fileName and identifier of each data
+object in a Data Package.  This is a helper function for the function
+'clone\_package' - which copies a dataOne Data Package from one member node to
+another.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+get_object_metadata(mn, resource_map_pid, formatType = "DATA")
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{mn}] (MNode/CNode) The Node to query for Object sizes
+
+\item[\code{resource\_map\_pid}] (character) The identifier of the Data Package's Resource Map
+
+\item[\code{formatType}] (character) Optional. Filter to just Objects of the given
+formatType. One of METADATA, RESOURCE, or DATA or * for all types
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+(character) The formatId, fileName, and identifier of each data object in a package.
+\end{Value}
+%
+\begin{Author}\relax
+Dominic Mullen, \email{dmullen17@gmail.com}
+\end{Author}
+\inputencoding{utf8}
+\HeaderA{hello}{Hello, World!}{hello}
+%
+\begin{Description}\relax
+Prints 'Hello, world!'.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+hello()
+\end{verbatim}
+\end{Usage}
+%
+\begin{Examples}
+\begin{ExampleCode}
+hello()
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{output\_text\_func}{Outputs data.frame to text for shiny app}{output.Rul.text.Rul.func}
+%
+\begin{Description}\relax
+Outputs data.frame to text for shiny app
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+output_text_func(df)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{df}] data.frame
+\end{ldescription}
+\end{Arguments}
+\inputencoding{utf8}
+\HeaderA{shiny\_attributes\_table}{Build shiny UI for editing attributes table within function create\_attributes\_table()}{shiny.Rul.attributes.Rul.table}
+%
+\begin{Description}\relax
+Build shiny UI for editing attributes table within function create\_attributes\_table()
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+shiny_attributes_table(att_table, data)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{att\_table}] an attribute table built from create\_attributes\_table()
+\end{ldescription}
+\end{Arguments}
+\printindex{}
+\end{document}

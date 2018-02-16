@@ -1,0 +1,27 @@
+add_creator_id          add_creator_id
+build_custom_units      Build shiny custom units table
+build_factors           Build shiny factors table
+clone_one_package       Clone a Data Package without its child
+                        packages.
+clone_package           Clone a Data Package
+compare_eml_to_package_pids
+                        Return data object identifiers from 'dataTable'
+                        and 'otherEntity' objects in an EML file
+create_attributes_table
+                        Allows editing of an attribute table and custom
+                        units table in a shiny environment
+data_objects_exist      Check if data objects exist in a list of Data
+                        Packages.
+excel_to_csv            Convert excel workbook to multiple csv files
+factor_att_table        Creates factors for attributes table
+get_eml_pids            Return data identifiers from within an EML
+get_numberType          Returns the numberType (either "real",
+                        "integer", "whole", or "natural") of input
+                        values
+get_object_metadata     Return the object metadata of each data object
+                        in a Data Package
+hello                   Hello, World!
+output_text_func        Outputs data.frame to text for shiny app
+shiny_attributes_table
+                        Build shiny UI for editing attributes table
+                        within function create_attributes_table()

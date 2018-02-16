@@ -1,0 +1,15 @@
+Package: datamgmt
+Type: Package
+Title: Data Management Utilities for Curating, Documenting, and
+        Publishing Data
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: Apache License (== 2.0)
+Encoding: UTF-8
+LazyData: true
+Suggests: testthat
+RoxygenNote: 6.0.1
+Built: R 3.4.3; ; 2018-02-16 21:52:57 UTC; unix
