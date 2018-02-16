@@ -1,6 +1,5 @@
 ##This is my script for writing a function to edit an attribute in an existing attributes table.
 
-library(testthat)
 library(arcticdatautils)
 library(dataone)
 library(EML)
@@ -38,64 +37,29 @@ dummy_data_table <- new('dataTable',
 eml <- read_eml(rawToChar(getObject(mnTest, pkg$metadata)))
 eml@dataset@dataTable <- c(dummy_data_table)
 
-pkg #getting PIDs
-# $metadata
-# [1] "urn:uuid:83965425-2125-4663-bac7-d471fb03fb43"
-# $resource_map
-# [1] "urn:uuid:3a26404a-a8d0-4a6b-b081-3d6d96b40923"
-# $data
-# [1] "urn:uuid:9f1a87e5-0c1a-4498-b787-afe40d417be2"
-
-eml@dataset@dataTable@.Data
-#Need some way to access the <attributeList> inside this slot: maybe write in the xml text?
-
-#arguments would be listed like so, where x is the attribute of interest
-#AttName<-edit_attribute(x, attributeName="",attributeLabel="",attributeDefinition="",measurementScale="",
-                            #domain="",formatString="",definition="",unit="",numberType="",
-                            #missingValueCode="",missingValueCodeExplanation="")
-
-##Don't use this
-# edit_attribute<-function(attributeName="",attributeDefinition="",measurementScale="",
-#                          domain="",formatString="",definition="",unit="",numberType="",
-#                          missingValueCode="",missingValueCodeExplanation=""){
-#     paste0('<attribute>
-#              <attributeName>',attributeName,'</attributeName>',
-#              '<attributeDefinition>',attributeDefinition,'</attributeDefinition>',
-#              '<measurementScale><',measurementScale,'>',
-#                 '<unit><standardUnit>',unit,'</standardUnit></unit>',
-#                 '<',domain,'>','<numberType>',numberType,'</numberType></',domain,'>',
-#              '</measurementScale></attribute>')
-# }
+pkg
 
 #Code below includes only the required slots and does not contain any if statements for failing the function if e.g. the wrong domain goes into a measurement scale.
-#x is the data table number in the data table list, y is the attribute number in the attribute list for that data table
-edit_attribute<-function(x,y,attributeName,attributeDefinition,measurementScale,
-                         domain,formatString,definition,unit,numberType,
-                         missingValueCode,missingValueCodeExplanation){
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@attributeName=attributeName
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@attributeDefinition=attributeDefinition
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@measurementScale=measurementScale
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@domain=domain
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@formatString=formatString
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@definition=definition
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@unit=unit
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@numberType=numberType
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@missingValueCode=missingValueCode
-    eml@dataset@dataTable[[x]]@attributeList@attribute[[y]]@missingValueCodeExplanation=missingValueCodeExplanation
-    }
+#This is being tested on a nominal text attribute and is presently only being built to work for this type. Will expand once this is successful.
+#dataTable is the data table number in the data table list, attribute is the attribute number in the attribute list for that data table.
+#domain_type must be nonNumericDomain or blank?
+edit_attribute <- function(eml, dataTable, attribute, attributeName, attributeDefinition, measurementScale, domain_type, domain, definition,
+                           missingValueCode, missingValueCodeExplanation){
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@attributeName <- attributeName
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@attributeDefinition <- attributeDefinition
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale <-
+        paste0("<",measurementScale,"><",domain_type,"><",domain,"><definition>",definition,"</definition></",domain,"></",domain_type,"></",measurementScale,">") ###lots of if statements will end up here
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@domain <- domain
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@definition <- definition
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@missingValueCode <- missingValueCode
+    eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@missingValueCodeExplanation <- missingValueCodeExplanation
+}
 
-edit_attribute(1,2,attributeName="TestAtt",attributeDefinition="trying out if function works",measurementScale="nominal",
-                       domain="textDomain",formatString=NA,definition="trying out if function works",unit=NA,numberType=NA,
-                       missingValueCode=NA,missingValueCodeExplanation=NA)
+edit_attribute(eml,1, 2, attributeName="TestAtt", attributeDefinition="trying out if function works", measurementScale="nominal",
+               domain_type="nonNumericDomain", domain="textDomain", definition="trying out if function works",
+               missingValueCode=NA, missingValueCodeExplanation=NA)
 
-eml@dataset@dataTable[[1]]@attributeList
 
-#Don't use this stuff below
-# eml@dataset@dataTable
-# eml@dataset@dataTable[[1]]@attributeList@attribute[[2]]
-# 
-# NewAtt<-edit_attribute(attributeName="TestAtt",attributeDefinition="trying out if function works",measurementScale="nominal",
-#                        domain="textDomain",formatString=NA,definition="trying out if function works",unit=NA,numberType=NA,
-#                        missingValueCode=NA,missingValueCodeExplanation=NA)
-# eml@dataset@dataTable[[1]]@attributeList@attribute[[2]]<-NewAtt
+eml@dataset@dataTable[[1]]
+
 
