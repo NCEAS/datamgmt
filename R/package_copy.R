@@ -5,7 +5,7 @@
 #' 'clone_package' - which copies a dataOne Data Package from one member node to
 #' another.
 #'
-#' @param node (MNode/CNode) The Node to query for Object sizes
+#' @param mn (MNode/CNode) The Node to query for Object sizes
 #' @param resource_map_pid (character) The identifier of the Data Package's Resource Map
 #' @param formatType (character) Optional. Filter to just Objects of the given
 #' formatType. One of METADATA, RESOURCE, or DATA or * for all types
@@ -13,10 +13,10 @@
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (character) The formatId, fileName, and identifier of each data object in a package.
-get_object_metadata <- function(node, package_identifier, formatType = "DATA") {
-    query <- dataone::query(node,
+get_object_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
+    query <- dataone::query(mn,
                             paste0("q=resourceMap:\"",
-                                   package_identifier,
+                                   resource_map_pid,
                                    "\"+AND+formatType:",
                                    formatType,
                                    "&fl=formatId+AND+fileName+AND+identifier"),
@@ -112,6 +112,34 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
     return(pids_from_eml)
 }
 
+#' Return data identifiers from within an EML
+#'
+#' This function returns data object identifers present within an EML (electronic
+#' metadata language) document.
+#'
+#' @param eml () an EML object
+#'
+#' @return
+#' Returns a list of data object pids in the eml
+get_eml_pids <- function(eml) {
+    # message if no dataTables / otherEntites are found
+
+    # Get urls from EML
+    dataTable_urls <- EML::eml_get(eml@dataset@dataTable, "url")
+    otherEntity_urls <- EML::eml_get(eml@dataset@otherEntity, "url")
+
+    urls <- vector("character")
+    urls <- c(urls, unlist(dataTable_urls), unlist(otherEntity_urls))
+
+    # Select the characters after the last "/" (the pid)
+    pids <- sapply(urls, function(url) {
+        split_string <- strsplit(url, split = "\\/")
+        tail(split_string[[1]], n = 1)
+    })
+
+    return(pids)
+}
+
 #' Clone a Data Package without its child packages.
 #'
 #' The wrapper function 'clone_package' should be used instead. This function
@@ -142,7 +170,7 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
     # Download EML
     message(paste0("Downloading metadata from package: ", package$metadata))
     #' TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
-    eml <- read_eml(rawToChar(getObject(mn_pull, package$metadata)))
+    eml <- EML::read_eml(rawToChar(dataone::getObject(mn_pull, package$metadata)))
 
     # Initialize data pids vector
     data_pids <- vector("character")
@@ -160,7 +188,6 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Download pids, save in tempfiles, and publish to new node
     n_data_pids <- length(data_pids)
-
     if (n_data_pids > 0) {
         message(paste0("Uploading data objects from package: ", package$metadata))
 
