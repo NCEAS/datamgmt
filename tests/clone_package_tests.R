@@ -1,9 +1,9 @@
-context("Clone a package")
+testthat::context("Clone a package")
 
 cn <- dataone::CNode('STAGING')
 mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
 
-test_that("Data pids in an EML are extracted correctly", {
+testhat::test_that("Data pids in an EML are extracted correctly", {
     if (!arcticdatautils::is_token_set(mn)) {
         skip("No token set. Skipping test.")
     }
@@ -26,6 +26,6 @@ test_that("Data pids in an EML are extracted correctly", {
     eml <- EML::read_eml(rawToChar(dataone::getObject(mn, package$metadata)))
     data_pid <- get_eml_pids(eml)
 
-    expect_equivalent(data_pid, package$data)
+    testthat::expect_equivalent(data_pid, package$data)
 })
 

@@ -261,9 +261,9 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Create resource map
     if (length(new_data_pids) > 0) {
-        new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid, new_data_pids)
+        new_resource_map_pid <- arcticdatautils::create_resource_map(mn_push, new_eml_pid, new_data_pids)
     } else {
-    new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid)
+        new_resource_map_pid <- arcticdatautils::create_resource_map(mn_push, new_eml_pid)
     }
 
     response[["resource_map"]] <- new_resource_map_pid
@@ -317,11 +317,11 @@ clone_package <- function(mn_pull, mn_push, resource_map_pid) {
         child_resource_map_pids <- child_packages[indices]
 
         # Nest child packages
-        updated_resource_map_pid <- update_resource_map(mn_push,
-                                                        package$resource_map,
-                                                        package$metadata,
-                                                        package$data,
-                                                        child_resource_map_pids)
+        updated_resource_map_pid <- arcticdatautils::update_resource_map(mn_push,
+                                                                         package$resource_map,
+                                                                         package$metadata,
+                                                                         package$data,
+                                                                         child_resource_map_pids)
 
         package[["resource_map"]] = updated_resource_map_pid
     }
