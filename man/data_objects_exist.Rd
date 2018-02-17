@@ -32,7 +32,7 @@ mn <- getMNode(cn, "urn:node:ARCTIC")
 data_objects_exist(mn,
 c("doi:10.5065/D60P0X4S", "urn:uuid:3ea5629f-a10e-47eb-b5ce-de10f8ef325b"))
 }
-
+TODO check if formatting of pid is url then format
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}

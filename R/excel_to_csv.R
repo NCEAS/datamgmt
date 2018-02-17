@@ -8,6 +8,8 @@
 #' @param ... Optional.  Allows arguments from \link[readxl]{read_excel}
 #' Defaults to the base directory that \code{path} is located in.
 #'
+#' @importFrom readxl excel_sheets read_excel
+#'
 #' @export
 #'
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
