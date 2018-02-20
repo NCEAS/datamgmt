@@ -66,11 +66,11 @@ edit_attribute <- function(eml, dataTable, attribute, attributeName=NA, attribut
     } else if (measurementScale == 'ordinal') {
         eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@ordinal
     } else if (measurementScale == 'interval') {
-        eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@interval@unit@standardUnit@StandardUnitDictionary[[1]]<-unit
+        eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@interval@unit@standardUnit[[1]]<-unit
         eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@interval@numericDomain@numberType<-numberType
     } else if (measurementScale == 'ratio') {
-        eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@ratio@unit@standardUnit<-unit
-        eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@ratio@numericDomain@numberType<-numberType
+        eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@ratio@unit@standardUnit[[1]]<-unit
+        eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@ratio@numericDomain@numberType[[1]]<-numberType
     } else if (measurementScale == 'dateTime') {
         eml@dataset@dataTable[[dataTable]]@attributeList@attribute[[attribute]]@measurementScale@dateTime@formatString<-formatString
     }
@@ -86,7 +86,7 @@ eml2<-edit_attribute(eml,1, 2, attributeName="TestNominal", attributeDefinition=
 
 #This fails on the unit
 eml3<-edit_attribute(eml,1, 1, attributeName="TestRatio", attributeDefinition="trying out if function works", measurementScale='ratio',
-                     unit='dimensionless', missingValueCode='NA', missingValueCodeExplanation='data not available')
+                     unit='dimensionless', numberType='integer',missingValueCode='NA', missingValueCodeExplanation='data not available')
 
-eml@dataset@dataTable[[1]]@attributeList@attribute[[1]]@measurementScale@ratio@unit@standardUnit
+eml3@dataset@dataTable[[1]]
 class(eml@dataset@dataTable[[1]]@attributeList@attribute[[1]]@measurementScale@ratio@unit@standardUnit[[1]])
