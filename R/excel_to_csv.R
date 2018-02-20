@@ -45,7 +45,7 @@ excel_to_csv <- function(path, directory = NULL, ...) {
                 file_name <- paste0(excel_name, "_", sheets[i], ".csv")}
 
             file_path <- file.path(directory, file_name)
-            write.csv(csv, file_path , row.names = FALSE)})
+            utils::write.csv(csv, file_path , row.names = FALSE)})
 
     },
     error = function(e) {message("Error converting: ", path, " to csv\n")}
