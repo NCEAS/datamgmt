@@ -52,7 +52,7 @@ add_creator_id <- function(eml,
     #determine surname position to access correct creator
     #if none are specified, the first creator will be modified
     if (is.null(surname)) {
-        cat(green("Since surname was not specified, the first creator entry will be modified. "))
+        cat(crayon::green("Since surname was not specified, the first creator entry will be modified. "))
         pos <- 1
     } else {
         #make vector of creator surnames
@@ -69,13 +69,13 @@ add_creator_id <- function(eml,
         if (surname_u %in% surNames_u) {
             pos <- which(surNames_u == surname_u)
         } else {
-            stop(red("Surname not found. Check your spelling."))
+            stop(crayon::red("Surname not found. Check your spelling."))
         }
     }
 
     #add orcid if specified
     if (!is.null(orcid)) {
-        creatorList[[pos]]@userId <- c(new('userId',
+        creatorList[[pos]]@userId <- c(methods::new('userId',
                                            .Data = orcid,
                                            directory = "https://orcid.org"))
     }
