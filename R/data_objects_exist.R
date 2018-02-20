@@ -14,12 +14,13 @@
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (data.frame) Data frame containing query results.
-#' TODO check if formatting of pid is url then format
 data_objects_exist <- function(mn,
                                pids,
                                write_to_csv = FALSE,
                                folder_path = NULL,
                                file_name = NULL) {
+    #' TODO check if formatting of pid is url then format
+
     # Argument checks
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(methods::is.character(pids))
