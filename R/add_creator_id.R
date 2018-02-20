@@ -20,16 +20,14 @@
 #' @export
 #'
 #' @examples
-#' library(dataone)
-#' library(arcticdatautils)
-#' library(EML)
-#'
+#' \dontrun{
 #' cnTest <- dataone::CNode('STAGING')
 #' mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 #' eml_pid <- arcticdatautils::create_dummy_metadata(mnTest)
 #' eml1 <- EML::read_eml(rawToChar(getObject(mnTest, eml_pid)))
 #' add_creator_id(eml1, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
-
+#' }
+#'
 add_creator_id <- function(eml,
                            orcid = NULL,
                            id = NULL,

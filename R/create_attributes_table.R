@@ -3,8 +3,10 @@
 #' @param values A vector of values. If vector is non-numeric will return NA
 #' @return The numberType of \code{values} (either "real", "integer", "whole", or "natural").
 #' @examples
+#' \dontrun{
 #' # To get numberType for each column in a data.frame \code{df}:
 #' unlist(lapply(df, function(x) get_numberType(x)))
+#' }
 #' @export
 get_numberType <- function(values) {
 
@@ -36,6 +38,7 @@ get_numberType <- function(values) {
 #' @param attributes_table A existing attributes table for \code{data} that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in \code{attributes_table}, then this function will use those values instead of automatically generating values from \code{data}).
 #'
 #' @examples
+#' \dontrun{
 #' create_attributes_table(NULL, NULL)
 #'
 #' data <- read.csv("Test.csv")
@@ -45,6 +48,7 @@ get_numberType <- function(values) {
 #' create_attributes_table(NULL, attributes_table)
 #'
 #' create_attributes_table(data, attributes_table)
+#'}
 #' @export
 create_attributes_table <- function(data = NULL, attributes_table = NULL) {
 
