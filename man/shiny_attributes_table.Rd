@@ -8,6 +8,8 @@ shiny_attributes_table(att_table, data)
 }
 \arguments{
 \item{att_table}{an attribute table built from create_attributes_table()}
+
+\item{data}{(data.frame) PI submitted data as a data.frame() object}
 }
 \description{
 Build shiny UI for editing attributes table within function create_attributes_table()
