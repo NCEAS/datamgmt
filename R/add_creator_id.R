@@ -34,7 +34,11 @@ add_creator_id <- function(eml,
                            orcid = NULL,
                            id = NULL,
                            surname = NULL) { #not sensitive to capitalization
-    library(crayon)
+
+    if (!requireNamespace("crayon")) {
+   stop(call. = FALSE,
+       "The crayon package is required. Please install it and try again.")
+ }
 
     #variable checks:
     for (args in c(orcid, id, surname)) {
@@ -88,7 +92,7 @@ add_creator_id <- function(eml,
     #add updated creatorList back into eml
     eml@dataset@creator@.Data <- creatorList
 
-    cat(green("The following entry has been changed:"))
+    cat(crayon::green("The following entry has been changed:"))
     print(creatorList[[pos]]) #prints changed entry
     invisible(eml) #returns full eml
 }
