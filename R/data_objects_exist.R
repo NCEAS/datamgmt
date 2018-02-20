@@ -23,7 +23,7 @@ data_objects_exist <- function(mn,
 
     # Argument checks
     stopifnot(methods::is(mn, "MNode"))
-    stopifnot(methods::is.character(pids))
+    stopifnot(is.character(pids))
     stopifnot(length(pids) > 0)
     stopifnot(arcticdatautils::object_exists(mn, pids))
     if (write_to_csv) {
