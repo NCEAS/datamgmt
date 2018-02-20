@@ -28,6 +28,10 @@ mn_push <- getMNode(cn_push,'urn:node:mnTestARCTIC')
 clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
 }
 
+TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
+TODO - add messages per child package?
+TODO - possible function names? 1) clone_package 2) duplicate_package 3) copy_package
+TODO - query all pids for unique rightsHolders and add to Sysmeta
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}

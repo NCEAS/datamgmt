@@ -2,17 +2,31 @@ Package: datamgmt
 Type: Package
 Title: Data Management Utilities for Curating, Documenting, and Publishing Data
 Version: 0.1.0
-Author: Who wrote it
+Authors@R: c(
+  person("Matt", "Jones", email = "jones@nceas.ucsb.edu", role = "cre"),
+  person("Dominic", "Mullen", email = "dmullen17@gmail.com", role = c("aut")),
+  person("Irene", "Steves", comment = "https://github.com/isteves", role = c("aut")),
+  person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = c("aut"))
+  )
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
+Depends:
+    magrittr
 Imports:
+    crayon,
+    dataone,
+    datapack,
     EML,
+    methods,
+    readxl,
+    rhandsontable,
     shiny,
     stringr,
-    testthat
+    utils
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
 Suggests: testthat
+Remotes: NCEAS/arcticdatautils
 RoxygenNote: 6.0.1
