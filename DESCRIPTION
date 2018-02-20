@@ -11,6 +11,8 @@ Authors@R: c(
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
+Depends:
+    magrittr
 Imports:
     crayon,
     dataone,
@@ -26,4 +28,5 @@ License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
 Suggests: testthat
+Remotes: NCEAS/arcticdatautils
 RoxygenNote: 6.0.1
