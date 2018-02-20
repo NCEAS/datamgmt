@@ -4,18 +4,24 @@
 \alias{create_attributes_table}
 \title{Allows editing of an attribute table and custom units table in a shiny environment}
 \usage{
-create_attributes_table(df, is.attribute.table = F,
-  attributeDefinition = NULL, unit = NULL, measurementScale = NULL,
-  domain = NULL, formatString = NULL, definition = NULL,
-  numberType = NULL, missingValueCode = NULL,
-  missingValueCodeExplanation = NULL)
+create_attributes_table(data = NULL, attributes_table = NULL)
 }
 \arguments{
-\item{df}{A data frame of values}
-}
-\value{
-Prints attribute table and custom units table to console
+\item{data}{The data.frame of data that needs an attribute table}
+
+\item{attributes_table}{A existing attributes table for \code{data} that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in \code{attributes_table}, then this function will use those values instead of automatically generating values from \code{data}).}
 }
 \description{
 Allows editing of an attribute table and custom units table in a shiny environment
+}
+\examples{
+create_attributes_table(NULL, NULL)
+
+data <- read.csv("Test.csv")
+create_attributes_table(data, NULL)
+
+attributes_table <- EML::get_attributes(eml@dataset@dataTable[[i]]@attributeList)$attributes
+create_attributes_table(NULL, attributes_table)
+
+create_attributes_table(data, attributes_table)
 }
