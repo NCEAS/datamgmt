@@ -7,7 +7,7 @@
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @param pid (character) The identifier a dataOne object
+#' @param pid (character) The identifier a dataOne object.
 #'
 #' @return (character) The formatted identifer as a string
 remove_special_characters <- function(pid) {
