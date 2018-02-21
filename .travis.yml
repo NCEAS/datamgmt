@@ -8,5 +8,7 @@ sudo: false
 cache: packages
 addons:
    apt:
-     packages:
-       - librdf0-dev
+    packages:
+      - librdf0-dev
+      - libnetcdf-dev
+      - r-cran-ncdf4
