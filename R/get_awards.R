@@ -73,7 +73,7 @@ get_awards <- function(from_date = NULL,
     if(stringr::str_detect(xml1, "ERROR")){
         stop("The query parameters are invalid.")
     }
-    xml_df1 <- xmlToDataFrame(xml1)
+    xml_df1 <- XML::xmlToDataFrame(xml1)
 
     # since we can only download 25 entries at a time, we need to loop through the query using different offsets
     n <- 1
