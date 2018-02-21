@@ -19,6 +19,7 @@
 #'
 #' @import XML
 #' @import stringr
+#' @import RCurl
 #'
 #' @export
 #'
@@ -43,6 +44,10 @@ get_awards <- function(from_date = NULL,
         stop(call. = FALSE,
              "The stringr package is required for this function. Please install it and try again.")
     }
+    if (!requireNamespace("RCurl")) {
+        stop(call. = FALSE,
+             "The RCurl package is required for this function. Please install it and try again.")
+    }
 
     # basic argument checks
     stopifnot(is.character(from_date) | is.null(from_date))
@@ -50,8 +55,10 @@ get_awards <- function(from_date = NULL,
     stopifnot(is.character(print_fields))
 
     base_url <- "https://api.nsf.gov/services/v1/awards.xml?fundProgramName=ARCTIC|fundProgramName=POLAR"
-    query_url <- paste0(base_url,
-                        query,
+    if(!is.null(query)){
+        query <- paste0("&", query)
+    }
+    query_url <- paste0(base_url, query,
                         "&printFields=", print_fields)
 
     if(!is.null(from_date)){
@@ -62,7 +69,7 @@ get_awards <- function(from_date = NULL,
         }
     }
 
-    xml1 <- getURL(paste0(query_url, "&offset=", 1))
+    xml1 <- RCurl::getURL(paste0(query_url, "&offset=", 1))
     if(stringr::str_detect(xml1, "ERROR")){
         stop("The query parameters are invalid.")
     }
