@@ -6,6 +6,9 @@
 #' @param from_date (character) Optional. Returns all
 #' records with start date after specified date.
 #' Format = "mm/dd/yyyy"
+#' @param to_date (character) Optional. Returns all
+#' records with start date before specified date.
+#' Format = "mm/dd/yyyy"
 #' @param query (character) Optional. By default, the function
 #' searches for all awards with either "polar" or "arctic" in
 #' the fundProgramName. Additional queries can be specified
@@ -14,7 +17,9 @@
 #' @param print_fields (character) Optional. By default, the
 #' following fields will be returned: id, date,
 #' startDate, expDate, fundProgramName, poName,
-#' title, awardee, piFirstName, piLastName, piPhone, piEmail
+#' title, awardee, piFirstName, piLastName, piPhone, piEmail.
+#' Additional field names can be found in the printFields description
+#' of the [NSF API](https://www.research.gov/common/webapi/awardapisearch-v1.htm).
 #'
 #' @import XML
 #' @import stringr
@@ -31,25 +36,13 @@
 #' }
 
 get_awards <- function(from_date = NULL,
+                       to_date = NULL,
                        query = NULL,
                        print_fields = NULL) {
 
-    # package checks
-    if (!requireNamespace("XML")) {
-        stop(call. = FALSE,
-             "The XML package is required for this function. Please install it and try again.")
-    }
-    if (!requireNamespace("stringr")) {
-        stop(call. = FALSE,
-             "The stringr package is required for this function. Please install it and try again.")
-    }
-    if (!requireNamespace("RCurl")) {
-        stop(call. = FALSE,
-             "The RCurl package is required for this function. Please install it and try again.")
-    }
-
     # basic argument checks
     stopifnot(is.character(from_date) | is.null(from_date))
+    stopifnot(is.character(to_date) | is.null(to_date))
     stopifnot(is.character(query) | is.null(query))
     stopifnot(is.character(print_fields) | is.null(print_fields))
 
@@ -70,6 +63,14 @@ get_awards <- function(from_date = NULL,
             stop("The from_date is not in the format 'mm/dd/yyyy'.")
         } else {
             query_url <- paste0(query_url, "&startDateStart=", from_date)
+        }
+    }
+
+    if(!is.null(to_date)) {
+        if(!stringr::str_detect(to_date, "\\d\\d/\\d\\d/\\d\\d\\d\\d")) {
+            stop("The to_date is not in the format 'mm/dd/yyyy'.")
+        } else {
+            query_url <- paste0(query_url, "&startDateEnd=", to_date)
         }
     }
 
