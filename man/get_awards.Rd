@@ -4,8 +4,7 @@
 \alias{get_awards}
 \title{Get NSF Arctic/Polar program award information}
 \usage{
-get_awards(from_date = NULL, query = NULL,
-  print_fields = "id,awardeeName,date,startDate,expDate,fundProgramName,poName,primaryProgram,title,awardee,awardeeAddress,perfAddress,piFirstName,piLastName,piPhone,piEmail")
+get_awards(from_date = NULL, query = NULL, print_fields = NULL)
 }
 \arguments{
 \item{from_date}{(character) Optional. Returns all
@@ -19,10 +18,9 @@ as defined in the NSF API.
 Use '&' to join multiple queries (i.e., "keyword=water&agency=NASA")}
 
 \item{print_fields}{(character) Optional. By default, the
-following fields will be returned: id, awardeeName, date,
+following fields will be returned: id, date,
 startDate, expDate, fundProgramName, poName,
-primaryProgram, title, awardee, awardeeAddress,
-perfAddress, piFirstName, piLastName, piPhone, piEmail}
+title, awardee, piFirstName, piLastName, piPhone, piEmail}
 }
 \description{
 Uses the [NSF API](https://www.research.gov/common/webapi/awardapisearch-v1.htm)

@@ -12,10 +12,9 @@
 #' as defined in the NSF API.
 #' Use '&' to join multiple queries (i.e., "keyword=water&agency=NASA")
 #' @param print_fields (character) Optional. By default, the
-#' following fields will be returned: id, awardeeName, date,
+#' following fields will be returned: id, date,
 #' startDate, expDate, fundProgramName, poName,
-#' primaryProgram, title, awardee, awardeeAddress,
-#' perfAddress, piFirstName, piLastName, piPhone, piEmail
+#' title, awardee, piFirstName, piLastName, piPhone, piEmail
 #'
 #' @import XML
 #' @import stringr
@@ -33,7 +32,7 @@
 
 get_awards <- function(from_date = NULL,
                        query = NULL,
-                       print_fields = "id,awardeeName,date,startDate,expDate,fundProgramName,poName,primaryProgram,title,awardee,awardeeAddress,perfAddress,piFirstName,piLastName,piPhone,piEmail") {
+                       print_fields = NULL) {
 
     # package checks
     if (!requireNamespace("XML")) {
@@ -52,16 +51,21 @@ get_awards <- function(from_date = NULL,
     # basic argument checks
     stopifnot(is.character(from_date) | is.null(from_date))
     stopifnot(is.character(query) | is.null(query))
-    stopifnot(is.character(print_fields))
+    stopifnot(is.character(print_fields) | is.null(print_fields))
 
     base_url <- "https://api.nsf.gov/services/v1/awards.xml?fundProgramName=ARCTIC|fundProgramName=POLAR"
-    if(!is.null(query)){
+    if(!is.null(query)) {
         query <- paste0("&", query)
     }
+
+    if(is.null(print_fields)) {
+        print_fields <- "id,date,startDate,expDate,fundProgramName,poName,title,awardee,piFirstName,piLastName,piPhone,piEmail"
+    }
+
     query_url <- paste0(base_url, query,
                         "&printFields=", print_fields)
 
-    if(!is.null(from_date)){
+    if(!is.null(from_date)) {
         if(!stringr::str_detect(from_date, "\\d\\d/\\d\\d/\\d\\d\\d\\d")) {
             stop("The from_date is not in the format 'mm/dd/yyyy'.")
         } else {
