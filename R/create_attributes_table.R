@@ -287,7 +287,10 @@ output_text_func <- function(df) {
 
 #' Build shiny UI for editing attributes table within function create_attributes_table()
 #'
+#' @import magrittr
+#'
 #' @param att_table an attribute table built from create_attributes_table()
+#' @param data (data.frame) PI submitted data as a data.frame() object
 shiny_attributes_table <- function(att_table, data){
 
     if (!requireNamespace("rhandsontable")) {

@@ -74,7 +74,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
 
             # Select the pid --> characters after the last "/"
             split_string <- strsplit(pid_link, split = "\\/")
-            pid <- tail(split_string[[1]], n = 1)
+            pid <- utils::tail(split_string[[1]], n = 1)
 
         }))
         pids_from_eml[["dataTable"]] <- dataTable_pids
@@ -86,7 +86,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
 
             # Select the pid --> characters after the last "/"
             split_string <- strsplit(pid_link, split = "\\/")
-            pid <- tail(split_string[[1]], n = 1)
+            pid <- utils::tail(split_string[[1]], n = 1)
 
         }))
         pids_from_eml[["otherEntity"]] <- otherEntity_pids
@@ -134,7 +134,7 @@ get_eml_pids <- function(eml) {
     # Select the characters after the last "/" (the pid)
     pids <- sapply(urls, function(url) {
         split_string <- strsplit(url, split = "\\/")
-        tail(split_string[[1]], n = 1)
+        utils::tail(split_string[[1]], n = 1)
     })
 
     return(pids)
@@ -159,8 +159,8 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
     #' TODO better way to set physical in Update Metadata section?
     #' TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
     stopifnot(is.character(resource_map_pid))
-    stopifnot(is(mn_pull, "MNode"))
-    stopifnot(is(mn_push, "MNode"))
+    stopifnot(methods::is(mn_pull, "MNode"))
+    stopifnot(methods::is(mn_push, "MNode"))
 
     package <- arcticdatautils::get_package(mn_pull, resource_map_pid)
 
@@ -232,17 +232,17 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
         n_dataTable <- length(old_data_pids$dataTable)
         n_otherEntity <- length(old_data_pids$otherEntity)
-        new_physical <- pid_to_eml_physical(mn_push, new_data_pids)
+        new_physical <- arcticdatautils::pid_to_eml_physical(mn_push, new_data_pids)
 
         # First update dataTables using the number from old_data_pids
         for(i in seq_len(n_dataTable)) {
-            eml@dataset@dataTable@.Data[[i]]@physical <- new("ListOfphysical",
-                                                             list(new_physical[[i]]))
+            eml@dataset@dataTable@.Data[[i]]@physical <- methods::new("ListOfphysical",
+                                                                      list(new_physical[[i]]))
         }
 
         for(i in seq_len(n_otherEntity)) {
-            eml@dataset@otherEntity[[i]]@physical <- new("ListOfphysical",
-                                                         list(new_physical[[i+ n_dataTable]]))
+            eml@dataset@otherEntity[[i]]@physical <- methods::new("ListOfphysical",
+                                                                  list(new_physical[[i+ n_dataTable]]))
         }
 
 
@@ -253,7 +253,7 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Write EML
     eml_path <- file.path(tempdir(), "science_metadata.xml")
-    write_eml(eml, eml_path)
+    EML::write_eml(eml, eml_path)
     new_eml_pid <- arcticdatautils::publish_object(mn_push,
                                                    eml_path,
                                                    arcticdatautils::format_eml())
@@ -293,12 +293,14 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 #' clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
 #' }
 #'
-#' TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
-#' TODO - add messages per child package?
-#' TODO - possible function names? 1) clone_package 2) duplicate_package 3) copy_package
-#' TODO - query all pids for unique rightsHolders and add to Sysmeta
 #' @export
 clone_package <- function(mn_pull, mn_push, resource_map_pid) {
+    #' TODO - create dynamic structure that allows for more than one level of
+    #' children (3+ nesting levels)
+    #' TODO - add messages per child package?
+    #' TODO - possible function names? 1) clone_package 2) duplicate_package
+    #' 3) copy_package
+    #' TODO - query all pids for unique rightsHolders and add to Sysmeta
     # Clone initial package without children
     package <- clone_one_package(mn_pull, mn_push, resource_map_pid)
 
