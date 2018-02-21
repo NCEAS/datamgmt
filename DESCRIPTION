@@ -20,11 +20,13 @@ Imports:
     datapack,
     EML,
     methods,
+    RCurl,
     readxl,
     rhandsontable,
     shiny,
     stringr,
-    utils
+    utils,
+    XML
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
