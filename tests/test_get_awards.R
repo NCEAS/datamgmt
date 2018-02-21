@@ -1,0 +1,30 @@
+library(testthat)
+library(XML)
+library(stringr)
+library(RCurl)
+
+context("Checks for get_awards function")
+
+test_that("get_awards runs with only from_date specified", {
+    award_info <- get_awards(from_date = "11/01/2017")
+    expect_is(award_info, "data.frame")
+})
+
+test_that("get_awards runs with query specified", {
+    award_info <- get_awards(from_date = "11/01/2017",
+                             query = "id=1748653")
+    expect_is(award_info, "data.frame")
+})
+
+test_that("get_awards runs with only print_fields specified", {
+    award_info <- get_awards(from_date = "11/01/2017",
+                             print_fields = "id,title")
+    expect_equal(length(award_info), 2)
+})
+
+test_that("Error checks work", {
+    expect_error(get_awards(from_date = "1-1-17"))
+    expect_error(get_awards(from_date = 2017))
+    expect_error(get_awards(query = "hi"))
+    expect_error(get_awards(print_fields = TRUE))
+})
