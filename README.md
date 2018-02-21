@@ -1,4 +1,6 @@
 # datamgmt: Data Management Utilities for Curating, Documenting, and Publishing Data
+
+[![Build Status](https://travis-ci.org/NCEAS/datamgmt.svg?branch=master)](https://travis-ci.org/NCEAS/datamgmt)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/datamgmt)](https://cran.r-project.org/package=datamgmt)
 
 - **Authors**: TBD
