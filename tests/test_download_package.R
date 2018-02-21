@@ -1,16 +1,16 @@
-context("Download package")
-
-cn <- dataone::CNode('STAGING')
-mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+testthat::context("Download package")
 
 test_that("Special characters are removed from string", {
     input_string <- "doi:10.18739/A2BW6H"
     output_string <- remove_special_characters(input_string)
 
-    expect_equal((grepl("\\/|:|\\.", output_string)), FALSE)
+    testthat::expect_equal((grepl("\\/|:|\\.", output_string)), FALSE)
 })
 
-test_that("All package contents download to a directory", {
+testthat::test_that("All package contents download to a directory", {
+    cn <- dataone::CNode('STAGING')
+    mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+
     if (!arcticdatautils::is_token_set(mn)) {
         skip("No token set. Skipping test.")
     }
@@ -25,10 +25,10 @@ test_that("All package contents download to a directory", {
                       directory,
                       check_download_size = FALSE)
 
-    expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
+    testthat::expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
 })
 
-test_that("Contents of child packages download correctly", {
+testthat::test_that("Contents of child packages download correctly", {
     if (!arcticdatautils::is_token_set(mn)) {
         skip("No token set. Skipping test.")
     }
@@ -54,7 +54,7 @@ test_that("Contents of child packages download correctly", {
                       directory,
                       check_download_size = FALSE)
 
-    expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
-    expect_equal(file.exists(file.path(directory, "dummy_object2")), TRUE)
+    testthat::expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
+    testthat::expect_equal(file.exists(file.path(directory, "dummy_object2")), TRUE)
 
 })
