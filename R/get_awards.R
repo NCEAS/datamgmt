@@ -79,8 +79,8 @@ get_awards <- function(from_date = NULL,
     n <- 1
     repeat {
         start <- 1 + 25 * n
-        xml <- getURL(paste0(query_url, "&offset=", start))
-        xml_df <- xmlToDataFrame(xml)
+        xml <- RCurl::getURL(paste0(query_url, "&offset=", start))
+        xml_df <- XML::xmlToDataFrame(xml)
         if (length(xml_df) == 0) {break}
 
         #check column names, add in missing one
