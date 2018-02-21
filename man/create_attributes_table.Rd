@@ -15,6 +15,7 @@ create_attributes_table(data = NULL, attributes_table = NULL)
 Allows editing of an attribute table and custom units table in a shiny environment
 }
 \examples{
+\dontrun{
 create_attributes_table(NULL, NULL)
 
 data <- read.csv("Test.csv")
@@ -24,4 +25,5 @@ attributes_table <- EML::get_attributes(eml@dataset@dataTable[[i]]@attributeList
 create_attributes_table(NULL, attributes_table)
 
 create_attributes_table(data, attributes_table)
+}
 }

@@ -16,6 +16,8 @@ The numberType of \code{values} (either "real", "integer", "whole", or "natural"
 Returns the numberType (either "real", "integer", "whole", or "natural") of input values
 }
 \examples{
+\dontrun{
 # To get numberType for each column in a data.frame \\code{df}:
 unlist(lapply(df, function(x) get_numberType(x)))
+}
 }
