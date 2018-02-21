@@ -66,7 +66,7 @@ excel_to_csv_prefix <- function(path, prefix = NULL) {
 
             file_path <- file.path(dirname(path), file_name)
 
-            write.csv(csv, file_path , row.names = FALSE)})
+            utils::write.csv(csv, file_path , row.names = FALSE)})
 
     },
     error = function(e) {message("Error converting: ", path, " to csv\n")}
@@ -91,7 +91,8 @@ excel_to_csv_prefix <- function(path, prefix = NULL) {
 #' }
 #'
 append_lists <- function(list1, list2) {
-    #' TODO Make this function handle infinite lists!
+    # TODO Make this function handle infinite lists
+
     stopifnot(is.list(list1))
     stopifnot(is.list(list2))
     stopifnot(length(list1) > 0)
@@ -177,6 +178,8 @@ convert_bytes <- function(download_size) {
 #' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
 #' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
 #'
+#' @importFrom utils setTxtProgressBar txtProgressBar write.csv
+#'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @examples
@@ -194,16 +197,13 @@ download_package <- function(mn,
                              prefix_file_names = FALSE,
                              convert_excel_to_csv = FALSE,
                              check_first = TRUE) {
-    #' TODO: How many child levels should it support? -- currently one. 3 or 4 max - could probably do this with a while loop.
-    #' TODO: resource_map_pid argument accepts metadata pids - could change to not accept metadata pids
-    #' TODO: Add option for downloading in folder structure that mirrors nesting - rather than only all files in one folder
-    #' TODO: Convert check download size to helper function?
-
-    # Stop if the user doesn't have the pbapply package installed
-    if (!requireNamespace("pbapply")) {
-        stop(call. = FALSE,
-             "The pbapply package is required to show progress. Please install it and try again.")
-    }
+    # TODO How many child levels should it support, currently one. 3 or 4
+    # max - could probably do this with a while loop.
+    # TODO resource_map_pid argument accepts metadata pids - could change to
+    # not accept metadata pids
+    # TODO Add option for downloading in folder structure that mirrors nesting
+    # rather than only all files in one folder
+    # TODO Convert check download size to helper function?
 
     # Stop if the user doesn't have the readxl package installed
     if (!requireNamespace("readxl")) {
@@ -228,13 +228,13 @@ download_package <- function(mn,
         # Check that child packages exist
         if (length(package$child_packages) != 0) {
             n_child_packages <- length(package$child_packages)
-            progressBar <- txtProgressBar(min = 0, max = n_child_packages, style = 3)
+            progressBar <- utils::txtProgressBar(min = 0, max = n_child_packages, style = 3)
 
             message("\nDownloading identifiers from child packages...")
 
             # Loop through child packages and extract pids using get_package()
             child_packages <- lapply(seq_len(n_child_packages), function(i) {
-                setTxtProgressBar(progressBar, i)
+                utils::setTxtProgressBar(progressBar, i)
                 arcticdatautils::get_package(mn, package$child_packages[i], file_names = TRUE)
             })
 
@@ -312,7 +312,7 @@ download_package <- function(mn,
         # Download data pids to selected directory
         n_data_objects <- length(data_pids)
         file_names <- names(data_pids)
-        progressBar <- txtProgressBar(min = 0, max = n_data_objects, style = 3)
+        progressBar <- utils::txtProgressBar(min = 0, max = n_data_objects, style = 3)
         message(paste0("\nDownloading data objects to ", download_directory))
 
         lapply(seq_len(n_data_objects), function(i) {
@@ -353,7 +353,7 @@ download_package <- function(mn,
                 }
             }
 
-            setTxtProgressBar(progressBar, i)
+            utils::setTxtProgressBar(progressBar, i)
         })
 
         close(progressBar)
@@ -375,12 +375,7 @@ download_package <- function(mn,
 #'
 #' @param mn (MNode) The Member Node to download from.
 #' @param resource_map_pids (chraracter) The identifiers of the Resource Maps for the packages to download.
-#' @param download_directory (character) The path of the directory to download the package to. Defaults to the current working directory.
-#' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.
-#' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package.
-#' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
-#' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
-#' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
+#' @param ... Allows arguments from \code{\link{download_package}}
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'

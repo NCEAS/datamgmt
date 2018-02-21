@@ -20,7 +20,6 @@ prepend, just reverse the order of the lists.
 appended_lists <- append_lists(list(1:3), list("a", "b", mean))
 }
 
-TODO Make this function handle infinite lists!
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}

@@ -1,18 +1,11 @@
 testthat::context("Download package")
 
-test_that("Special characters are removed from string", {
-    input_string <- "doi:10.18739/A2BW6H"
-    output_string <- remove_special_characters(input_string)
-
-    testthat::expect_equal((grepl("\\/|:|\\.", output_string)), FALSE)
-})
-
 testthat::test_that("All package contents download to a directory", {
     cn <- dataone::CNode('STAGING')
     mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
 
     if (!arcticdatautils::is_token_set(mn)) {
-        skip("No token set. Skipping test.")
+        testthat::skip("No token set. Skipping test.")
     }
 
     # Create dummy package
@@ -30,7 +23,7 @@ testthat::test_that("All package contents download to a directory", {
 
 testthat::test_that("Contents of child packages download correctly", {
     if (!arcticdatautils::is_token_set(mn)) {
-        skip("No token set. Skipping test.")
+        testthat::skip("No token set. Skipping test.")
     }
 
     # Create dummy packages

@@ -11,17 +11,7 @@ download_packages(mn, resource_map_pids, ...)
 
 \item{resource_map_pids}{(chraracter) The identifiers of the Resource Maps for the packages to download.}
 
-\item{download_directory}{(character) The path of the directory to download the package to. Defaults to the current working directory.}
-
-\item{check_download_size}{(logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.}
-
-\item{download_child_packages}{(logical) Optional.  Whether to download data from child packages of the selected package.}
-
-\item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.}
-
-\item{convert_excel_to_csv}{(logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv}
-
-\item{check_first}{(logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.}
+\item{...}{Allows arguments from \code{\link{download_package}}}
 }
 \description{
 This function is wrapper for download_package It downloads all of the Data Objects in a Data Package
