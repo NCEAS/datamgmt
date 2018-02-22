@@ -52,7 +52,7 @@ get_awards <- function(from_date = NULL,
     stopifnot(is.character(query) | is.null(query))
     stopifnot(is.character(print_fields) | is.null(print_fields))
 
-    base_url <- "https://api.nsf.gov/services/v1/awards.xml?fundProgramName=ARCTIC|fundProgramName=POLAR"
+    base_url <- "https://api.nsf.gov/services/v1/awards.xml?fundProgramName=ARCTIC|fundProgramName=POLAR|fundProgramName=AON"
     if(!is.null(query)) {
         query <- paste0("&", query)
     }
