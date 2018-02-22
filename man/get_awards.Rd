@@ -10,27 +10,27 @@ get_awards(from_date = NULL, to_date = NULL, query = NULL,
 \arguments{
 \item{from_date}{(character) Optional. Returns all
 records with start date after specified date.
-Format = "mm/dd/yyyy"}
+Format = \emph{mm/dd/yyyy}}
 
 \item{to_date}{(character) Optional. Returns all
 records with start date before specified date.
-Format = "mm/dd/yyyy"}
+Format = \emph{mm/dd/yyyy}}
 
 \item{query}{(character) Optional. By default, the function
 searches for all awards with either "polar" or "arctic" in
 the fundProgramName. Additional queries can be specified
-as defined in the NSF API.
-Use '&' to join multiple queries (i.e., "keyword=water&agency=NASA")}
+as defined in the \href{https://www.research.gov/common/webapi/awardapisearch-v1.htm}{NSF API}.
+Use '&' to join multiple queries (i.e., \emph{keyword=water&agency=NASA})}
 
 \item{print_fields}{(character) Optional. By default, the
 following fields will be returned: id, date,
 startDate, expDate, fundProgramName, poName,
 title, awardee, piFirstName, piLastName, piPhone, piEmail.
 Additional field names can be found in the printFields description
-of the [NSF API](https://www.research.gov/common/webapi/awardapisearch-v1.htm).}
+of the \href{https://www.research.gov/common/webapi/awardapisearch-v1.htm}{NSF API}.}
 }
 \description{
-Uses the [NSF API](https://www.research.gov/common/webapi/awardapisearch-v1.htm)
+Uses the \href{https://www.research.gov/common/webapi/awardapisearch-v1.htm}{NSF API}
 to get all records pertaining to the Arctic or Polar programs.
 }
 \examples{
