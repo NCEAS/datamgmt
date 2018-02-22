@@ -5,15 +5,15 @@
 #'
 #' @param from_date (character) Optional. Returns all
 #' records with start date after specified date.
-#' Format = \code{mm/dd/yyyy}
+#' Format = \emph{mm/dd/yyyy}
 #' @param to_date (character) Optional. Returns all
 #' records with start date before specified date.
-#' Format = \code{mm/dd/yyyy}
+#' Format = \emph{mm/dd/yyyy}
 #' @param query (character) Optional. By default, the function
 #' searches for all awards with either "polar" or "arctic" in
 #' the fundProgramName. Additional queries can be specified
 #' as defined in the \href{https://www.research.gov/common/webapi/awardapisearch-v1.htm}{NSF API}.
-#' Use '&' to join multiple queries (i.e., \code{keyword=water&agency=NASA})
+#' Use '&' to join multiple queries (i.e., \emph{keyword=water&agency=NASA})
 #' @param print_fields (character) Optional. By default, the
 #' following fields will be returned: id, date,
 #' startDate, expDate, fundProgramName, poName,
