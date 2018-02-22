@@ -1,15 +1,7 @@
-library(arcticdatautils)
-library(dataone)
-library(EML)
-library(crayon)
-
 #' Test congruence of attributes and data for a package
 #'
 #' This script assumes correctness in the resource map and data
 #' Purpose: QA script to check that attributes match values in the data
-#'    The first iteration of this script will scrape all remote packages on various servers (get pids via solr query) KNB, ArcticData, etc
-#'    Output will be written to a file and should include resource map pid, pids of problem datasets, and the exact issues
-#'    Second iteration will be built to take in local data and eml (before it is pushed to KNB)
 #'
 #'    Functions:
 #'     Names: Check that all column names in attributes match the column names in the csv
@@ -36,6 +28,8 @@ library(crayon)
 #' @return
 #' @export
 #'
+#' @author Emily O'Dean \email{eodean10@@gmail.com}
+#'
 #' @examples
 #' \dontrun{
 #' # For a package, run QA checks
@@ -55,32 +49,31 @@ qa_package <- function(node, pid, readData = TRUE) {
                                 "application/vnd.ms-excel",
                                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-    versions <- suppressWarnings(get_all_versions(node, pid))
-    package <- suppressWarnings(get_package(node, versions[length(versions)]))
-    eml <- read_eml(rawToChar(getObject(node, package$metadata)))
+    package <- suppressWarnings(arcticdatautils::get_package(node, pid))
+    eml <- EML::read_eml(rawToChar(dataone::getObject(node, package$metadata)))
 
-    cat(green(paste0("\n\n\n..................Processing package ", package$resource_map, "..................")))
+    cat(crayon::green(paste0("\n\n\n..................Processing package ", package$resource_map, "..................")))
 
     urls <- character(0)
     for (i in seq_along(eml@dataset@dataTable)) {
         dataTable <- eml@dataset@dataTable[[i]]
 
         if (length(dataTable@physical[[1]]@distribution) == 0) {
-            cat(red(paste0("Missing URL/distribution info for dataTable with objectName: ", dataTable@physical[[1]]@objectName)))
+            cat(crayon::red(paste0("\nMissing URL/distribution info for dataTable with objectName: ", dataTable@physical[[1]]@objectName)))
         } else {
             urls <- c(urls, dataTable@physical[[1]]@distribution[[1]]@online@url)
         }
     }
 
     if (length(urls) == 0) {
-        cat(red("\nNone of the objects in this package have associated physicals with URLs. Fix this error and try again."))
+        cat(crayon::red("\nNone of the objects in this package have associated physicals with URLs. Fix this error and try again."))
         return(0)
     }
 
     for (objectpid in package$data)
     {
         # Does the given pid have an associated datatable
-        sysmeta <- getSystemMetadata(node, objectpid)
+        sysmeta <- dataone::getSystemMetadata(node, objectpid)
 
         # If object is not tabular data, continue
         format <- sysmeta@formatId
@@ -90,13 +83,13 @@ qa_package <- function(node, pid, readData = TRUE) {
         i <- which(grepl(objectpid, urls))
 
         if (length(i) == 0) {
-            cat(red(paste0("\nThe are no matching dataTables for object ", objectpid, " with format ", format,
+            cat(crayon::red(paste0("\nThe are no matching dataTables for object ", objectpid, " with format ", format,
                            ". Check for a mismatch in the physical url and the pid in the resource map.")))
             next
         }
 
         dataTable <- eml@dataset@dataTable[[i]]
-        cat(green(paste0("\nProcessing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+        cat(crayon::green(paste0("\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
 
         # If package is public, we can read directly from the csv, otherwise we use data one have to get all the data
         isPublic <- "public" %in% sysmeta@accessPolicy$subject
@@ -110,27 +103,25 @@ qa_package <- function(node, pid, readData = TRUE) {
         if (isPublic == TRUE) {
             data <- tryCatch({
                 if (format == "text/csv") {
-                    read.csv(urls[i], nrows=rowsToRead, check.names=FALSE)
+                    utils::read.csv(urls[i], nrows = rowsToRead, check.names=FALSE)
                 } else if (format == "text/tsv") {
-                    read.delim(urls[i], nrows=rowsToRead)
+                    utils::read.delim(urls[i], nrows = rowsToRead)
                 } else if (format == "text/plain") {
-                    fread(urls[i], nrows=rowsToRead)
+                    utils::read.table(urls[i], nrows = rowsToRead)
                 } else if (format == "application/vnd.ms-excel") {
-                    readxl:::read_xls(urls[i], nrows=rowsToRead)
+                    readxl::read_xls(urls[i], n_max = rowsToRead)
                 } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                    readxl:::read_xlsx(urls[i], nrows=rowsToRead)
+                    readxl::read_xlsx(urls[i], n_max = rowsToRead)
                 }
             },
             error = function(e) {
-                cat(red(paste0("\nFailed to read file ", urls[i])))
+                cat(crayon::red(paste0("\nFailed to read file ", urls[i])))
             })
         } else {
-            # instead, read data from DataOne
-            data <- read.csv(textConnection(rawToChar(getObject(node, objectpid))), stringsAsFactors=FALSE)
+            data <- utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, stringsAsFactors = FALSE)
         }
 
         qa_attributes(node, dataTable, data, readData)
-        # print(paste0("Check for ", objectpid, " is complete."))
     }
 }
 
@@ -142,9 +133,12 @@ qa_package <- function(node, pid, readData = TRUE) {
 #' @param node (MNode) Member Node where the PID is associated with an object.
 #' @param dataTable (dataTable) EML \code{dataTable} associated with the data object.
 #' @param data (data.frame) Data frame of data object.
+#' @param checkEnumeratedDomains (logical) Default TRUE. If True, will match unique values in data to defined EML enumerated domains.
 #'
 #' @return
 #' @export
+#'
+#' @author Emily O'Dean \email{eodean10@@gmail.com}
 #'
 #' @examples
 #' \dontrun{
@@ -157,15 +151,15 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
     attributeNames <- attributeTable$attributes$attributeName
 
     if (is.null(attributeNames)) {
-        cat(red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
+        cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
         return(0)
     }
 
     dataCols <- colnames(data)
 
     # Check for attribute correctness according to the EML schema using arcticdatautils::eml_validate_attributes
-    attOutput <- capture.output(eml_validate_attributes(dataTable@attributeList))
-    attErrors <- which(grepl('FALSE', head(attOutput, -2)))
+    attOutput <- utils::capture.output(arcticdatautils::eml_validate_attributes(dataTable@attributeList))
+    attErrors <- which(grepl('FALSE', utils::head(attOutput, -2)))
 
     if (length(attErrors) > 0) {
         print(attOutput[attErrors])
@@ -181,19 +175,19 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
 
         # Eml has values that data doesn't have
         if (length(nonmatcheml) > 0) {
-            cat(red(paste0("\nThe EML dataTable includes attributes: ", toString(nonmatcheml, sep = ", "), " which are not present in the data.")))
-            cat(yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
+            cat(crayon::red(paste0("\nThe EML dataTable includes attributes: ", toString(nonmatcheml, sep = ", "), " which are not present in the data.")))
+            cat(crayon::yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
         }
 
         # Data has values that EML doesn't have
         if (length(nonmatchdata) > 0) {
-            cat(red(paste0("\nThe data includes attributes: ", toString(nonmatchdata, sep = ", "), " which are not present in the EML.")))
-            cat(yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
+            cat(crayon::red(paste0("\nThe data includes attributes: ", toString(nonmatchdata, sep = ", "), " which are not present in the EML.")))
+            cat(crayon::yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
         }
 
         # Values match but aren't ordered correctly
         if (length(nonmatcheml) == 0 & length(nonmatchdata) == 0 & allequal == FALSE) {
-            cat(yellow(paste0("\nAttributes in the attribute table match column names but are incorrectly ordered.")))
+            cat(crayon::yellow(paste0("\nAttributes in the attribute table match column names but are incorrectly ordered.")))
         }
 
         data <- data[, which(colnames(data) %in% intersection)]
@@ -213,23 +207,23 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
 
         if (attClass == "numeric" | attClass == "integer" | attClass == "double") {
             if (matchingAtt$measurementScale != "ratio" & matchingAtt$measurementScale != "interval" & matchingAtt$measurementScale != "dateTime") {
-                cat(yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ". Type of data is ", attClass, " which must either have interval or ratio measurementScale in EML, not ", matchingAtt$measurementScale), collapse = "")))
+                cat(crayon::yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ". Type of data is ", attClass, " which should probably have interval or ratio measurementScale in EML, not ", matchingAtt$measurementScale), collapse = "")))
             }
         } else if (attClass == "character" | attClass == "logical") {
             if (matchingAtt$measurementScale != "nominal" & matchingAtt$measurementScale != "ordinal") {
-                cat(yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ".
-                                  Type of data is ", attClass, " which must either have nominal or ordinal measurementScale in EML,
+                cat(crayon::yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ".
+                                  Type of data is ", attClass, " which should probably have nominal or ordinal measurementScale in EML,
                                   not ", matchingAtt$measurementScale), collapse = "")))
             }
         }
     }
 
-    if (readData == TRUE) {
+    if (checkEnumeratedDomains == TRUE) {
         # If enumerated domains exist, check that values in the data match the enumerated domains
         if (length(attributeTable$factors) > 0) {
             for (i in seq_along(unique(attributeTable$factors$attributeName))) {
                 emlAttName <- unique(attributeTable$factors$attributeName)[i]
-                emlUniqueValues <- subset(attributeTable$factors, attributeName == emlAttName)$code
+                emlUniqueValues <- subset(attributeTable$factors, attributeTable$factors$attributeName == emlAttName)$code
 
                 dataUniqueValues <- unique(data[,which(colnames(data) == emlAttName)])
 
@@ -238,11 +232,11 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
                 nonmatchdata <- dataUniqueValues[!dataUniqueValues %in% intersection]
 
                 if (length(nonmatcheml) > 0) {
-                    cat(red(paste0("\nThe EML contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the data: ", toString(nonmatcheml, sep = ", "))))
+                    cat(crayon::red(paste0("\nThe EML contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the data: ", toString(nonmatcheml, sep = ", "))))
                 }
 
                 if (length(nonmatchdata) > 0) {
-                    cat(red(paste0("\nThe data contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the EML: ", toString(nonmatchdata, sep = ", "))))
+                    cat(crayon::red(paste0("\nThe data contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the EML: ", toString(nonmatchdata, sep = ", "))))
                 }
             }
         }
@@ -250,7 +244,7 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
         for (i in which(colSums(is.na(data)) > 0)) {
             attribute <- attributeTable$attributes[i , ]
             if (is.na(attribute$missingValueCode)) {
-                cat(red(paste0("\nThe column ", attribute$attributeName, " contains missing values (NA) but does not have a missing value code.")))
+                cat(crayon::red(paste0("\nThe column ", attribute$attributeName, " contains missing values (NA) but does not have a missing value code.")))
             }
         }
     }
