@@ -1,10 +1,44 @@
-library(testthat)
 library(arcticdatautils)
 library(dataone)
-
-context("Update object & resource map")
+library(EML)
 
 mnTest <- env_load()$mn
+
+context("Update EML physical (helper function)")
+
+test_that("update_physical works", {
+    cnTest <- dataone::CNode('STAGING')
+    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
+    #make dummy pkg/data
+    pkg <- arcticdatautils::create_dummy_package(mnTest,
+                                                 size = 2)
+
+    dummy_object_path <- tempfile("dummy_object",
+                                  fileext = ".csv")
+    write.csv("dummy_object", dummy_object_path)
+
+    new_data_pid <- arcticdatautils::update_object(mnTest,
+                             pid = pkg$data,
+                             path = dummy_object_path,
+                             format_id = "text/csv")
+
+    rm_pid <- arcticdatautils::update_resource_map(mnTest,
+                                                   resource_map_pid = pkg$resource_map,
+                                                   metadata_pid = pkg$metadata,
+                                                   data_pids = new_data_pid)
+
+    eml <- EML::read_eml(rawToChar(dataone::getObject(mnTest,
+                                                      pkg$metadata)))
+
+    eml_new <- update_physical(eml,
+                               mnTest,
+                               data_pid = pkg$data,
+                               new_data_pid = new_data_pid)
+
+})
+
+context("Update object & resource map")
 
 test_that("specified data object is changed; rest of package is intact", {
     if (!is_token_set(mnTest)) {

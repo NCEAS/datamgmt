@@ -22,7 +22,7 @@ update_physical <- function(eml,
              "The stringr package is required. Please install it and try again.")
     }
 
-    dataTable_url <- unlist(eml_get(eml@dataset@dataTable, "url"))
+    dataTable_url <- unlist(EML::eml_get(eml@dataset@dataTable, "url"))
 
     if(!is.null(dataTable_url) && stringr::str_detect(dataTable_url, data_pid)){
         position <- which(stringr::str_detect(dataTable_url, data_pid))
@@ -30,7 +30,7 @@ update_physical <- function(eml,
         eml@dataset@dataTable[[position]]@physical@.Data <- new_phys
     }
 
-    otherEntity_url <- unlist(eml_get(eml@dataset@otherEntity, "url"))
+    otherEntity_url <- unlist(EML::eml_get(eml@dataset@otherEntity, "url"))
 
     if(!is.null(dataTable_url) && stringr::str_detect(otherEntity_url, data_pid)){
         position <- which(stringr::str_detect(otherEntity_url, data_pid))
