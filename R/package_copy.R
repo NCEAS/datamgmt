@@ -5,7 +5,7 @@
 #' 'clone_package' - which copies a dataOne Data Package from one member node to
 #' another.
 #'
-#' @param node (MNode/CNode) The Node to query for Object sizes
+#' @param mn (MNode/CNode) The Node to query for Object sizes
 #' @param resource_map_pid (character) The identifier of the Data Package's Resource Map
 #' @param formatType (character) Optional. Filter to just Objects of the given
 #' formatType. One of METADATA, RESOURCE, or DATA or * for all types
@@ -13,10 +13,10 @@
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (character) The formatId, fileName, and identifier of each data object in a package.
-get_object_metadata <- function(node, package_identifier, formatType = "DATA") {
-    query <- dataone::query(node,
+get_object_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
+    query <- dataone::query(mn,
                             paste0("q=resourceMap:\"",
-                                   package_identifier,
+                                   resource_map_pid,
                                    "\"+AND+formatType:",
                                    formatType,
                                    "&fl=formatId+AND+fileName+AND+identifier"),
@@ -74,7 +74,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
 
             # Select the pid --> characters after the last "/"
             split_string <- strsplit(pid_link, split = "\\/")
-            pid <- tail(split_string[[1]], n = 1)
+            pid <- utils::tail(split_string[[1]], n = 1)
 
         }))
         pids_from_eml[["dataTable"]] <- dataTable_pids
@@ -86,7 +86,7 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
 
             # Select the pid --> characters after the last "/"
             split_string <- strsplit(pid_link, split = "\\/")
-            pid <- tail(split_string[[1]], n = 1)
+            pid <- utils::tail(split_string[[1]], n = 1)
 
         }))
         pids_from_eml[["otherEntity"]] <- otherEntity_pids
@@ -112,6 +112,34 @@ compare_eml_to_package_pids <- function(eml, package_data_pids) {
     return(pids_from_eml)
 }
 
+#' Return data identifiers from within an EML
+#'
+#' This function returns data object identifers present within an EML (electronic
+#' metadata language) document.
+#'
+#' @param eml () an EML object
+#'
+#' @return
+#' Returns a list of data object pids in the eml
+get_eml_pids <- function(eml) {
+    # message if no dataTables / otherEntites are found
+
+    # Get urls from EML
+    dataTable_urls <- EML::eml_get(eml@dataset@dataTable, "url")
+    otherEntity_urls <- EML::eml_get(eml@dataset@otherEntity, "url")
+
+    urls <- vector("character")
+    urls <- c(urls, unlist(dataTable_urls), unlist(otherEntity_urls))
+
+    # Select the characters after the last "/" (the pid)
+    pids <- sapply(urls, function(url) {
+        split_string <- strsplit(url, split = "\\/")
+        utils::tail(split_string[[1]], n = 1)
+    })
+
+    return(pids)
+}
+
 #' Clone a Data Package without its child packages.
 #'
 #' The wrapper function 'clone_package' should be used instead. This function
@@ -131,8 +159,8 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
     #' TODO better way to set physical in Update Metadata section?
     #' TODO pull/push terminology could potentially be confusing. perhaps consider download/upload, from/to, source/new could be better?  I do like that they match well (both 4-letter p-words)
     stopifnot(is.character(resource_map_pid))
-    stopifnot(is(mn_pull, "MNode"))
-    stopifnot(is(mn_push, "MNode"))
+    stopifnot(methods::is(mn_pull, "MNode"))
+    stopifnot(methods::is(mn_push, "MNode"))
 
     package <- arcticdatautils::get_package(mn_pull, resource_map_pid)
 
@@ -142,7 +170,7 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
     # Download EML
     message(paste0("Downloading metadata from package: ", package$metadata))
     #' TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
-    eml <- read_eml(rawToChar(getObject(mn_pull, package$metadata)))
+    eml <- EML::read_eml(rawToChar(dataone::getObject(mn_pull, package$metadata)))
 
     # Initialize data pids vector
     data_pids <- vector("character")
@@ -160,7 +188,6 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Download pids, save in tempfiles, and publish to new node
     n_data_pids <- length(data_pids)
-
     if (n_data_pids > 0) {
         message(paste0("Uploading data objects from package: ", package$metadata))
 
@@ -205,17 +232,17 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
         n_dataTable <- length(old_data_pids$dataTable)
         n_otherEntity <- length(old_data_pids$otherEntity)
-        new_physical <- pid_to_eml_physical(mn_push, new_data_pids)
+        new_physical <- arcticdatautils::pid_to_eml_physical(mn_push, new_data_pids)
 
         # First update dataTables using the number from old_data_pids
         for(i in seq_len(n_dataTable)) {
-            eml@dataset@dataTable@.Data[[i]]@physical <- new("ListOfphysical",
-                                                             list(new_physical[[i]]))
+            eml@dataset@dataTable@.Data[[i]]@physical <- methods::new("ListOfphysical",
+                                                                      list(new_physical[[i]]))
         }
 
         for(i in seq_len(n_otherEntity)) {
-            eml@dataset@otherEntity[[i]]@physical <- new("ListOfphysical",
-                                                         list(new_physical[[i+ n_dataTable]]))
+            eml@dataset@otherEntity[[i]]@physical <- methods::new("ListOfphysical",
+                                                                  list(new_physical[[i+ n_dataTable]]))
         }
 
 
@@ -226,7 +253,7 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Write EML
     eml_path <- file.path(tempdir(), "science_metadata.xml")
-    write_eml(eml, eml_path)
+    EML::write_eml(eml, eml_path)
     new_eml_pid <- arcticdatautils::publish_object(mn_push,
                                                    eml_path,
                                                    arcticdatautils::format_eml())
@@ -234,9 +261,9 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     # Create resource map
     if (length(new_data_pids) > 0) {
-        new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid, new_data_pids)
+        new_resource_map_pid <- arcticdatautils::create_resource_map(mn_push, new_eml_pid, new_data_pids)
     } else {
-    new_resource_map_pid <- create_resource_map(mn_push, new_eml_pid)
+        new_resource_map_pid <- arcticdatautils::create_resource_map(mn_push, new_eml_pid)
     }
 
     response[["resource_map"]] <- new_resource_map_pid
@@ -268,11 +295,12 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 #'
 #' @export
 clone_package <- function(mn_pull, mn_push, resource_map_pid) {
-    #' TODO - create dynamic structure that allows for more than one level of children (3+ nesting levels)
+    #' TODO - create dynamic structure that allows for more than one level of
+    #' children (3+ nesting levels)
     #' TODO - add messages per child package?
-    #' TODO - possible function names? 1) clone_package 2) duplicate_package 3) copy_package
+    #' TODO - possible function names? 1) clone_package 2) duplicate_package
+    #' 3) copy_package
     #' TODO - query all pids for unique rightsHolders and add to Sysmeta
-
     # Clone initial package without children
     package <- clone_one_package(mn_pull, mn_push, resource_map_pid)
 
@@ -290,11 +318,11 @@ clone_package <- function(mn_pull, mn_push, resource_map_pid) {
         child_resource_map_pids <- child_packages[indices]
 
         # Nest child packages
-        updated_resource_map_pid <- update_resource_map(mn_push,
-                                                        package$resource_map,
-                                                        package$metadata,
-                                                        package$data,
-                                                        child_resource_map_pids)
+        updated_resource_map_pid <- arcticdatautils::update_resource_map(mn_push,
+                                                                         package$resource_map,
+                                                                         package$metadata,
+                                                                         package$data,
+                                                                         child_resource_map_pids)
 
         package[["resource_map"]] = updated_resource_map_pid
     }
