@@ -1,4 +1,6 @@
 # datamgmt: Data Management Utilities for Curating, Documenting, and Publishing Data
+
+[![Build Status](https://travis-ci.org/NCEAS/datamgmt.svg?branch=master)](https://travis-ci.org/NCEAS/datamgmt)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/datamgmt)](https://cran.r-project.org/package=datamgmt)
 
 - **Authors**: TBD
@@ -8,6 +10,12 @@
 - [**Submit Bugs and feature requests**](https://github.com/NCEAS/datamgmt/issues)
 
 The *datamgmt* R package provides ...
+
+## Style
+We generally follow the [tidyverse style conventions](http://style.tidyverse.org/), with the following specific style preferences: 
+
+- underscore for all variable names unless referring to an EML object (i.e. otherEntity, publicationDate, etc.)
+- all functions should include argument checks in the form of `stopifnot` statements
 
 ## Quick Start
 
