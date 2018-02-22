@@ -29,8 +29,8 @@ library(crayon)
 #'
 #'     Note: this function also calls qa_attributes and passes the data object and associated dataTable, but this function can also be called directly.
 #'
-#' @param node (MNode) Member Node where the PID is associated with an object.
-#' @param pid (character) The PID of a resource map to do QA on a package.
+#' @param node (MNode) Member Node where the PID is associated with a package.
+#' @param pid (character) The PID of a resource map to be QA'ed.
 #' @param readData (logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
 #'
 #' @return
@@ -134,8 +134,13 @@ qa_package <- function(node, pid, readData = TRUE) {
     }
 }
 
+#' Test congruence of attributes and data for a given dataset and dataTable
+#'
+#' This function is called by get_package() but can be used on its own to test congruence
+#' between a dataTable and a data object (data.frame). See qa_package() help documentation for more details.
+#'
 #' @param node (MNode) Member Node where the PID is associated with an object.
-#' @param dataTable (dataTable) EML dataTable associated with the data object.
+#' @param dataTable (dataTable) EML \code{dataTable} associated with the data object.
 #' @param data (data.frame) Data frame of data object.
 #'
 #' @return
@@ -176,13 +181,13 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
 
         # Eml has values that data doesn't have
         if (length(nonmatcheml) > 0) {
-            cat(red(paste0(c("\nThe EML dataTable includes that attributes ", nonmatcheml, " which are not present in the data."), collapse=" ")))
+            cat(red(paste0("\nThe EML dataTable includes attributes: ", toString(nonmatcheml, sep = ", "), " which are not present in the data.")))
             cat(yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
         }
 
         # Data has values that EML doesn't have
         if (length(nonmatchdata) > 0) {
-            cat(red(paste0(c("\nThe data includes that attributes ", nonmatchdata, " which are not present in the EML."), collapse=" ")))
+            cat(red(paste0("\nThe data includes attributes: ", toString(nonmatchdata, sep = ", "), " which are not present in the EML.")))
             cat(yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
         }
 
@@ -208,13 +213,13 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
 
         if (attClass == "numeric" | attClass == "integer" | attClass == "double") {
             if (matchingAtt$measurementScale != "ratio" & matchingAtt$measurementScale != "interval" & matchingAtt$measurementScale != "dateTime") {
-                cat(yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ". Type of data is ", attClass, " which must either have interval or ratio measurementScale in EML, not ", matchingAtt$measurementScale), collapse = " ")))
+                cat(yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ". Type of data is ", attClass, " which must either have interval or ratio measurementScale in EML, not ", matchingAtt$measurementScale), collapse = "")))
             }
         } else if (attClass == "character" | attClass == "logical") {
             if (matchingAtt$measurementScale != "nominal" & matchingAtt$measurementScale != "ordinal") {
                 cat(yellow(paste0(c("\nWarning: Mismatch in attribute type for the following attribute: ", matchingAtt$attributeName, ".
                                   Type of data is ", attClass, " which must either have nominal or ordinal measurementScale in EML,
-                                  not ", matchingAtt$measurementScale), collapse = " ")))
+                                  not ", matchingAtt$measurementScale), collapse = "")))
             }
         }
     }
@@ -233,11 +238,11 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
                 nonmatchdata <- dataUniqueValues[!dataUniqueValues %in% intersection]
 
                 if (length(nonmatcheml) > 0) {
-                    cat(red(paste0(c("\nThe EML contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the data:", as.character(nonmatcheml)), collapse=" ")))
+                    cat(red(paste0("\nThe EML contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the data: ", toString(nonmatcheml, sep = ", "))))
                 }
 
                 if (length(nonmatchdata) > 0) {
-                    cat(red(paste0(c("\nThe data contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the EML:", as.character(nonmatchdata)), collapse=" ")))
+                    cat(red(paste0("\nThe data contains the following enumerated domain values for the attribute ", as.character(emlAttName), " that do not appear in the EML: ", toString(nonmatchdata, sep = ", "))))
                 }
             }
         }
