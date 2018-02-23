@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" packageId="urn:uuid:77da30d7-7c59-4aa5-b82a-9d14b1e708ea" system="knb" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 eml.xsd">
+  <dataset>
+    <title>A Dummy Package</title>
+    <creator id="8939862836856437">
+      <individualName>
+        <givenName>Henrietta</givenName>
+        <surName>High-Stakes</surName>
+      </individualName>
+      <organizationName>Deadwood Saloon</organizationName>
+      <positionName>Owner</positionName>
+      <address>
+        <deliveryPoint>Wild West</deliveryPoint>
+        <city>Deadwood</city>
+        <administrativeArea>CA</administrativeArea>
+      </address>
+      <phone phonetype="voice">(123) 456 - 7890</phone>
+      <electronicMailAddress>dummy@dummy.com</electronicMailAddress>
+      <userId directory="https://orcid.org">http://orcid.org/XXXX-XXXX-XXXX-XXXX</userId>
+    </creator>
+    <metadataProvider id="5323893926109331">
+      <individualName>
+        <givenName>Henrietta</givenName>
+        <surName>High-Stakes</surName>
+      </individualName>
+      <organizationName>Deadwood Saloon</organizationName>
+      <positionName>Owner</positionName>
+      <address>
+        <deliveryPoint>Wild West</deliveryPoint>
+        <city>Deadwood</city>
+        <administrativeArea>CA</administrativeArea>
+      </address>
+      <phone phonetype="voice">(123) 456 - 7890</phone>
+      <electronicMailAddress>dummy@dummy.com</electronicMailAddress>
+      <userId directory="https://orcid.org">http://orcid.org/XXXX-XXXX-XXXX-XXXX</userId>
+    </metadataProvider>
+    <metadataProvider id="8591886114357904">
+      <individualName>
+        <givenName>Harry</givenName>
+        <surName>High-Stakes</surName>
+      </individualName>
+      <organizationName>Deadwood Saloon</organizationName>
+      <positionName>Co-Owner</positionName>
+    </metadataProvider>
+    <associatedParty id="1983730442896583">
+      <individualName>
+        <givenName>Henrietta</givenName>
+        <surName>High-Stakes</surName>
+      </individualName>
+      <organizationName>Deadwood Saloon</organizationName>
+      <positionName>Owner</positionName>
+      <address>
+        <deliveryPoint>Wild West</deliveryPoint>
+        <city>Deadwood</city>
+        <administrativeArea>CA</administrativeArea>
+      </address>
+      <phone phonetype="voice">(123) 456 - 7890</phone>
+      <electronicMailAddress>dummy@dummy.com</electronicMailAddress>
+      <userId directory="https://orcid.org">http://orcid.org/XXXX-XXXX-XXXX-XXXX</userId>
+      <role>principalInvestigator</role>
+    </associatedParty>
+    <pubDate>2018</pubDate>
+    <abstract>
+      <para>This is an abstract.</para>
+    </abstract>
+    <intellectualRights>
+      <para>This work is dedicated to the public domain under the Creative Commons Universal 1.0 Public Domain Dedication. To view a copy of this dedication, visit https://creativecommons.org/publicdomain/zero/1.0/.</para>
+    </intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>Somewhere in the world</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>70</westBoundingCoordinate>
+          <eastBoundingCoordinate>70</eastBoundingCoordinate>
+          <northBoundingCoordinate>65</northBoundingCoordinate>
+          <southBoundingCoordinate>65</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <geographicCoverage>
+        <geographicDescription>Another place in the world</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>80</westBoundingCoordinate>
+          <eastBoundingCoordinate>80</eastBoundingCoordinate>
+          <northBoundingCoordinate>75</northBoundingCoordinate>
+          <southBoundingCoordinate>75</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <singleDateTime>
+          <calendarDate>2018</calendarDate>
+        </singleDateTime>
+      </temporalCoverage>
+      <taxonomicCoverage>
+        <generalTaxonomicCoverage>Everything was identified to species</generalTaxonomicCoverage>
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Homo sapiens</taxonRankValue>
+        </taxonomicClassification>
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Canis lupus</taxonRankValue>
+        </taxonomicClassification>
+      </taxonomicCoverage>
+    </coverage>
+    <contact id="4349280953087994">
+      <individualName>
+        <givenName>Henrietta</givenName>
+        <surName>High-Stakes</surName>
+      </individualName>
+      <organizationName>Deadwood Saloon</organizationName>
+      <positionName>Owner</positionName>
+      <address>
+        <deliveryPoint>Wild West</deliveryPoint>
+        <city>Deadwood</city>
+        <administrativeArea>CA</administrativeArea>
+      </address>
+      <phone phonetype="voice">(123) 456 - 7890</phone>
+      <electronicMailAddress>dummy@dummy.com</electronicMailAddress>
+      <userId directory="https://orcid.org">http://orcid.org/XXXX-XXXX-XXXX-XXXX</userId>
+    </contact>
+    <contact id="1717476774119797">
+      <individualName>
+        <givenName>Banker</givenName>
+        <surName>Bob</surName>
+      </individualName>
+      <organizationName>Deadwood Bank</organizationName>
+      <positionName>Owner</positionName>
+    </contact>
+    <contact id="4661063701425574">
+      <individualName>
+        <givenName>Jesse</givenName>
+        <surName>Wales</surName>
+      </individualName>
+      <organizationName>Deadwood Streets</organizationName>
+      <positionName>Outlaw</positionName>
+    </contact>
+    <contact id="2173376610212325">
+      <individualName>
+        <givenName>Elizabeth</givenName>
+        <surName>Money</surName>
+      </individualName>
+      <organizationName>Deadwood Land Investing</organizationName>
+      <positionName>Land Investor</positionName>
+    </contact>
+    <methods>
+      <methodStep>
+        <description>
+          <para>Some methods</para>
+        </description>
+      </methodStep>
+      <methodStep>
+        <description>
+          <para>Some more methods</para>
+        </description>
+      </methodStep>
+      <sampling>
+        <studyExtent>
+          <description>
+            <para>Lots of sampling</para>
+          </description>
+        </studyExtent>
+        <samplingDescription>
+          <para>More sampling</para>
+        </samplingDescription>
+      </sampling>
+    </methods>
+    <project>
+      <title>A Dummy Package</title>
+      <personnel id="1304802999509589">
+        <individualName>
+          <givenName>Harry</givenName>
+          <surName>High-Stakes</surName>
+        </individualName>
+        <role>principalInvestigator</role>
+      </personnel>
+      <funding>
+        <para>1234</para>
+        <para>4567</para>
+      </funding>
+    </project>
+  </dataset>
+</eml:eml>
