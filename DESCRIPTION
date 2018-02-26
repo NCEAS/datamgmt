@@ -26,7 +26,13 @@ Imports:
     shiny,
     stringr,
     utils,
-    XML
+    XML,
+    xml2,
+    units,
+    gsubfn,
+    udunits2,
+    compare,
+    memoise
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
