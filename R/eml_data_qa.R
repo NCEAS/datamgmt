@@ -49,14 +49,26 @@ qa_package <- function(node, pid, readData = TRUE) {
                                 "application/vnd.ms-excel",
                                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-    package <- suppressWarnings(arcticdatautils::get_package(node, pid))
+    package <- tryCatch({
+        suppressWarnings(arcticdatautils::get_package(node, pid))
+    },
+    error = function(e) {
+        stop("\nFailed to get package. Is your DataONE token set?")
+    })
+
     eml <- EML::read_eml(rawToChar(dataone::getObject(node, package$metadata)))
 
     cat(crayon::green(paste0("\n\n\n..................Processing package ", package$resource_map, "..................")))
 
     urls <- character(0)
+
     for (i in seq_along(eml@dataset@dataTable)) {
         dataTable <- eml@dataset@dataTable[[i]]
+
+        if (length(dataTable@physical) == 0) {
+            cat(crayon::red(paste0("\nMissing physical for dataTable with entityName: ", dataTable@entityName)))
+            next
+        }
 
         if (length(dataTable@physical[[1]]@distribution) == 0) {
             cat(crayon::red(paste0("\nMissing URL/distribution info for dataTable with objectName: ", dataTable@physical[[1]]@objectName)))
@@ -100,8 +112,8 @@ qa_package <- function(node, pid, readData = TRUE) {
             rowsToRead <- 10
         }
 
-        if (isPublic == TRUE) {
-            data <- tryCatch({
+        data <- tryCatch({
+            if (isPublic == TRUE) {
                 if (format == "text/csv") {
                     utils::read.csv(urls[i], nrows = rowsToRead, check.names=FALSE)
                 } else if (format == "text/tsv") {
@@ -113,17 +125,20 @@ qa_package <- function(node, pid, readData = TRUE) {
                 } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
                     readxl::read_xlsx(urls[i], n_max = rowsToRead)
                 }
-            },
-            error = function(e) {
-                cat(crayon::red(paste0("\nFailed to read file ", urls[i])))
-            })
-        } else {
-            data <- utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, stringsAsFactors = FALSE)
-        }
+            } else {
+                utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, stringsAsFactors = FALSE)
+            }
+        },
+        error = function(e) {
+            cat(crayon::red(paste0("\nFailed to read file ", urls[i])))
+        })
 
         qa_attributes(node, dataTable, data, readData)
+
+        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
     }
 }
+
 
 #' Test congruence of attributes and data for a given dataset and dataTable
 #'
