@@ -2,44 +2,35 @@
 % Please edit documentation in R/eml_data_qa.R
 \name{qa_package}
 \alias{qa_package}
-\title{Test congruence of attributes and data for a package}
+\title{Test package including congruence of attributes and data}
 \usage{
-qa_package(node, pid, readData = TRUE)
+qa_package(node, pid, readAllData = TRUE, check_attributes = TRUE,
+  check_creators = FALSE, check_access = FALSE)
 }
 \arguments{
 \item{node}{(MNode) Member Node where the PID is associated with a package.}
 
 \item{pid}{(character) The PID of a resource map to be QA'ed.}
 
-\item{readData}{(logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).}
+\item{readAllData}{(logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset). If \code{check_attributes = FALSE}, no rows will be read.}
+
+\item{check_attributes}{(logical). Default TRUE. Calls \code{\link{qa_attributes}}.}
+
+\item{check_creators}{(logigal) Default FALSE. If True, will test if each creator has been assigned an ORCID. Will also run if \code{check_access = TRUE}.}
+
+\item{check_access}{(logigal) Default FALSE. If True, will test if each creator has full access to the metadata, resource_map, and data objects. Will not run if the tests associated with \code{check_creators} fails.}
 }
 \description{
 This script assumes correctness in the resource map and data
-Purpose: QA script to check that attributes match values in the data
+Purpose: QA script to check a DataONE EML package. Will check that attributes match values in the data.
 }
 \details{
-Functions:
-    Names: Check that all column names in attributes match the column names in the csv
-    Possible conditions to account for:
-    - dataTable does not exist for a csv
-    - Physical has not been set and so URL id in dataTable is incorrect
-    - Some of the attributes that exist in the data don't exist in the attribute table
-    - Some of the attributes that exist in the attribute table don't exist in the data
-    - There is a typo in one of the attributes or column names so they don't match (maybe covered by above)
-    Domains: Check that all attribute types match attribute types in the csv
-    Possible conditions to account for:
-    - nominal, ordinal, integer, ratio, dateTime
-    - If domain is enumerated domain, not all enumerated values in the data are accounted for in the enumarated definition
-    - If domain is enumerated domain, not all enumerated values in the enumerated definition are actually represented in the data
-    - Type of data does not match type
-    Values: Check for accidental characters in the csv (one char in a column of ints)
-
-Note: this function also calls qa_attributes and passes the data object and associated dataTable, but this function can also be called directly.
+Note: this function also calls \code{\link{qa_attributes}} and passes the data object and associated dataTable, but that function can also be called directly.
 }
 \examples{
 \dontrun{
 # For a package, run QA checks
-qa_package(mn, pid, readData = FALSE)
+qa_package(mn, pid, readData = FALSE, check_attributes = TRUE, check_creators = FALSE, check_access = FALSE)
 }
 }
 \author{
