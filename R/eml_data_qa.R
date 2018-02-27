@@ -147,7 +147,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
             cat(crayon::red(paste0("\nFailed to read file ", urls[i])))
         })
 
-        qa_attributes(node, dataTable, data, readData)
+        qa_attributes(node, dataTable, data, readAllData)
 
         cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
     }
