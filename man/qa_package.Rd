@@ -4,14 +4,14 @@
 \alias{qa_package}
 \title{Test congruence of attributes and data for a package}
 \usage{
-qa_package(node, pid, readData = TRUE)
+qa_package(node, pid, rowsToRead = "All")
 }
 \arguments{
 \item{node}{(MNode) Member Node where the PID is associated with a package.}
 
 \item{pid}{(character) The PID of a resource map to be QA'ed.}
 
-\item{readData}{(logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).}
+\item{rowsToRead}{(character/numeric) Default 10. If set to "All", will pull all data from remote and check that column types match attributes, otherwise only pull first rows listed equal to rowsToRead (e.g. rowsToRead = 10 will pull first 10 rows). Only applicable to public packages (private packages will read complete dataset). To skip checking data, set rowsToread = 0.}
 }
 \description{
 This script assumes correctness in the resource map and data
@@ -35,11 +35,13 @@ Functions:
     Values: Check for accidental characters in the csv (one char in a column of ints)
 
 Note: this function also calls qa_attributes and passes the data object and associated dataTable, but this function can also be called directly.
+
+#' @importFrom datapack hasAccessRule
 }
 \examples{
 \dontrun{
 # For a package, run QA checks
-qa_package(mn, pid, readData = FALSE)
+qa_package(mn, pid, rowsToRead = 10)
 }
 }
 \author{
