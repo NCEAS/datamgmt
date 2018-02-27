@@ -115,7 +115,7 @@ qa_package <- function(node, pid, readData = TRUE) {
         data <- tryCatch({
             if (isPublic == TRUE) {
                 if (format == "text/csv") {
-                    utils::read.csv(urls[i], nrows = rowsToRead, check.names=FALSE)
+                    utils::read.csv(urls[i], nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
                 } else if (format == "text/tsv") {
                     utils::read.delim(urls[i], nrows = rowsToRead)
                 } else if (format == "text/plain") {
@@ -126,7 +126,7 @@ qa_package <- function(node, pid, readData = TRUE) {
                     readxl::read_xlsx(urls[i], n_max = rowsToRead)
                 }
             } else {
-                utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, stringsAsFactors = FALSE)
+                utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
             }
         },
         error = function(e) {
