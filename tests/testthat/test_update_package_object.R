@@ -7,12 +7,16 @@ mnTest <- env_load()$mn
 context("Update EML physical (helper function)")
 
 test_that("update_physical works", {
+    if (!is_token_set(mnTest)) {
+        skip("No token set. Skipping test.")
+    }
+
     cnTest <- dataone::CNode('STAGING')
     mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
     #make dummy pkg/data
-    pkg <- arcticdatautils::create_dummy_package(mnTest,
-                                                 size = 2)
+    pkg <- create_dummy_package2(mnTest,
+                                 title = "update phys check")
 
     dummy_object_path <- tempfile("dummy_object",
                                   fileext = ".csv")
