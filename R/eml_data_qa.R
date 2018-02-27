@@ -21,9 +21,10 @@
 #'
 #'     Note: this function also calls qa_attributes and passes the data object and associated dataTable, but this function can also be called directly.
 #'
+#'#' @importFrom datapack hasAccessRule
 #' @param node (MNode) Member Node where the PID is associated with a package.
 #' @param pid (character) The PID of a resource map to be QA'ed.
-#' @param readData (logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
+#' @param rowsToRead (character/numeric) Default 10. If set to "All", will pull all data from remote and check that column types match attributes, otherwise only pull first rows listed equal to rowsToRead (e.g. rowsToRead = 10 will pull first 10 rows). Only applicable to public packages (private packages will read complete dataset). To skip checking data, set rowsToread = 0.
 #'
 #' @return
 #' @export
@@ -33,15 +34,12 @@
 #' @examples
 #' \dontrun{
 #' # For a package, run QA checks
-#' qa_package(mn, pid, readData = FALSE)
+#' qa_package(mn, pid, rowsToRead = 10)
 #' }
-qa_package <- function(node, pid, readData = TRUE) {
+qa_package <- function(node, pid, rowsToRead = "All") {
     stopifnot(class(node) %in% c("MNode", "CNode"))
     stopifnot(is.character(pid), nchar(pid) > 0)
-
-    # This function checks that all data in the package is consistent between the EML and systemMetadata, and
-    # checks that all data, metadata, and resource maps have proper rights and access set.
-    # datamgmt::check_package(node, pid)
+    stopifnot(rowsToRead == "All" | is.numeric(rowsToRead))
 
     supported_file_formats <- c("text/csv",
                                 "text/tsv",
@@ -58,28 +56,34 @@ qa_package <- function(node, pid, readData = TRUE) {
 
     eml <- EML::read_eml(rawToChar(dataone::getObject(node, package$metadata)))
 
-    cat(crayon::green(paste0("\n\n\n..................Processing package ", package$resource_map, "..................")))
+    cat(crayon::green(paste0("\n\n\n..................Processing package ", package$resource_map, "..................\n")))
 
-    urls <- character(0)
+    # Check creators
+    creators <- eml@dataset@creator
+    creator_ORCIDs <- unlist(eml_get(creators, "userId"))
+    isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}", creator_ORCIDs)
+    creator_ORCIDs <- sub("^https://", "http://", creator_ORCIDs)
 
-    for (i in seq_along(eml@dataset@dataTable)) {
-        dataTable <- eml@dataset@dataTable[[i]]
-
-        if (length(dataTable@physical) == 0) {
-            cat(crayon::red(paste0("\nMissing physical for dataTable with entityName: ", dataTable@entityName)))
-            next
-        }
-
-        if (length(dataTable@physical[[1]]@distribution) == 0) {
-            cat(crayon::red(paste0("\nMissing URL/distribution info for dataTable with objectName: ", dataTable@physical[[1]]@objectName)))
-        } else {
-            urls <- c(urls, dataTable@physical[[1]]@distribution[[1]]@online@url)
-        }
+    if (length(isORCID) != length(creators) || !all(isORCID)) {
+        cat(crayon::red("\nEach creator needs to have a proper ORCID."))
+    } else {
+        cat(crayon::green("\nAll creators have a proper ORCID."))
     }
 
-    if (length(urls) == 0) {
-        cat(crayon::red("\nNone of the objects in this package have associated physicals with URLs. Fix this error and try again."))
-        return(0)
+    urls <- unique(unlist(EML::eml_get(eml, "url"), recursive = T))
+
+    if(length(urls) != length(package$data)) {
+        stop("Not all data files have a physical section in the eml. Please fix and try again.")
+    }
+
+    urls_in_data <- grepl(paste0(package$data, collapse="$|"), urls)
+
+    if(!all(urls_in_data)) {
+       cat(crayon::red("\nThe following URLs set in the eml do not match the URLs set in the physicals. Fix this error and try again."))
+       cat(crayon::red("\n", urls[!urls_in_data]))
+       return(0)
+    } else {
+        cat(crayon::green("\nAll objects in this package have associated physicals with URLs."))
     }
 
     for (objectpid in package$data)
@@ -87,30 +91,62 @@ qa_package <- function(node, pid, readData = TRUE) {
         # Does the given pid have an associated datatable
         sysmeta <- dataone::getSystemMetadata(node, objectpid)
 
+        i <- which(grepl(paste0(objectpid, collapse="$|"), urls))
+
+        if (length(i) == 0) next
+
+        if (i <= length(eml@dataset@dataTable)) {
+            dataTable <- eml@dataset@dataTable[[i]]
+            objectName <- dataTable@physical[[1]]@objectName
+            is_otherEntity <- FALSE
+        } else {
+            dataTable <- NULL
+            objectName <- eml@dataset@otherEntity[[i - length(eml@dataset@dataTable)]]@physical[[1]]@objectName
+            is_otherEntity <- TRUE
+        }
+
+        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", objectName, "..................")))
+
+
+        # Check rights holder
+        if (!(sysmeta@rightsHolder %in% creator_ORCIDs)) {
+            cat(crayon::yellow("\nThe rightsHolder is not set to one of the creators"))
+        } else {
+            cat(crayon::green("\nThe rightsHolder is set to one of the creators"))
+        }
+
+        # Check creator access
+         for (creator in creator_ORCIDs) {
+             creator_read <- datapack::hasAccessRule(sysmeta, creator, "read")
+             creator_write <- datapack::hasAccessRule(sysmeta, creator, "write")
+             creator_changePermissions <- datapack::hasAccessRule(sysmeta, creator, "changePermission")
+             access <- c(creator_read, creator_write, creator_changePermissions)
+
+             if (!all(access)) {
+                 cat(crayon::yellow("\nFull access is not set for creator ORCID", creator))
+             } else {
+                 cat(crayon::green("\nFull access is set for creator ORCID", creator))
+             }
+         }
+
         # If object is not tabular data, continue
         format <- sysmeta@formatId
         if (!format %in% supported_file_formats) next
 
-        # If object is tabular data, should also have a dataTable, which is matched by the url
-        i <- which(grepl(objectpid, urls))
-
-        if (length(i) == 0) {
-            cat(crayon::red(paste0("\nThe are no matching dataTables for object ", objectpid, " with format ", format,
-                           ". Check for a mismatch in the physical url and the pid in the resource map.")))
+        # If object is tabular data, and set as an other Entity, warn.
+        if (is_otherEntity) {
+            cat(crayon::red(paste0("\nThis object has a format '", format, "', but is set as an otherEntity.\n ",
+                           "If the data is tabular, please set as a dataTable")))
             next
         }
 
-        dataTable <- eml@dataset@dataTable[[i]]
-        cat(crayon::green(paste0("\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
-
         # If package is public, we can read directly from the csv, otherwise we use data one have to get all the data
-        isPublic <- "public" %in% sysmeta@accessPolicy$subject
+        isPublic <- datapack::hasAccessRule(sysmeta, "public", "read")
 
-        if (readData == TRUE) {
-            rowsToRead <- -1
-        } else {
-            rowsToRead <- 10
-        }
+        if (rowsToRead == "All") {
+            rowsToRead <- -1}
+
+        if (rowsToRead == 0) next
 
         data <- tryCatch({
             if (isPublic == TRUE) {
@@ -135,7 +171,7 @@ qa_package <- function(node, pid, readData = TRUE) {
 
         qa_attributes(node, dataTable, data, readData)
 
-        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", objectName, "..................")))
     }
 }
 
