@@ -25,6 +25,7 @@ create_dummy_package2 <- function(mn,
 
     #upload objects
     file.create(c("dummy1.csv", "dummy2.csv", "dummy1.jpg", "dummy2.jpg"))
+    #TODO: add actual data to dummy files
 
     pid_csv1 <- arcticdatautils::publish_object(mn,
                                                 path = "dummy1.csv",
