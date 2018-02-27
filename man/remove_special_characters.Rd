@@ -7,7 +7,7 @@
 remove_special_characters(pid)
 }
 \arguments{
-\item{pid}{(character) The identifier a dataOne object}
+\item{pid}{(character) The identifier a dataOne object.}
 }
 \value{
 (character) The formatted identifer as a string
