@@ -20,7 +20,10 @@
 #'     Values: Check for accidental characters in the csv (one char in a column of ints)
 #'
 #'     Note: this function also calls qa_attributes and passes the data object and associated dataTable, but this function can also be called directly.
-#'
+#' @importFrom datapack hasAccessRule
+#' @import EML
+#' @import crayon
+#' @import arcticdatautils
 #' @param node (MNode) Member Node where the PID is associated with a package.
 #' @param pid (character) The PID of a resource map to be QA'ed.
 #' @param readData (logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
