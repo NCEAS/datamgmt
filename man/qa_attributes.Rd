@@ -20,6 +20,8 @@ This function is called by \code{\link{qa_package}} but can be used on its own t
 between a dataTable and a data object (data.frame). See \code{\link{qa_package}} help documentation for more details.
 }
 \details{
+Purpose: QA script to check that attributes match values in the data
+
 Functions:
     Names: Check that all column names in attributes match the column names in the csv
     Possible conditions to account for:
