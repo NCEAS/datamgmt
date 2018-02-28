@@ -4,6 +4,7 @@
 #' Purpose: QA script to check a DataONE EML package. Will check that attributes match values in the data.
 #'
 #'     Note: this function also calls \code{\link{qa_attributes}} and passes the data object and associated dataTable, but that function can also be called directly.
+#'
 #' @importFrom datapack hasAccessRule
 #' @import EML
 #' @import crayon
@@ -211,6 +212,8 @@ qa_access <- function(sysmeta, creator_ORCIDs) {
 #'
 #' This function is called by \code{\link{qa_package}} but can be used on its own to test congruence
 #' between a dataTable and a data object (data.frame). See \code{\link{qa_package}} help documentation for more details.
+#'
+#' Purpose: QA script to check that attributes match values in the data
 #'
 #' Functions:
 #'     Names: Check that all column names in attributes match the column names in the csv
