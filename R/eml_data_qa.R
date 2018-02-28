@@ -55,7 +55,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
     }
 
     # Check access
-    if (check_access & length(creator_ORCIDs) > 0) {
+    if (check_access && length(creator_ORCIDs) > 0) {
         # Check metadata
         cat(crayon::green(paste0("\n\n..................Checking access, metadata..................")))
         sysmeta <- dataone::getSystemMetadata(node, package$metadata)
@@ -77,10 +77,8 @@ qa_package <- function(node, pid, readAllData = TRUE,
         data <- package$data[i] # use this as opposed to (data in package$data) to preserve names
         n <- which(grepl(paste0(data, "$"), urls))
 
-        if (length(n) == 1) {
-            cat(crayon::green(paste0("\nThe URL/distribution for ", names(data), " is correctly listed in the physical section of the eml.")))
-        } else {
-            cat(crayon::red(paste0("\nThe URL/distribution for ", names(data), " is missing/incongruent in the physical section of the eml.")))
+        if (length(n) != 1) {
+            cat(crayon::red(paste0("\nThe URL/distribution for ", data, " is missing/incongruent in the physical section of the eml.")))
             wrong_URL <- TRUE
         }
     }
@@ -109,12 +107,11 @@ qa_package <- function(node, pid, readAllData = TRUE,
             next
         }
 
-        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
-
         sysmeta <- dataone::getSystemMetadata(node, objectpid)
 
         if (check_access && length(creator_ORCIDs) > 0) {
-            qa_access(sysmeta, creator_ORCIDs)}
+            qa_access(sysmeta, creator_ORCIDs)
+        }
 
         if (!check_attributes) next
 
@@ -122,7 +119,9 @@ qa_package <- function(node, pid, readAllData = TRUE,
         format <- sysmeta@formatId
         if (!format %in% supported_file_formats) next
 
-        # If package is public, we can read directly from the csv, otherwise we use data one have to get all the data
+        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+
+        # If package is public, we can read directly from the csv, otherwise we use data one to get all the data
         isPublic <- datapack::hasAccessRule(sysmeta, "public", "read")
 
         if (readAllData == TRUE) {
@@ -149,7 +148,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
             }
         },
         error = function(e) {
-            cat(crayon::red(paste0("\nFailed to read file ", urls[i])))
+            stop(paste0("\nFailed to read file ", urls[i]))
         })
 
         qa_attributes(node, dataTable, data, readAllData)
