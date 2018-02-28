@@ -89,7 +89,7 @@ update_package_object <- function(mn,
     stopifnot(is.character(resource_map_pid))
     stopifnot(is.logical(public))
 
-    pkg <- get_package(mn, resource_map_pid)
+    pkg <- arcticdatautils::get_package(mn, resource_map_pid)
     #if metadata and data pids are provided, can skip get_package and use this:
     # pkg <- list(metadata = metadata_pid,
     #             resource_map = resource_map_pid,
@@ -123,13 +123,14 @@ update_package_object <- function(mn,
     # print(unlist(eml_get(eml, "url")))
     # print(unlist(eml_get(eml_new, "url")))
 
-    pkg_new <- publish_update(mn,
-                              metadata_pid = pkg$metadata,
-                              resource_map_pid = pkg$resource_map,
-                              metadata_path = eml_path,
-                              data_pids = new_data_pids,
-                              use_doi = use_doi,
-                              public = public)
+    pkg_new <- arcticdatautils::publish_update(
+        mn,
+        metadata_pid = pkg$metadata,
+        resource_map_pid = pkg$resource_map,
+        metadata_path = eml_path,
+        data_pids = new_data_pids,
+        use_doi = use_doi,
+        public = public)
 
     file.remove(eml_path)
 
