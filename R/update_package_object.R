@@ -108,13 +108,13 @@ update_package_object <- function(mn,
 
     #update EML
     eml_new <- tryCatch(update_physical(eml = eml,
-                                    mn = mn,
-                                    data_pid = data_pid,
-                                    new_data_pid = new_data_pid),
-                    error = function(e) {
-                        print("The data pid does not match any physical sections. The EML will not be updated.")
-                        return(eml)
-                    })
+                                        mn = mn,
+                                        data_pid = data_pid,
+                                        new_data_pid = new_data_pid),
+                        error = function(e) {
+                            print("The data pid does not match any physical sections. The EML will not be updated.")
+                            return(eml)
+                        })
 
     eml_path <- "science-metadata.xml"
     file.create(eml_path)
