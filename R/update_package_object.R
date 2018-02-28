@@ -41,11 +41,13 @@ update_physical <- function(eml,
     invisible(eml)
 }
 
-#' Update a data object and accompanying package resource map
+#' Update a data object and accompanying resource map & EML
 #'
-#' This function updates an data object, and then automatically
-#' updates the package resource map with the new data pid. It
-#' is a convenience wrapper around \link[arcticdatautils]{update_object}
+#' This function updates a data object, and then automatically
+#' updates the package resource map with the new data pid. If an object
+#' already has a \code{dataTable} or \code{otherEntity} with a working
+#' physical section, the EML will be updated with the new data's physical.
+#' It is a convenience wrapper around \link[arcticdatautils]{update_object}
 #' and \link[arcticdatautils]{update_resource_map}.
 #'
 #' @param mn (MNode) Member node
@@ -67,6 +69,21 @@ update_physical <- function(eml,
 #' @import dataone
 #' @import EML
 #' @import crayon
+#'
+#' @examples
+#' \dontrun{
+#' #input token to run
+#' cnTest <- dataone::CNode('STAGING')
+#' mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+#'
+#' pkg <- create_dummy_package2(mnTest, title = "My package")
+#'
+#' file.create("new_file.csv")
+#' update_package_object(mnTest, pkg$data[1], "new_file.csv", pkg$resource_map, format_id = "text/csv")
+#' file.remove("new_file.csv") #clean up
+#'
+#' #check out the package on test.arcticdata.io
+#' }
 #'
 #' @export
 

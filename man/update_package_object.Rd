@@ -2,7 +2,7 @@
 % Please edit documentation in R/update_package_object.R
 \name{update_package_object}
 \alias{update_package_object}
-\title{Update a data object and accompanying package resource map}
+\title{Update a data object and accompanying resource map & EML}
 \usage{
 update_package_object(mn, data_pid, new_data_path, resource_map_pid,
   format_id = NULL, public = FALSE, use_doi = FALSE)
@@ -28,10 +28,28 @@ Access policies are not affected.}
 \item{use_doi}{(logical) Optional. If TRUE, a new doi will be minted.}
 }
 \description{
-This function updates an data object, and then automatically
-updates the package resource map with the new data pid. It
-is a convenience wrapper around \link[arcticdatautils]{update_object}
+This function updates a data object, and then automatically
+updates the package resource map with the new data pid. If an object
+already has a \code{dataTable} or \code{otherEntity} with a working
+physical section, the EML will be updated with the new data's physical.
+It is a convenience wrapper around \link[arcticdatautils]{update_object}
 and \link[arcticdatautils]{update_resource_map}.
+}
+\examples{
+\dontrun{
+#input token to run
+cnTest <- dataone::CNode('STAGING')
+mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
+pkg <- create_dummy_package2(mnTest, title = "My package")
+
+file.create("new_file.csv")
+update_package_object(mnTest, pkg$data[1], "new_file.csv", pkg$resource_map, format_id = "text/csv")
+file.remove("new_file.csv") #clean up
+
+#check out the package on test.arcticdata.io
+}
+
 }
 \keyword{update_object}
 \keyword{update_resource_map}
