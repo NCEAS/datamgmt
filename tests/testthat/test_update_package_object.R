@@ -19,9 +19,9 @@ test_that("update_physical works", {
     file.create("dummy_object.csv")
 
     new_data_pid <- arcticdatautils::update_object(mnTest,
-                             pid = pkg$data[2],
-                             path = "dummy_object.csv",
-                             format_id = "text/csv")
+                                                   pid = pkg$data[2],
+                                                   path = "dummy_object.csv",
+                                                   format_id = "text/csv")
 
     file.remove("dummy_object.csv")
 
@@ -33,7 +33,7 @@ test_that("update_physical works", {
                       new_data_pid))
 
     eml_original <- EML::read_eml(rawToChar(dataone::getObject(mnTest,
-                                                      pkg$metadata)))
+                                                               pkg$metadata)))
 
     eml_new <- update_physical(eml_original,
                                mnTest,
