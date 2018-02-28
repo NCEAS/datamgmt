@@ -2,12 +2,12 @@ library(arcticdatautils)
 library(dataone)
 library(EML)
 
-mnTest <- env_load()$mn
+mnTest <- arcticdatautils::env_load()$mn
 
 context("Update EML physical (helper function)")
 
 test_that("update_physical works", {
-    if (!is_token_set(mnTest)) {
+    if (!arcticdatautils::is_token_set(mnTest)) {
         skip("No token set. Skipping test.")
     }
 
@@ -18,34 +18,69 @@ test_that("update_physical works", {
     pkg <- create_dummy_package2(mnTest,
                                  title = "update phys check")
 
-    dummy_object_path <- tempfile("dummy_object",
-                                  fileext = ".csv")
-    write.csv("dummy_object", dummy_object_path)
+    file.create("dummy_object.csv")
 
     new_data_pid <- arcticdatautils::update_object(mnTest,
-                             pid = pkg$data,
-                             path = dummy_object_path,
+                             pid = pkg$data[2],
+                             path = "dummy_object.csv",
                              format_id = "text/csv")
 
-    rm_pid <- arcticdatautils::update_resource_map(mnTest,
-                                                   resource_map_pid = pkg$resource_map,
-                                                   metadata_pid = pkg$metadata,
-                                                   data_pids = new_data_pid)
+    file.remove("dummy_object.csv")
 
-    eml <- EML::read_eml(rawToChar(dataone::getObject(mnTest,
+    pkg_new <- arcticdatautils::publish_update(
+        mnTest,
+        resource_map_pid = pkg$resource_map,
+        metadata_pid = pkg$metadata,
+        data_pids = c(pkg$data[-2],
+                      new_data_pid))
+
+    eml_original <- EML::read_eml(rawToChar(dataone::getObject(mnTest,
                                                       pkg$metadata)))
 
-    eml_new <- update_physical(eml,
+    eml_new <- update_physical(eml_original,
                                mnTest,
-                               data_pid = pkg$data,
+                               data_pid = pkg$data[2],
                                new_data_pid = new_data_pid)
 
+    url_original <- unlist(EML::eml_get(eml_original, "url"))
+    url_new <- unlist(EML::eml_get(eml_new, "url"))
+
+    #check pids in old package
+    expect_equal(sum(stringr::str_detect(url_original,
+                                         pkg$data[1])),
+                 1)
+    expect_equal(sum(stringr::str_detect(url_original,
+                                         pkg$data[2])),
+                 1)
+    expect_equal(sum(stringr::str_detect(url_original,
+                                         pkg$data[3])),
+                 1)
+    expect_equal(sum(stringr::str_detect(url_original,
+                                         pkg$data[4])),
+                 1)
+
+    #check pids of new package
+    expect_equal(sum(stringr::str_detect(url_new,
+                                         new_data_pid)),
+                 1)
+    expect_equal(sum(stringr::str_detect(url_new,
+                                         pkg$data[1])),
+                 1)
+    expect_equal(sum(stringr::str_detect(url_new,
+                                         pkg$data[2])),
+                 0)
+    expect_equal(sum(stringr::str_detect(url_new,
+                                         pkg$data[3])),
+                 1)
+    expect_equal(sum(stringr::str_detect(url_new,
+                                         pkg$data[4])),
+                 1)
 })
 
 context("Update object & resource map")
 
 test_that("specified data object is changed; rest of package is intact", {
-    if (!is_token_set(mnTest)) {
+    if (!arcticdatautils::is_token_set(mnTest)) {
         skip("No token set. Skipping test.")
     }
 
@@ -53,25 +88,27 @@ test_that("specified data object is changed; rest of package is intact", {
     mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
     #make dummy pkg/data
-    pkg <- arcticdatautils::create_dummy_package(mnTest,
-                                                 size = 4)
+    pkg <- create_dummy_package2(mnTest,
+                                 "check update_package_object")
 
-    dummy_data <- data.frame(col1 = 1:26, col2 = letters)
-    new_data_path <- tempfile(fileext = ".csv")
-    write.csv(dummy_data, new_data_path, row.names = FALSE)
+    new_data_path <- "test_file.csv"
+    file.create(new_data_path)
 
     data_pid <- pkg$data[2]
 
     pkg_new <- update_package_object(mnTest,
-                                     data_pid,
-                                     new_data_path,
-                                     pkg$resource_map)
+                                     data_pid = data_pid,
+                                     new_data_path = new_data_path,
+                                     resource_map_pid = pkg$resource_map,
+                                     format_id = "text/csv")
+
+    file.remove(new_data_path)
 
     #test: other objects are retained
     expect_equal(all(pkg$data[-2] %in% pkg_new$data), TRUE)
 
-    #test: metadata stays the same
-    expect_equal(pkg$metadata, pkg_new$metadata)
+    #test: metadata changes
+    expect_false(pkg$metadata == pkg_new$metadata)
 
     #test: new data pid is a version of old data pid
     versions <- arcticdatautils::get_all_versions(mnTest, data_pid)
@@ -80,9 +117,30 @@ test_that("specified data object is changed; rest of package is intact", {
     new_data_pid <- pkg_new$data[!pkg_new$data %in% pkg$data]
 
     expect_equal(latest_version, new_data_pid)
+
+    #test: eml is updated
+    eml_original <- EML::read_eml(rawToChar(dataone::getObject(mnTest,
+                                                               pkg$metadata)))
+
+    eml_new <- EML::read_eml(rawToChar(dataone::getObject(mnTest,
+                                                          pkg_new$metadata)))
+
+    url_original <- unlist(EML::eml_get(eml_original, "url"))
+    url_new <- unlist(EML::eml_get(eml_new, "url"))
+
+    expect_true(url_original[2] != url_new[2])
+    expect_equal(url_original[1], url_new[1])
+    expect_equal(url_original[3], url_new[3])
+    expect_equal(url_original[4], url_new[4])
+
+    expect_true(stringr::str_detect(url_new[2], new_data_pid))
 })
 
 test_that("argument checks work", {
+    if (!arcticdatautils::is_token_set(mnTest)) {
+        skip("No token set. Skipping test.")
+    }
+
     cnTest <- dataone::CNode('STAGING')
     mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
@@ -112,12 +170,9 @@ test_that("argument checks work", {
                                        data_pid = file_path,
                                        new_data_path = "something",
                                        rm_pid = 1))
+    file.remove(file_path)
 })
 
-#add tests for updating the physical section
-    #for otherEntity
-    #for dataTable
-    #if there are no matches
 
 test_that("EML updates", {
     if (!is_token_set(mnTest)) {
