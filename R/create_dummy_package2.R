@@ -46,9 +46,7 @@ create_dummy_package2 <- function(mn,
     data_pids <- c(pid_csv1, pid_csv2, pid_jpg1, pid_jpg2)
 
     #import EML
-    eml_path_original <- "/home/isteves/datamgmt/inst/dummy_meta_full.xml"
-    #TODO change to:
-    #file.path(system.file(package = "arcticdatautils"), "dummy_meta_full.xml")
+    eml_path_original <- file.path(system.file(package = "datamgmt"), "dummy_meta_full.xml")
 
     eml <- EML::read_eml(eml_path_original)
     eml_path <- tempfile(fileext = ".xml") #for saving later
