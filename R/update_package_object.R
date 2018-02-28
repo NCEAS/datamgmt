@@ -65,6 +65,7 @@ update_physical <- function(eml,
 #'
 #' @import arcticdatautils
 #' @import dataone
+#' @import EML
 #'
 #' @export
 
@@ -80,14 +81,14 @@ update_package_object <- function(mn,
                                   use_doi = FALSE) {
 
     #argument checks:
-    stopifnot(is(mnTest, "MNode"))
+    stopifnot(is(mn, "MNode"))
     stopifnot(is.character(data_pid))
     stopifnot(is.character(new_data_path))
     stopifnot(file.exists(new_data_path))
     stopifnot(is.character(resource_map_pid))
     stopifnot(is.logical(public))
 
-    pkg <- get_package(mnTest, resource_map_pid)
+    pkg <- get_package(mn, resource_map_pid)
     #if metadata and data pids are provided, can skip get_package and use this:
     # pkg <- list(metadata = metadata_pid,
     #             resource_map = resource_map_pid,
