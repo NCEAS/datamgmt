@@ -9,15 +9,34 @@ qa_attributes(node, dataTable, data, checkEnumeratedDomains = TRUE)
 \arguments{
 \item{node}{(MNode) Member Node where the PID is associated with an object.}
 
-\item{dataTable}{(dataTable) EML \code{dataTable} associated with the data object.}
+\item{dataTable}{(dataTable) EML \code{dataTable} or \code{otherEntity} associated with the data object.}
 
 \item{data}{(data.frame) Data frame of data object.}
 
 \item{checkEnumeratedDomains}{(logical) Default TRUE. If True, will match unique values in data to defined EML enumerated domains.}
 }
 \description{
-This function is called by get_package() but can be used on its own to test congruence
-between a dataTable and a data object (data.frame). See qa_package() help documentation for more details.
+This function is called by \code{\link{qa_package}} but can be used on its own to test congruence
+between a dataTable and a data object (data.frame). See \code{\link{qa_package}} help documentation for more details.
+}
+\details{
+Purpose: QA script to check that attributes match values in the data
+
+Functions:
+    Names: Check that all column names in attributes match the column names in the csv
+    Possible conditions to account for:
+    - attributeList does not exist for a csv
+    - Physical has not been set correctly
+    - Some of the attributes that exist in the data don't exist in the attributeList
+    - Some of the attributes that exist in the attributeList don't exist in the data
+    - There is a typo in one of the attributes or column names so they don't match (maybe covered by above)
+    Domains: Check that all attribute types match attribute types in the csv
+    Possible conditions to account for:
+    - nominal, ordinal, integer, ratio, dateTime
+    - If domain is enumerated domain, not all enumerated values in the data are accounted for in the enumarated definition
+    - If domain is enumerated domain, not all enumerated values in the enumerated definition are actually represented in the data
+    - Type of data does not match type
+    Values: Check for accidental characters in the csv (one char in a column of ints)
 }
 \examples{
 \dontrun{

@@ -1,30 +1,20 @@
-#' Test congruence of attributes and data for a package
+#' Test package including congruence of attributes and data
 #'
 #' This script assumes correctness in the resource map and data
-#' Purpose: QA script to check that attributes match values in the data
+#' Purpose: QA script to check a DataONE EML package. Will check that attributes match values in the data.
 #'
-#'    Functions:
-#'     Names: Check that all column names in attributes match the column names in the csv
-#'     Possible conditions to account for:
-#'     - dataTable does not exist for a csv
-#'     - Physical has not been set and so URL id in dataTable is incorrect
-#'     - Some of the attributes that exist in the data don't exist in the attribute table
-#'     - Some of the attributes that exist in the attribute table don't exist in the data
-#'     - There is a typo in one of the attributes or column names so they don't match (maybe covered by above)
-#'     Domains: Check that all attribute types match attribute types in the csv
-#'     Possible conditions to account for:
-#'     - nominal, ordinal, integer, ratio, dateTime
-#'     - If domain is enumerated domain, not all enumerated values in the data are accounted for in the enumarated definition
-#'     - If domain is enumerated domain, not all enumerated values in the enumerated definition are actually represented in the data
-#'     - Type of data does not match type
-#'     Values: Check for accidental characters in the csv (one char in a column of ints)
+#'     Note: this function also calls \code{\link{qa_attributes}} and passes the data object and associated dataTable, but that function can also be called directly.
 #'
-#'     Note: this function also calls qa_attributes and passes the data object and associated dataTable, but this function can also be called directly.
-#'
+#' @importFrom datapack hasAccessRule
+#' @import EML
+#' @import crayon
+#' @import arcticdatautils
 #' @param node (MNode) Member Node where the PID is associated with a package.
 #' @param pid (character) The PID of a resource map to be QA'ed.
-#' @param readData (logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
-#'
+#' @param readAllData (logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset). If \code{check_attributes = FALSE}, no rows will be read.
+#' @param check_attributes (logical). Default TRUE. Calls \code{\link{qa_attributes}}.
+#' @param check_creators (logigal) Default FALSE. If True, will test if each creator has been assigned an ORCID. Will also run if \code{check_access = TRUE}.
+#' @param check_access (logigal) Default FALSE. If True, will test if each creator has full access to the metadata, resource_map, and data objects. Will not run if the tests associated with \code{check_creators} fails.
 #' @return
 #' @export
 #'
@@ -33,15 +23,14 @@
 #' @examples
 #' \dontrun{
 #' # For a package, run QA checks
-#' qa_package(mn, pid, readData = FALSE)
+#' qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE, check_creators = FALSE, check_access = FALSE)
 #' }
-qa_package <- function(node, pid, readData = TRUE) {
+qa_package <- function(node, pid, readAllData = TRUE,
+                       check_attributes = TRUE,
+                       check_creators = FALSE,
+                       check_access = FALSE) {
     stopifnot(class(node) %in% c("MNode", "CNode"))
     stopifnot(is.character(pid), nchar(pid) > 0)
-
-    # This function checks that all data in the package is consistent between the EML and systemMetadata, and
-    # checks that all data, metadata, and resource maps have proper rights and access set.
-    # datamgmt::check_package(node, pid)
 
     supported_file_formats <- c("text/csv",
                                 "text/tsv",
@@ -50,7 +39,7 @@ qa_package <- function(node, pid, readData = TRUE) {
                                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
     package <- tryCatch({
-        suppressWarnings(arcticdatautils::get_package(node, pid))
+        suppressWarnings(arcticdatautils::get_package(node, pid, file_names = TRUE))
     },
     error = function(e) {
         stop("\nFailed to get package. Is your DataONE token set?")
@@ -60,53 +49,83 @@ qa_package <- function(node, pid, readData = TRUE) {
 
     cat(crayon::green(paste0("\n\n\n..................Processing package ", package$resource_map, "..................")))
 
-    urls <- character(0)
+    # Check creators
+    if (check_creators | check_access) {
+        creator_ORCIDs <- qa_creators(eml)
+    }
 
-    for (i in seq_along(eml@dataset@dataTable)) {
-        dataTable <- eml@dataset@dataTable[[i]]
+    # Check access
+    if (check_access & length(creator_ORCIDs) > 0) {
+        # Check metadata
+        cat(crayon::green(paste0("\n\n..................Checking access, metadata..................")))
+        sysmeta <- dataone::getSystemMetadata(node, package$metadata)
+        qa_access(sysmeta, creator_ORCIDs)
 
-        if (length(dataTable@physical) == 0) {
-            cat(crayon::red(paste0("\nMissing physical for dataTable with entityName: ", dataTable@entityName)))
-            next
-        }
+        # Check resource_map
+        cat(crayon::green(paste0("\n\n..................Checking access, resource_map..................")))
+        sysmeta <- dataone::getSystemMetadata(node, package$resource_map)
+        qa_access(sysmeta, creator_ORCIDs)
+    }
 
-        if (length(dataTable@physical[[1]]@distribution) == 0) {
-            cat(crayon::red(paste0("\nMissing URL/distribution info for dataTable with objectName: ", dataTable@physical[[1]]@objectName)))
+    urls_dataTable <- unique(unlist(EML::eml_get(eml@dataset@dataTable, "url"), recursive = T))
+    urls_otherEntity <- unique(unlist(EML::eml_get(eml@dataset@otherEntity, "url"), recursive = T))
+    urls <- unique(append(urls_dataTable, urls_otherEntity))
+
+    # Checks that each data object has a matching url in the eml.
+    wrong_URL <- FALSE
+    for (i in seq_along(package$data)) {
+        data <- package$data[i] # use this as opposed to (data in package$data) to preserve names
+        n <- which(grepl(paste0(data, "$"), urls))
+
+        if (length(n) == 1) {
+            cat(crayon::green(paste0("\nThe URL/distribution for ", names(data), " is correctly listed in the physical section of the eml.")))
         } else {
-            urls <- c(urls, dataTable@physical[[1]]@distribution[[1]]@online@url)
+            cat(crayon::red(paste0("\nThe URL/distribution for ", names(data), " is missing/incongruent in the physical section of the eml.")))
+            wrong_URL <- TRUE
         }
     }
 
-    if (length(urls) == 0) {
-        cat(crayon::red("\nNone of the objects in this package have associated physicals with URLs. Fix this error and try again."))
-        return(0)
+    if (length(urls) != length(package$data) | wrong_URL) {
+        # Must stop here to ensure proper ordering in following loops.
+        stop("\nAll distribution URLs in the eml must match the package's data URLs to continue.",
+             "\nPlease fix and try again.")
     }
 
     for (objectpid in package$data)
     {
-        # Does the given pid have an associated datatable
+
+        n_dT <- which(grepl(paste0(objectpid, "$"), urls_dataTable))
+        n_oE <- which(grepl(paste0(objectpid, "$"), urls_otherEntity))
+
+        if (length(n_dT) == 1) {
+            dataTable <- eml@dataset@dataTable[[n_dT]]
+            urls <- urls_dataTable
+            i <- n_dT
+        } else if (length(n_oE) == 1) {
+            dataTable <- eml@dataset@otherEntity[[n_oE]]
+            urls <- urls_otherEntity
+            i <- n_oE
+        } else {
+            next
+        }
+
+        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+
         sysmeta <- dataone::getSystemMetadata(node, objectpid)
+
+        if (check_access && length(creator_ORCIDs) > 0) {
+            qa_access(sysmeta, creator_ORCIDs)}
+
+        if (!check_attributes) next
 
         # If object is not tabular data, continue
         format <- sysmeta@formatId
         if (!format %in% supported_file_formats) next
 
-        # If object is tabular data, should also have a dataTable, which is matched by the url
-        i <- which(grepl(objectpid, urls))
-
-        if (length(i) == 0) {
-            cat(crayon::red(paste0("\nThe are no matching dataTables for object ", objectpid, " with format ", format,
-                           ". Check for a mismatch in the physical url and the pid in the resource map.")))
-            next
-        }
-
-        dataTable <- eml@dataset@dataTable[[i]]
-        cat(crayon::green(paste0("\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
-
         # If package is public, we can read directly from the csv, otherwise we use data one have to get all the data
-        isPublic <- "public" %in% sysmeta@accessPolicy$subject
+        isPublic <- datapack::hasAccessRule(sysmeta, "public", "read")
 
-        if (readData == TRUE) {
+        if (readAllData == TRUE) {
             rowsToRead <- -1
         } else {
             rowsToRead <- 10
@@ -133,20 +152,91 @@ qa_package <- function(node, pid, readData = TRUE) {
             cat(crayon::red(paste0("\nFailed to read file ", urls[i])))
         })
 
-        qa_attributes(node, dataTable, data, readData)
+        qa_attributes(node, dataTable, data, readAllData)
 
         cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
     }
 }
 
+#' Test the ORCIDs of creators in a given EML
+#'
+#' This function is called by \code{\link{qa_package}}.
+#' See \code{\link{qa_package}} help documentation for more details.
+#'
+#' @param eml (eml) Package metadata
+#' @return creator_ORCIDs (character). Returns \code{character(0)} if any tests fail.
+qa_creators <- function(eml) {
+    # Check creators
+    creators <- eml@dataset@creator
+    creator_ORCIDs <- unlist(eml_get(creators, "userId"))
+    isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}", creator_ORCIDs)
+    creator_ORCIDs <- sub("^https://", "http://", creator_ORCIDs)
+
+    if (length(isORCID) != length(creators) || !all(isORCID)) {
+        cat(crayon::red("\nEach creator needs to have a proper ORCID."))
+        return(character(0))
+    } else {
+        cat(crayon::green("\nAll creators have a proper ORCID."))
+        return(creator_ORCIDs)
+    }
+}
+
+#' Tests that the rights and access are set for creators for a give pid sysmeta
+#'
+#' This function is called by \code{\link{qa_package}}.
+#' See \code{\link{qa_package}} help documentation for more details.
+#'
+#' @param sysmeta (sysmeta)  Sysmeta of a given object.
+#' @param creator_ORCIDs (character) ORCIDs of creators. Result of \code{\link{qa_creators}}.
+qa_access <- function(sysmeta, creator_ORCIDs) {
+
+    # Check rightsHolder
+    if ((sysmeta@rightsHolder %in% creator_ORCIDs)) {
+        cat(crayon::green("\nThe rightsHolder is set to one of the creators"))
+    } else {
+        cat(crayon::yellow("\nThe rightsHolder is not set to one of the creators"))
+    }
+
+    # Check creator access
+    for (creator in creator_ORCIDs) {
+        creator_read <- datapack::hasAccessRule(sysmeta, creator, "read")
+        creator_write <- datapack::hasAccessRule(sysmeta, creator, "write")
+        creator_changePermissions <- datapack::hasAccessRule(sysmeta, creator, "changePermission")
+        access <- c(creator_read, creator_write, creator_changePermissions)
+
+        if (all(access)) {
+            cat(crayon::green("\nFull access is set for creator with ORCID", creator))
+        } else {
+            cat(crayon::yellow("\nFull access is not set for creator with ORCID", creator))
+        }
+    }
+}
 
 #' Test congruence of attributes and data for a given dataset and dataTable
 #'
-#' This function is called by get_package() but can be used on its own to test congruence
-#' between a dataTable and a data object (data.frame). See qa_package() help documentation for more details.
+#' This function is called by \code{\link{qa_package}} but can be used on its own to test congruence
+#' between a dataTable and a data object (data.frame). See \code{\link{qa_package}} help documentation for more details.
+#'
+#' Purpose: QA script to check that attributes match values in the data
+#'
+#' Functions:
+#'     Names: Check that all column names in attributes match the column names in the csv
+#'     Possible conditions to account for:
+#'     - attributeList does not exist for a csv
+#'     - Physical has not been set correctly
+#'     - Some of the attributes that exist in the data don't exist in the attributeList
+#'     - Some of the attributes that exist in the attributeList don't exist in the data
+#'     - There is a typo in one of the attributes or column names so they don't match (maybe covered by above)
+#'     Domains: Check that all attribute types match attribute types in the csv
+#'     Possible conditions to account for:
+#'     - nominal, ordinal, integer, ratio, dateTime
+#'     - If domain is enumerated domain, not all enumerated values in the data are accounted for in the enumarated definition
+#'     - If domain is enumerated domain, not all enumerated values in the enumerated definition are actually represented in the data
+#'     - Type of data does not match type
+#'     Values: Check for accidental characters in the csv (one char in a column of ints)
 #'
 #' @param node (MNode) Member Node where the PID is associated with an object.
-#' @param dataTable (dataTable) EML \code{dataTable} associated with the data object.
+#' @param dataTable (dataTable) EML \code{dataTable} or \code{otherEntity} associated with the data object.
 #' @param data (data.frame) Data frame of data object.
 #' @param checkEnumeratedDomains (logical) Default TRUE. If True, will match unique values in data to defined EML enumerated domains.
 #'
