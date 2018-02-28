@@ -66,7 +66,7 @@ update_physical <- function(eml,
 #' @import arcticdatautils
 #' @import dataone
 #' @import EML
-#' @importFrom crayon cyan
+#' @import crayon
 #'
 #' @export
 
