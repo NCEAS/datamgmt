@@ -2,17 +2,15 @@ library(arcticdatautils)
 library(dataone)
 library(EML)
 
-mnTest <- arcticdatautils::env_load()$mn
-
 context("Update EML physical (helper function)")
 
 test_that("update_physical works", {
+    cnTest <- dataone::CNode('STAGING')
+    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
     if (!arcticdatautils::is_token_set(mnTest)) {
         skip("No token set. Skipping test.")
     }
-
-    cnTest <- dataone::CNode('STAGING')
-    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
     #make dummy pkg/data
     pkg <- create_dummy_package2(mnTest,
@@ -80,12 +78,12 @@ test_that("update_physical works", {
 context("Update object & resource map")
 
 test_that("specified data object is changed; rest of package is intact", {
+    cnTest <- dataone::CNode('STAGING')
+    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
     if (!arcticdatautils::is_token_set(mnTest)) {
         skip("No token set. Skipping test.")
     }
-
-    cnTest <- dataone::CNode('STAGING')
-    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
     #make dummy pkg/data
     pkg <- create_dummy_package2(mnTest,
@@ -137,12 +135,12 @@ test_that("specified data object is changed; rest of package is intact", {
 })
 
 test_that("argument checks work", {
+    cnTest <- dataone::CNode('STAGING')
+    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
     if (!arcticdatautils::is_token_set(mnTest)) {
         skip("No token set. Skipping test.")
     }
-
-    cnTest <- dataone::CNode('STAGING')
-    mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
     file_path <- tempfile(fileext = ".csv")
 
@@ -175,12 +173,12 @@ test_that("argument checks work", {
 
 
 test_that("EML updates", {
-    if (!is_token_set(mnTest)) {
-        skip("No token set. Skipping test.")
-    }
-
     cnTest <- dataone::CNode('STAGING')
     mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
+    if (!arcticdatautils::is_token_set(mnTest)) {
+        skip("No token set. Skipping test.")
+    }
 
     #make dummy pkg/data
     pkg <- arcticdatautils::create_dummy_package(mnTest,
