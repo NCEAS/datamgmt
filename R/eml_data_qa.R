@@ -99,8 +99,12 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         if (length(n_dT) == 1) {
             dataTable <- eml@dataset@dataTable[[n_dT]]
+            urls <- urls_dataTable
+            i <- n_dT
         } else if (length(n_oE) == 1) {
             dataTable <- eml@dataset@otherEntity[[n_oE]]
+            urls <- urls_otherEntity
+            i <- n_oE
         } else {
             next
         }
