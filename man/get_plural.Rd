@@ -5,7 +5,7 @@
 \title{Gets plural form of unit
 Based on ut_form_plural function in xml.c of udunits2}
 \usage{
-get_plural(unit, udunits_units = mem_load_all_units())
+get_plural(unit, udunits_units = load_udunits()$udunits_units)
 }
 \arguments{
 \item{unit}{(character) unit}

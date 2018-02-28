@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!--
+These are additional units that will appended to the udunits units xml files.
+At this point these units are just appended.
+Care must be taken to ensure there are no duplicative names, symbols, defs to the original xml files or this xml file will not be able to be appended.
 -->
 <unit-system>
     <unit>
@@ -8,5 +11,11 @@
         <name><singular>number</singular></name>
             <symbol comment="NUMBER SIGN">&#35;</symbol>
         <definition>a number</definition>
+    </unit>
+    <unit>
+        <comment>EML standard unit</comment>
+        <dimensionless/>
+        <name><singular>dimensionless</singular></name>
+        <definition>a designation asserting the absence of an associated unit</definition>
     </unit>
 </unit-system>
