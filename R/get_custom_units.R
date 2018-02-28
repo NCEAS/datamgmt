@@ -94,9 +94,13 @@ load_udunits <- function() {
         # Symbols
         symbol <- rep(paste0(udunits_unit_system[i, ]$symbol), length(name_singular))
 
+        #Dimensionless
+        dimensionless <- rep(paste0(udunits_unit_system[i, ]$dimensionless), length(name_singular))
+
         # Data frame
-        data.frame(name_singular, name_plural, symbol, stringsAsFactors = F)
+        data.frame(name_singular, name_plural, symbol, dimensionless, stringsAsFactors = F)
     })
+
     udunits_units <- do.call(rbind, udunits_units)
     udunits_units <- udunits_units[udunits_units$name_singular != "", ]
 
@@ -110,7 +114,7 @@ load_udunits <- function() {
 #' @param unit (character) unit
 #' @param udunits_units (data.frame) load_udunits()
 #' @return (character) plural form of unit
-get_plural <- function(unit, udunits_units = mem_load_all_units()) {
+get_plural <- function(unit, udunits_units = load_udunits()$udunits_units) {
 
     if (is.na(unit)) {
         unit <- ""
@@ -121,6 +125,7 @@ get_plural <- function(unit, udunits_units = mem_load_all_units()) {
     singular <- tolower(unit)
 
     n_singular <- which(singular == tolower(udunits_units$name_singular))
+
     if (length(n_singular) > 0) {
         plural <- udunits_units$name_plural[n_singular]
     } else {
@@ -132,6 +137,8 @@ get_plural <- function(unit, udunits_units = mem_load_all_units()) {
     # Known exceptions
     plural <- ifelse(unit == "siemens", "siemens", plural)
     plural <- ifelse(unit == "hertz", "hertz", plural)
+    plural <- ifelse(unit == "dimensionless", "dimensionless", plural)
+    plural <- ifelse(unit == "number", "number", plural)
 
     # If plural is not defined, define it
     if (plural == "" && unit != "") {
@@ -191,20 +198,32 @@ load_all_units <- function() {
                                                }))
 
     # Add prefixes to singles, plurals, and symbols
-    unit_single <- unlist(lapply(udunits_units$name_singular, function(x) {
-        paste0(prefixes_name, x)
+    unit_single <- unlist(lapply(seq_along(udunits_units$name_singular), function(i) {
+        x <- udunits_units$name_singular[i]
+        if (udunits_units$dimensionless[i]) {
+            paste0(x)
+        } else {
+            paste0(prefixes_name, x)}
     }))
-    unit_plural <- unlist(lapply(udunits_units$name_plural, function(x) {
-        paste0(prefixes_name, x)
+
+    unit_plural <- unlist(lapply(seq_along(udunits_units$name_singular), function(i) {
+        x <- udunits_units$name_plural[i]
+        if (udunits_units$dimensionless[i]) {
+            paste0(x)
+        } else {
+            paste0(prefixes_name, x)}
     }))
-    symbol <- unlist(lapply(udunits_units$symbol, function(x) {
-        if (grepl("[[:alpha:]]", x)) {
-            out <- paste0(prefixes_symbol, x)
+
+    symbol <- unlist(lapply(seq_along(udunits_units$name_singular), function(i) {
+        x <- udunits_units$symbol[i]
+        if (udunits_units$dimensionless[i]) {
+            paste0(x)
+        } else if (grepl("[[:alpha:]]", x)) {
+            paste0(prefixes_symbol, x)
         } else {
             out <- rep("", length(prefixes_symbol) - 1)
-            out <- c(out, x)
+            c(out, x)
         }
-        return(out)
     }))
 
     all_units <- data.frame(unit_single, unit_plural, symbol, stringsAsFactors = F)
@@ -387,13 +406,13 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
                 unit_split[i - 1] <- exponent
                 split_type[i - 1] <- "exponent"
 
-            # If there is a lagging unit and not a leading unit
-            # e.g. square meter
+                # If there is a lagging unit and not a leading unit
+                # e.g. square meter
             } else if (lag_unit & !lead_unit) {
                 unit_split[i] <- exponent
                 split_type[i] <- "exponent"
 
-            # Otherwise, keep bad exponent to filter at end
+                # Otherwise, keep bad exponent to filter at end
             } else {
                 split_type[i] <- "exponent_bad"
             }
@@ -464,7 +483,6 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
 
     if (any(split_type == "unknown")) {
         unit_split <- NA
-        warning("Unknown unit ", unit, ". NA returned")
     }
 
     return(unit_split)
@@ -556,26 +574,34 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
     units <- unitList$units
     unitTypes <- unitList$unitTypes
 
+    # Get EML Non Standard units
+    unitList_nS <- EML::get_unitList(x = EML::read_eml(system.file("share/EML-nS-unitDictionary.xml",
+                                               package = "datamgmt")))
+    units_nS <- unitList_nS$units
+    unitTypes_nS <- unitList_nS$unitTypes
+
+    units <- rbind(units, units_nS)
+    unitTypes <- rbind(unitTypes, unitTypes_nS)
+
     # Set NA to 1 in unitTypes
     unitTypes$power[is.na(unitTypes$power)] <- 1
 
     # Get EML SI units
-    SI_units <- units[grepl("^SI unit", units$description), ]
+    SI_units <- units[grepl("^SI unit", units$description) | units$id == "dimensionless", ]
     EML_SI_units <- units[(!is.na(units$multiplierToSI) & units$multiplierToSI == 1), ]
+    EML_SI_units <- rbind(EML_SI_units, units[units$id == "dimensionless",])
 
     # Exceptions
-    EML_SI_units$name[EML_SI_units$name == "waveNumber"] <- "radiansPerMeter" # This is a cheat to get udunits to recognize unit as dimensionless / meter
+    EML_SI_units$name[EML_SI_units$name == "waveNumber"] <- "dimensionlessPerMeter" # This is a cheat to get udunits to recognize unit as dimensionless / meter
+    EML_SI_units$name[EML_SI_units$name == "siemen"] <- "siemens"
+    EML_SI_units$name[EML_SI_units$name == "milliGramsPerMilliLiter"] <- "milligramsPerMilliliter"
+    EML_SI_units$name[EML_SI_units$name == "molality"] <- "molesPerKilogram"
 
     # Get udunits for of EML units
     EML_SI_units$ud <- unlist(lapply(EML_SI_units$name, function(x) {
         unit_split <- suppressWarnings(get_unit_split(x, all_units))
         udunit <- format_unit_split(unit_split, form = "udunit")
     }))
-
-    EML_SI_units <- EML_SI_units[!is.na(EML_SI_units$ud), ]
-    EML_SI_units_dim <- units[units$id == "dimensionless", ]
-    EML_SI_units_dim$ud <- "radian"
-    EML_SI_units <- rbind(EML_SI_units, EML_SI_units_dim)
 
     EML_units = list(units = units,
                      unitTypes = unitTypes,
@@ -591,20 +617,33 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
 #' @return (data.frame) parentSI_df
 get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units = mem_load_EML_units()) {
 
-    if (grepl("^per ", udunit)) {
-        udunit <- paste0("radians ", udunit)
+    has_denominator <- grepl(" *[p|P]er .*", udunit)
+
+    if (has_denominator) {
+        numerator <- gsub(" *[p|P]er .*", "", udunit)
+        num_dimensionless <- udunits2::ud.are.convertible(numerator, "dimensionless")
+    } else {
+        num_dimensionless <- FALSE
     }
 
     # Easy check
     n_EML <- unique(unlist(lapply(EML_units$EML_SI_units$ud, function(x) {
         # Careful with reciprocals here, e.g. "seconds-1" and "seconds" return TRUE here
         # but "meter seconds-1" and " meter seconds" return FALSE
-        is_ud <- udunits2::ud.are.convertible(udunit, x)
+        if (num_dimensionless) {
+            if (grepl("^per ", udunit)) {
+                udunit <-  paste0("dimensionless ", udunit)
+            }
+            is_ud <- udunits2::ud.are.convertible(udunit, ifelse(grepl(" *[p|P]er .*", x), x, ""))
+        } else {
+            is_ud <- udunits2::ud.are.convertible(udunit, x)}
+
         if (is_ud) {
             which(EML_units$EML_SI_units$ud == x)
         } else {
             NULL
         }
+
     })))
 
     # Harder check, multiple easy checks were TRUE
@@ -648,20 +687,21 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
 
         # Compare dimension and power of unitTypes in EML
         n_unitType <- unlist(lapply(p_unitTypes, function(p) {
-            compare::compare(EML_units$unitTypes[EML_units$unitTypes$id %in% p,
-                                                 c("dimension", "power")],
-                             unitType_df, allowAll = T)$result
+            test <- compare::compare(EML_units$unitTypes[EML_units$unitTypes$id %in% p,
+                                                         c("dimension", "power")],
+                                     unitType_df,
+                                     allowAll = T)$result
+            return(test)
         }))
 
         if (any(n_unitType)) {
-        n_EML <- n_EML[n_unitType]
+            n_EML <- n_EML[n_unitType]
         } else if ("dimensionless" %in% EML_units$EML_SI_units$id[n_EML]) {
             n_EML <- which(EML_units$EML_SI_units$id == "dimensionless")
         }
 
         if (length(n_EML) > 1) {
-            n_EML = n_EML[1]
-            warning("Multiple matching unitTypes were found. ", "Only the first was returned.")
+            n_EML = numeric(0)
         }
     }
 
@@ -669,6 +709,11 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
         unitType <- EML_units$EML_SI_units$unitType[n_EML]
         parentSI <- EML_units$EML_SI_units$id[n_EML]
         parent_ud <- EML_units$EML_SI_units$ud[n_EML]
+
+        if (grepl("^per ", udunit)) {
+            udunit <-  paste0("dimensionless ", udunit)
+        }
+
         multiplierToSI <- udunits2::ud.convert(1, udunit, parent_ud)
 
     } else {
@@ -726,9 +771,34 @@ get_custom_units <- function(units) {
         utils::setTxtProgressBar(progressBar, i)
         unit_split <- get_unit_split(units[i], all_units)
         id <- format_unit_split(unit_split, form = "id", all_units)
+
+        if (!is.na(id)) {
         udunit <- format_unit_split(unit_split, form = "udunit", all_units)
         abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
         parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
+        } else {
+            n_id <- which(EML_units$units$id == units[i])
+
+            if (length(n_id) == 0) {
+                n_id <- which(EML_units$units$abbreviation == units[i])
+            }
+
+            if (length(n_id) == 1) {
+                id <- EML_units$units$id[n_id]
+                abbreviation <- EML_units$units$abbreviation[n_id]
+                unitType <- EML_units$units$unitType[n_id]
+                parentSI <- EML_units$units$parentSI[n_id]
+                multiplierToSI <- EML_units$units$multiplierToSI[n_id]
+            } else {
+                warning("Unknown unit ", units[i], ". NA returned")
+                id <- NA
+                abbreviation <- NA
+                unitType <- NA
+                parentSI <- NA
+                multiplierToSI <- NA
+            }
+            parentSI_df <- data.frame(unitType, parentSI, multiplierToSI, stringsAsFactors = F)
+        }
         custom_unit <- data.frame(id, parentSI_df, abbreviation, stringsAsFactors = F)
     })
 
