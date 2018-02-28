@@ -24,7 +24,7 @@ update_physical <- function(eml,
 
     dataTable_url <- unlist(EML::eml_get(eml@dataset@dataTable, "url"))
 
-    if(!is.null(dataTable_url) && any(stringr::str_detect(dataTable_url, data_pid))){
+    if(any(stringr::str_detect(dataTable_url, data_pid))){
         position <- which(stringr::str_detect(dataTable_url, data_pid))
         new_phys <- arcticdatautils::pid_to_eml_physical(mn, new_data_pid)
         eml@dataset@dataTable[[position]]@physical@.Data <- new_phys
@@ -32,10 +32,10 @@ update_physical <- function(eml,
 
     otherEntity_url <- unlist(EML::eml_get(eml@dataset@otherEntity, "url"))
 
-    if(!is.null(dataTable_url) && any(stringr::str_detect(otherEntity_url, data_pid))){
+    if(any(stringr::str_detect(otherEntity_url, data_pid))){
         position <- which(stringr::str_detect(otherEntity_url, data_pid))
-        new_phys <- arcticdatautils::pid_to_eml_other_entity(mn, new_data_pid)
-        eml@dataset@otherEntity[[position]] <- new_phys
+        new_phys <- arcticdatautils::pid_to_eml_physical(mn, new_data_pid)
+        eml@dataset@otherEntity[[position]]@physical@.Data <- new_phys
     }
 
     invisible(eml)
@@ -66,6 +66,7 @@ update_physical <- function(eml,
 #' @import arcticdatautils
 #' @import dataone
 #' @import EML
+#' @import crayon
 #'
 #' @export
 
@@ -100,8 +101,6 @@ update_package_object <- function(mn,
                                                    path = new_data_path,
                                                    format_id = format_id)
 
-    cat("The new data pid is", new_data_pid)
-
     #store new pids (nonupdated pids + new pid) as a vector
     other_data_pids <- pkg$data[which(pkg$data != data_pid)] #wrapped in which for better NA handling
     new_data_pids <- c(other_data_pids, new_data_pid)
@@ -120,8 +119,9 @@ update_package_object <- function(mn,
     file.create(eml_path)
     EML::write_eml(eml_new, eml_path)
 
-    print(unlist(eml_get(eml, "url")))
-    print(unlist(eml_get(eml_new, "url")))
+    # for checks:
+    # print(unlist(eml_get(eml, "url")))
+    # print(unlist(eml_get(eml_new, "url")))
 
     pkg_new <- publish_update(mn,
                               metadata_pid = pkg$metadata,
@@ -133,5 +133,6 @@ update_package_object <- function(mn,
 
     file.remove(eml_path)
 
+    cat("The new data pid is", crayon::cyan(new_data_pid), ".\n")
     return(pkg_new)
 }
