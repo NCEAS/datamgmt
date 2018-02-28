@@ -129,6 +129,7 @@ update_package_object <- function(mn,
         resource_map_pid = pkg$resource_map,
         metadata_path = eml_path,
         data_pids = new_data_pids,
+        child_pids = pkg$child_packages,
         use_doi = use_doi,
         public = public)
 
