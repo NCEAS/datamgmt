@@ -28,15 +28,14 @@ or both, you need to specify at least one. Requires the
 crayon package.
 }
 \examples{
-library(dataone)
-library(arcticdatautils)
-library(EML)
-
+\dontrun{
 cnTest <- dataone::CNode('STAGING')
 mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 eml_pid <- arcticdatautils::create_dummy_metadata(mnTest)
 eml1 <- EML::read_eml(rawToChar(getObject(mnTest, eml_pid)))
 add_creator_id(eml1, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
+}
+
 }
 \keyword{creator}
 \keyword{eml}
