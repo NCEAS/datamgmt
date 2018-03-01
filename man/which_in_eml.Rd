@@ -19,19 +19,19 @@ This function returns indices within an EML list that contain an instance where 
 \examples{
 \dontrun{
 # Question: Which creators have a surName "Smith"?
-n <- which_in_eml(eml@dataset@creator,"surName","Smith")
+n <- which_in_eml(eml@dataset@creator, "surName", "Smith")
 # Answer: eml@dataset@creator[n]
 
 # Question: Which dataTables have an entityName that begins with "2016"
-n <- which_in_eml(eml@dataset@dataTable,"entityName", function(x) {grepl("^2016", x)})
+n <- which_in_eml(eml@dataset@dataTable, "entityName", function(x) {grepl("^2016", x)})
 # Answer: eml@dataset@dataTable[n]
 
 # Question: Which attributes in dataTable[[1]] have a numberType "natural"?
-n <- which_in_eml(eml@dataset@dataTable[[1]]@attributeList@attribute,"numberType","natural")
+n <- which_in_eml(eml@dataset@dataTable[[1]]@attributeList@attribute, "numberType", "natural")
 # Answer: eml@dataset@dataTable[[1]]@attributeList@attribute[n]
 
 #' # Question: Which dataTables have at least one attribute with a numberType "natural"?
-n <- which_in_eml(eml@dataset@dataTable,"numberType", function(x) {"natural" \%in\% x})
+n <- which_in_eml(eml@dataset@dataTable, "numberType", function(x) {"natural" \%in\% x})
 # Answer: eml@dataset@dataTable[n]
 }
 }
