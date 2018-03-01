@@ -57,12 +57,10 @@ qa_package <- function(node, pid, readAllData = TRUE,
     # Check access
     if (check_access && length(creator_ORCIDs) > 0) {
         # Check metadata
-        cat(crayon::green(paste0("\n\n..................Checking access, metadata..................")))
         sysmeta <- dataone::getSystemMetadata(node, package$metadata)
         qa_access(sysmeta, creator_ORCIDs)
 
         # Check resource_map
-        cat(crayon::green(paste0("\n\n..................Checking access, resource_map..................")))
         sysmeta <- dataone::getSystemMetadata(node, package$resource_map)
         qa_access(sysmeta, creator_ORCIDs)
     }
@@ -73,8 +71,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
     # Checks that each data object has a matching url in the eml.
     wrong_URL <- FALSE
-    for (i in seq_along(package$data)) {
-        data <- package$data[i] # use this as opposed to (data in package$data) to preserve names
+    for (data in package$data) {
         n <- which(grepl(paste0(data, "$"), urls))
 
         if (length(n) != 1) {
@@ -175,7 +172,6 @@ qa_creators <- function(eml) {
         cat(crayon::red("\nEach creator needs to have a proper ORCID."))
         return(character(0))
     } else {
-        cat(crayon::green("\nAll creators have a proper ORCID."))
         return(creator_ORCIDs)
     }
 }
@@ -190,10 +186,8 @@ qa_creators <- function(eml) {
 qa_access <- function(sysmeta, creator_ORCIDs) {
 
     # Check rightsHolder
-    if ((sysmeta@rightsHolder %in% creator_ORCIDs)) {
-        cat(crayon::green("\nThe rightsHolder is set to one of the creators"))
-    } else {
-        cat(crayon::yellow("\nThe rightsHolder is not set to one of the creators"))
+    if (!(sysmeta@rightsHolder %in% creator_ORCIDs)) {
+        cat(crayon::yellow("\nThe rightsHolder for", sysmeta@identifier, "is not set to one of the creators"))
     }
 
     # Check creator access
@@ -203,10 +197,8 @@ qa_access <- function(sysmeta, creator_ORCIDs) {
         creator_changePermissions <- datapack::hasAccessRule(sysmeta, creator, "changePermission")
         access <- c(creator_read, creator_write, creator_changePermissions)
 
-        if (all(access)) {
-            cat(crayon::green("\nFull access is set for creator with ORCID", creator))
-        } else {
-            cat(crayon::yellow("\nFull access is not set for creator with ORCID", creator))
+        if (!all(access)) {
+            cat(crayon::yellow("\nFull access for", sysmeta@identifier, "is not set for creator with ORCID", creator))
         }
     }
 }
