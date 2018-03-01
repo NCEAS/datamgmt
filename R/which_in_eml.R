@@ -38,22 +38,27 @@ which_in_eml <- function(eml_list, element, test) {
     if (is.character(test)) {
         value = test
         test = function(x) {x == value}
+
     } else {
         stopifnot(is.function(test))
     }
 
-    # find location
-    location <- unlist(lapply(seq_along(eml_list), function(i) { # eml_get returns NULL if field not present so need to loop
+    # Find location
+    location <- unlist(lapply(seq_along(eml_list), function(i) {
         elements_test <- unlist(EML::eml_get(eml_list[[i]], element))
 
         if (is.null(elements_test)) {
             out <- NULL
+
         } else {
             result <- test(elements_test)
+
             if (length(result) > 1) {
                 stop("Test must only return one value.")
+
             } else if (result) {
                 out <- i
+
             } else {
                 out <- NULL
             }
