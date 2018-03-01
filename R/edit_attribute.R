@@ -71,6 +71,49 @@ edit_attribute <- function(attributeList, attribute, attributeName = NA, attribu
     attributeList[attribute,8] <- formatString
     attributeList[attribute,14] <- missingValueCode
     attributeList[attribute,15] <- missingValueCodeExplanation
+    if(!is.null(attributeName)){
+        return(attributeList[attribute,1])
+    }
+
+    return(attributeList)
+
+}
+
+edit_attribute <- function(attributeList, attribute, attributeName = NA, attributeDefinition = NULL, domain=NULL,
+                           measurementScale = NULL, unit = NULL, numberType = NULL, definition = NULL, formatString = NULL,
+                           missingValueCode = NULL, missingValueCodeExplanation = NULL){
+
+    if(!is.null(attributeName)){
+        attributeList[attribute,1] <- attributeName
+    } else
+        {return(attributeList[attribute,1])}
+    if(!is.null(attributeDefinition)){
+        attributeList[attribute,17] <- attributeDefinition
+    }
+    if(!is.null(measurementScale)){
+        attributeList[attribute,16] <- measurementScale
+    }
+    if(!is.null(domain)){
+        attributeList[attribute,2] <- domain
+    }
+    if(!is.null(unit)){
+        attributeList[attribute,6] <- unit
+    }
+    if(!is.null(numberType)){
+        attributeList[attribute,7] <- numberType
+    }
+    if(!is.null(definition)){
+        attributeList[attribute,9] <- definition
+    }
+    if(!is.null(formatString)){
+        attributeList[attribute,8] <- formatString
+    }
+    if(!is.null(formatString)){
+        attributeList[attribute,14] <- missingValueCode
+    }
+    if(!is.null(formatString)){
+        attributeList[attribute,15] <- missingValueCodeExplanation
+    }
 
     return(attributeList)
 
