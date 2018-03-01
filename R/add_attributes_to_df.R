@@ -12,27 +12,42 @@ add_attributes <- function(data, attributes) {
     stopifnot(ncol(data) == nrow(attributes))
 
     n_attributes <- nrow(attributes)
+    n_meta_col <- ncol(attributes)
+
     metadata_names <- colnames(attributes)
+    metadata_list <- list()
 
     for (i in seq_len(n_attributes)) {
-        metadata <- c(metadata_names[i] = attributes)
+        temp_list <- list()
+
+        for (j in seq_len(n_meta_col)) {
+            temp_var <- assign("x", attributes[i, j])
+            temp_list <- c(temp_list, list(x))
+        }
+
+        names(temp_list) = metadata_names
+        metadata_list <- list(metadata_list, temp_list)
     }
 
-    meta <- list()
-    for (i in 1:13) {
-        # define variable
-        var <- assign(metadata_names[i], attributes[1, i])
-        meta <- c(meta, list(meta1))
-    }
-    names(meta) = metadata_names
+    names(metadata_list) <- colnames(data)
 
-    list1 <- list(meta, meta)
-    names(list1) <- c("name1", "name2")
-
+    return(metadata_list)
 }
+add_attributes(data, attributes)
 
+meta <- list()
+for (i in 1:13) {
+    # define variable
+    var <- assign(metadata_names[i], attributes[1, i])
+    meta <- c(meta, list(meta1))
+}
+names(meta) = metadata_names
+
+list1 <- list(meta, meta)
+names(list1) <- c("name1", "name2")
 # data <- data.frame("depth" = c(1,2), "temperature" = c(30, 31))
-# attributes(data) <- list("depth" = list("attributeName" = "depth", "unit" = "meter"),
-#                          "temperature" = list("attributeName" = "temperature", "unit" = "celsius"))
+# attributes(data) <- c(x,list("depth" = list("attributeName" = "depth", "unit" = "meter"),
+#                          "temperature" = list("attributeName" = "temperature", "unit" = "celsius")))
 # attributes(data)$depth
 # attributes(data) <- list1
+# attributes(data)$name1
