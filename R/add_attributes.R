@@ -13,7 +13,7 @@
 #' \dontrun{
 #' data <- data.frame("depth" = c(1.2, 2.3), "temperature" = c(10.7, 9.5))
 #' attributes <- data.frame("attributeName" = c("depth", "temperature"),
-#'                          "attributeDefinition = c("water depth in meters", "temperature in celsius"),
+#'                          "attributeDefinition" = c("water depth in meters", "temperature in celsius"),
 #'                          "unit" = c("meter", "celsius"))
 #' data <- add_attributes(data, attributes)
 #'
