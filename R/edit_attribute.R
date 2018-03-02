@@ -63,62 +63,32 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     if(!is.null(attributeName)==TRUE){
         attributeTable[attributeNumber,1] <- attributeName
     }
-    else if(is.null(attributeName)==TRUE){
-        attributeTable[attributeNumber,1] <- attributeTable[attributeNumber,1]
-    }
     if(!is.null(attributeDefinition)==TRUE){
         attributeTable[attributeNumber,17] <- attributeDefinition
-    }
-    else if(is.null(attributeDefinition)==TRUE){
-        attributeTable[attributeNumber,17] <- attributeTable[attributeNumber,17]
     }
     if(!is.null(measurementScale)==TRUE){
         attributeTable[attributeNumber,16] <- measurementScale
     }
-    else if(is.null(measurementScale)==TRUE){
-        attributeTable[attributeNumber,16] <- attributeTable[attributeNumber,16]
-    }
     if(!is.null(domain)==TRUE){
         attributeTable[attributeNumber,2] <- domain
-    }
-    else if(is.null(domain)==TRUE){
-        attributeTable[attributeNumber,2] <- attributeTable[attributeNumber,2]
     }
     if(!is.null(unit)==TRUE){
         attributeTable[attributeNumber,6] <- unit
     }
-    else if(is.null(unit)==TRUE){
-        attributeTable[attributeNumber,6] <- attributeTable[attributeNumber,6]
-    }
     if(!is.null(numberType)==TRUE){
         attributeTable[attributeNumber,7] <- numberType
-    }
-    else if(is.null(numberType)==TRUE){
-        attributeTable[attributeNumber,7] <- attributeTable[attributeNumber,7]
     }
     if(!is.null(definition)==TRUE){
         attributeTable[attributeNumber,9] <- definition
     }
-    else if(is.null(definition)==TRUE){
-        attributeTable[attributeNumber,9] <- attributeTable[attributeNumber,9]
-    }
     if(!is.null(formatString)==TRUE){
         attributeTable[attributeNumber,8] <- formatString
-    }
-    else if(is.null(formatString)==TRUE){
-        attributeTable[attributeNumber,8] <- attributeTable[attributeNumber,8]
     }
     if(!is.null(missingValueCode)==TRUE){
         attributeTable[attributeNumber,14] <- missingValueCode
     }
-    else if(is.null(missingValueCode)==TRUE){
-        attributeTable[attributeNumber,14] <- attributeTable[attributeNumber,14]
-    }
     if(!is.null(missingValueCodeExplanation)==TRUE){
         attributeTable[attributeNumber,15] <- missingValueCodeExplanation
-    }
-    else if(is.null(missingValueCodeExplanation)==TRUE){
-        attributeTable[attributeNumber,15] <- attributeTable[attributeNumber,15]
     }
 
     attribute.list<-set_attributes(attributeTable, factors = data$factors)
