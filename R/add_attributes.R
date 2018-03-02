@@ -65,3 +65,28 @@ add_attributes <- function(data, attributes) {
 
     return(data)
 }
+
+#
+resource_map_pids = c("resource_map_urn:uuid:477cf55d-32f3-4515-87b7-15fce9e11e33",
+                      "resource_map_doi:10.18739/A2F299")
+import_package_data <- function(mn, pids) {
+    stopifnot(methods::is(mn, "MNode"))
+    stopifnot(length(pids) > 0)
+    stopifnot(all(is.character(resource_map_pids)))
+
+    # Check that data objects exist and return resource map pids
+    query <- data_objects_exist(mn, pids)
+    resouce_map_pids <- unlist(sapply(seq_along(query$resource_map), function(i) {
+        if (query$data_objects_present[i] == "no") {
+            message("No data objects present in ", query$identifier[i])
+        } else {
+            query$resource_map[i]
+        }
+    }))
+    # import data objects
+    # assign filename appended with metadata doi
+
+    # if add_attributes = T then look in EML for attributes
+    return(resource_map_pids)
+}
+import_package_data(mnReal, resource_map_pids)

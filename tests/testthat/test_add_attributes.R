@@ -22,3 +22,6 @@ testthat::test_that("attributes can be called with $ operator", {
     testthat::expect_type(attributes(data)$temperature, "list")
     testthat::expect_null(attributes(data)$invalid_name)
 })
+
+# test all 3 error checks
+# test a message is output when a package has no data

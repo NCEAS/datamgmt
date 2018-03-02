@@ -212,6 +212,7 @@ download_package <- function(mn,
     }
 
     # Check that input arguments are in the correct format
+    stopifnot(methods::is(mn, "MNode"))
     stopifnot(is.character(resource_map_pid))
     stopifnot(is.character(download_directory))
     stopifnot(file.exists(download_directory))
@@ -391,9 +392,8 @@ download_package <- function(mn,
 #' check_download_size = FALSE, prefix_file_names = TRUE, convert_excel_to_csv == TRUE)
 #' }
 download_packages <- function(mn, resource_map_pids, ...) {
-
-    stopifnot(all(is.character(resource_map_pids)))
     stopifnot(length(resource_map_pids) > 0)
+    stopifnot(all(is.character(resource_map_pids)))
 
     n_packages <- length(resource_map_pids)
 

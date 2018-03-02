@@ -1,3 +1,19 @@
+#' Return the 'formatType' of a Dataone object.
+#'
+#' @param mn (MNode/CNode) The Node to query
+#' @param pid (character) The unique object identifier
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' @return (character)
+get_format_type <- function(mn, pid) {
+    format_type <- unlist(dataone::query(mn,
+                                         paste0("q=identifier:\"",
+                                                pid,
+                                                "\"&fl=formatType")))
+    return(format_type)
+}
+
 #' Check if data objects exist in a list of Data Packages.
 #'
 #' This function is primarily intended to assist Mark Schildhauer in preparation
@@ -38,12 +54,22 @@ data_objects_exist <- function(mn,
                                          pids),
                           stringsAsFactors = F)
 
-    # Get resource map associated with input metadata
     for (i in seq_len(n)) {
-        resource_map <- unlist(dataone::query(mn,
-                                              paste0("q=identifier:\"",
-                                                     pids[i],
-                                                     "\"&fl=resourceMap")))
+        format_type <- get_format_type(mn, pids[i])
+
+        if (format_type == "METADATA") {
+        # Get resource map associated with input metadata
+            resource_map <- unlist(dataone::query(mn,
+                                                  paste0("q=identifier:\"",
+                                                         pids[i],
+                                                         "\"&fl=resourceMap")))
+        } else if (format_type == "RESOURCE") {
+            resource_map = pids[i]
+        } else {
+            message("formatType of object ", pids[i], " is not one of 'RESOURCE' or 'METADATA'.")
+        }
+
+        results$resource_map[i] <- resource_map
 
         # Query data objects if resource_map exsists
         if (!is.null(resource_map)) {
