@@ -1,9 +1,3 @@
-##
-eml <- read_eml(rawToChar(getObject(mnReal, "doi:10.18739/A2F299")))
-data <- read.csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A11986ca1-5560-48ac-b8f9-0469ce561946", header = TRUE)
-eml@dataset@dataTable[[3]]
-attributes <- get_attributes(eml@dataset@dataTable[[3]]@attributeList)[[1]]
-
 #' Add attribute metadata to a data.frame object
 #'
 #' Adds attribute metadata to a data.frame object.  Intended for use with a call
@@ -27,6 +21,11 @@ attributes <- get_attributes(eml@dataset@dataTable[[3]]@attributeList)[[1]]
 #' attributes(data)
 #' # View attribute metadata for one variable
 #' attributes(data)$depth
+#'
+#' eml <- EML::read_eml(rawToChar(dataone::getObject(mnReal, "doi:10.18739/A2F299")))
+#' attributes <- EML::get_attributes(eml@@dataset@@dataTable[[3]]@@attributeList)[[1]]
+#' data <- read.csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A11986ca1-5560-48ac-b8f9-0469ce561946")
+#' data <- add_attributes(data, attributes)
 #' }
 #'
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
