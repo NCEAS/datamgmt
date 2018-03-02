@@ -43,12 +43,13 @@ eml@dataset@dataTable
 
 #Function below includes only required slots.
 #Need to add checks to ensure that fields match measurementScale (e.g. if measurementScale = ratio, unit =/= NULL and definiton must be NA)
+#Also does not currently include a way to change the codes in the factor table for an enumerated domain; may need to be its own function?
 
 #User needs to:
-#specify the eml object in the argument "eml"
-#specify which dataTable (by position) in the argument "dataTableNumber"
-#specify position of attribute in attributeList for argument "attributeNumber"
-#In cases with large attribute lists, user may want to use which_element function to locate the attribute position.
+###specify the eml object in the argument "eml"
+###specify which dataTable (by position) in the argument "dataTableNumber"
+###specify position of attribute in attributeList for argument "attributeNumber"
+###In cases with large attribute lists, user may want to use which_element function to locate the attribute position.
 
 
 ##Trying out with additional statements for NULL
