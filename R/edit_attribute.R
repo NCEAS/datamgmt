@@ -119,17 +119,14 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     else if(is.null(missingValueCodeExplanation)==TRUE){
         attributeTable[attributeNumber,15] <- attributeTable[attributeNumber,15]
     }
-    return(attributeTable)
+
+    attribute.list<-set_attributes(attributeTable, factors = data$factors)
+    eml@dataset@dataTable[[dataTableNumber]]@attributeList <- attribute.list
+    return(eml)
 
 }
 
 
-newAttributeTable<-edit_attribute(eml, 1, 2, attributeDefinition = "I hope this works", domain = "numericDomain",
+eml.test<-edit_attribute(eml, 1, 2, attributeDefinition = "I hope this works", domain = "numericDomain",
                                   measurementScale = "ratio", unit = "dimensionless", numberType = "whole", definition = 'NA')
-newAttributeTable
-
-attribute.list<-set_attributes(newAttributeTable)
-eml@dataset@dataTable[[1]]@attributeList <- attribute.list
-eml@dataset@dataTable
-
-#Fails to set attributes.
+eml.test
