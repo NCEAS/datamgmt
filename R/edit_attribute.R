@@ -1,7 +1,7 @@
 ##Function to edit an attribute in an existing attributes table.
 
 # for now:
-devtools::install_github("ropensci/EML", force = TRUE)
+#devtools::install_github("ropensci/EML", force = TRUE)
 
 
 #Function below includes only required slots.
