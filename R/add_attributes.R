@@ -90,3 +90,5 @@ import_package_data <- function(mn, pids) {
     return(resource_map_pids)
 }
 import_package_data(mnReal, resource_map_pids)
+
+# TODO edit merge to accomodate attribute metadata
