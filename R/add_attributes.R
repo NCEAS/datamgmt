@@ -13,7 +13,8 @@
 #' \dontrun{
 #' data <- data.frame("depth" = c(1.2, 2.3), "temperature" = c(10.7, 9.5))
 #' attributes <- data.frame("attributeName" = c("depth", "temperature"),
-#'                          "attributeDefinition" = c("water depth in meters", "temperature in celsius"),
+#'                          "attributeDefinition" = c("water depth in meters",
+#'                                                     "temperature in celsius"),
 #'                          "unit" = c("meter", "celsius"))
 #' data <- add_attributes(data, attributes)
 #'
@@ -24,7 +25,8 @@
 #'
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(mnReal, "doi:10.18739/A2F299")))
 #' attributes <- EML::get_attributes(eml@@dataset@@dataTable[[3]]@@attributeList)[[1]]
-#' data <- read.csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A11986ca1-5560-48ac-b8f9-0469ce561946")
+#' data <- read.csv(
+#' "https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A11986ca1-5560-48ac-b8f9-0469ce561946")
 #' data <- add_attributes(data, attributes)
 #' }
 #'
