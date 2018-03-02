@@ -56,6 +56,8 @@ data1
 #specify position of attribute in attributeList for argument "attributeNumber"
 #In cases with large attribute lists, user may want to use which_element function to locate the attribute position.
 
+
+##Trying out with additional statements for NULL
 edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName = NULL, attributeDefinition = NULL, domain=NULL,
                            measurementScale = NULL, unit = NULL, numberType = NULL, definition = NULL, formatString = NULL,
                            missingValueCode = NULL, missingValueCodeExplanation = NULL){
@@ -66,46 +68,74 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     if(!is.null(attributeName)==TRUE){
         attributeTable[attributeNumber,1] <- attributeName
     }
+    else if(is.null(attributeName)==TRUE){
+        attributeTable[attributeNumber,1] <- attributeTable[attributeNumber,1]
+    }
     if(!is.null(attributeDefinition)==TRUE){
         attributeTable[attributeNumber,17] <- attributeDefinition
+    }
+    else if(is.null(attributeDefinition)==TRUE){
+        attributeTable[attributeNumber,17] <- attributeTable[attributeNumber,17]
     }
     if(!is.null(measurementScale)==TRUE){
         attributeTable[attributeNumber,16] <- measurementScale
     }
+    else if(is.null(measurementScale)==TRUE){
+        attributeTable[attributeNumber,16] <- attributeTable[attributeNumber,16]
+    }
     if(!is.null(domain)==TRUE){
         attributeTable[attributeNumber,2] <- domain
+    }
+    else if(is.null(domain)==TRUE){
+        attributeTable[attributeNumber,2] <- attributeTable[attributeNumber,2]
     }
     if(!is.null(unit)==TRUE){
         attributeTable[attributeNumber,6] <- unit
     }
+    else if(is.null(unit)==TRUE){
+        attributeTable[attributeNumber,6] <- attributeTable[attributeNumber,6]
+    }
     if(!is.null(numberType)==TRUE){
         attributeTable[attributeNumber,7] <- numberType
+    }
+    else if(is.null(numberType)==TRUE){
+        attributeTable[attributeNumber,7] <- attributeTable[attributeNumber,7]
     }
     if(!is.null(definition)==TRUE){
         attributeTable[attributeNumber,9] <- definition
     }
+    else if(is.null(definition)==TRUE){
+        attributeTable[attributeNumber,9] <- attributeTable[attributeNumber,9]
+    }
     if(!is.null(formatString)==TRUE){
         attributeTable[attributeNumber,8] <- formatString
     }
-    if(!is.null(formatString)==TRUE){
+    else if(is.null(formatString)==TRUE){
+        attributeTable[attributeNumber,8] <- attributeTable[attributeNumber,8]
+    }
+    if(!is.null(missingValueCode)==TRUE){
         attributeTable[attributeNumber,14] <- missingValueCode
     }
-    if(!is.null(formatString)==TRUE){
+    else if(is.null(missingValueCode)==TRUE){
+        attributeTable[attributeNumber,14] <- attributeTable[attributeNumber,14]
+    }
+    if(!is.null(missingValueCodeExplanation)==TRUE){
         attributeTable[attributeNumber,15] <- missingValueCodeExplanation
+    }
+    else if(is.null(missingValueCodeExplanation)==TRUE){
+        attributeTable[attributeNumber,15] <- attributeTable[attributeNumber,15]
     }
     return(attributeTable)
 
 }
 
-#testing this out on changing attribute 2 ("col2", a nominal attribute) to ratio
+
 newAttributeTable<-edit_attribute(eml, 1, 2, attributeDefinition = "I hope this works", domain = "numericDomain",
-                      measurementScale = "ratio", unit = "dimensionless", numberType = "whole")
-
+                                  measurementScale = "ratio", unit = "dimensionless", numberType = "whole")
 newAttributeTable
-
-#Function works for changing the attributes in the dataframe (minus enumerated domain factor table...).
-#Failure when I try to reset the attributes using set_attributes (below).
 
 attribute.list<-set_attributes(newAttributeTable)
 eml@dataset@dataTable[[1]]@attributeList <- attribute.list
 eml@dataset@dataTable
+
+#Fails to set attributes.
