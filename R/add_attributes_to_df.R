@@ -4,7 +4,34 @@ data <- read.csv("https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A119
 eml@dataset@dataTable[[3]]
 attributes <- get_attributes(eml@dataset@dataTable[[3]]@attributeList)[[1]]
 
-## Add attributes to a data frame
+#' Add attribute metadata to a data.frame object
+#'
+#' Adds attribute metadata to a data.frame object.  Intended for use with a call
+#' to 'EML:get_attributes' in order to extract metadata from an EML and attach
+#' it a data.frame object as an attributes(data.frame) property.
+#'
+#' @param data (data.frame) Data object to add attributes information to.
+#' @param attributes (data.frame) Data frame of attribute metadata to add.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' data <- data.frame("depth" = c(1.2, 2.3), "temperature" = c(10.7, 9.5))
+#' attributes <- data.frame("attributeName" = c("depth", "temperature"),
+#'                          "attributeDefinition = c("water depth in meters", "temperature in celsius"),
+#'                          "unit" = c("meter", "celsius"))
+#' data <- add_attributes(data, attributes)
+#'
+#' # View all attribute metadata
+#' attributes(data)
+#' # View attribute metadata for one variable
+#' attributes(data)$depth
+#' }
+#'
+#' @author Dominic Mullen \email{dmullen17@@gmail.com}
+#'
+#' @return (data.frame())
 add_attributes <- function(data, attributes) {
     # TODO add $factors case from 'get_attributes'
     stopifnot(is.data.frame(data))
@@ -14,40 +41,24 @@ add_attributes <- function(data, attributes) {
     n_attributes <- nrow(attributes)
     n_meta_col <- ncol(attributes)
 
-    metadata_names <- colnames(attributes)
-    metadata_list <- list()
+    # Initialize attribute list
+    attribute_list <- list()
 
+    # Convert each row of 'attributes' to a list and store in 'attribute_list'
     for (i in seq_len(n_attributes)) {
-        temp_list <- list()
+        metadata_list <- list()
 
         for (j in seq_len(n_meta_col)) {
             temp_var <- assign("x", attributes[i, j])
-            temp_list <- c(temp_list, list(x))
+            metadata_list <- c(metadata_list, list(x))
         }
 
-        names(temp_list) = metadata_names
-        metadata_list <- list(metadata_list, temp_list)
+        names(metadata_list) = colnames(attributes)
+        attribute_list[[i]] <- metadata_list
     }
 
-    names(metadata_list) <- colnames(data)
+    names(attribute_list) <- colnames(data)
+    attributes(data) <- c(attributes(data), attribute_list)
 
-    return(metadata_list)
+    return(data)
 }
-add_attributes(data, attributes)
-
-meta <- list()
-for (i in 1:13) {
-    # define variable
-    var <- assign(metadata_names[i], attributes[1, i])
-    meta <- c(meta, list(meta1))
-}
-names(meta) = metadata_names
-
-list1 <- list(meta, meta)
-names(list1) <- c("name1", "name2")
-# data <- data.frame("depth" = c(1,2), "temperature" = c(30, 31))
-# attributes(data) <- c(x,list("depth" = list("attributeName" = "depth", "unit" = "meter"),
-#                          "temperature" = list("attributeName" = "temperature", "unit" = "celsius")))
-# attributes(data)$depth
-# attributes(data) <- list1
-# attributes(data)$name1
