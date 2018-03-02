@@ -23,7 +23,7 @@
 #'
 #' @import XML
 #' @import stringr
-#' @import RCurl
+#' @importFrom RCurl getURL
 #'
 #' @export
 #'
@@ -41,7 +41,7 @@ get_awards <- function(from_date = NULL,
                        print_fields = NULL) {
     # TODO use additional_fields instead of print_fields so that user can specify additional fields
     # without having to write out all default fields
-  
+
     # TODO split iteration part of function (repeat...) and arctic/polar customization to make 2 functions:
     # 1 - a generalized get_awards(query_URL)
     # 2 - a wrapper for get_polar_awards() for typical use-cases within ADC/NCEAS
