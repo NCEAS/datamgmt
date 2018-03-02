@@ -125,7 +125,7 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
 
 
 newAttributeTable<-edit_attribute(eml, 1, 2, attributeDefinition = "I hope this works", domain = "numericDomain",
-                                  measurementScale = "ratio", unit = "dimensionless", numberType = "whole")
+                                  measurementScale = "ratio", unit = "dimensionless", numberType = "whole", definition = 'NA')
 newAttributeTable
 
 attribute.list<-set_attributes(newAttributeTable)
