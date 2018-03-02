@@ -23,6 +23,8 @@
 #' # View attribute metadata for one variable
 #' attributes(data)$depth
 #'
+#' devtools::install_github("ropensci/EML")
+#' library(EML) # for updated version of 'get_attributes'
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(mnReal, "doi:10.18739/A2F299")))
 #' attributes <- EML::get_attributes(eml@@dataset@@dataTable[[3]]@@attributeList)[[1]]
 #' data <- read.csv(
