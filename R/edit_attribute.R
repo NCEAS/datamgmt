@@ -3,41 +3,6 @@
 # for now:
 devtools::install_github("ropensci/EML", force = TRUE)
 
-#cnTest <- dataone::CNode('STAGING')
-#mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
-
-#dummy package
-pkg <- arcticdatautils::create_dummy_package(mnTest,
-                                             size = 2)
-#dummy data table:
-attributes1 <- data.frame(
-    attributeName = c('col1', 'col2', 'col3', 'col4', 'col5'),
-    attributeDefinition = c('Numbers', 'Letters in the alphabet', 'Levs', 'IntervalNums', 'SampleDate'),
-    measurementScale = c('ratio', 'nominal','ordinal','interval','dateTime'),
-    domain = c('numericDomain', 'textDomain', 'enumeratedDomain', 'numericDomain', 'dateTimeDomain'),
-    formatString = c(NA,NA,NA,NA,'YYYY-MM-DD'),
-    definition = c(NA,'ABCDEFG...',NA,NA,NA),
-    unit = c('dimensionless', NA,NA,'dimensionless',NA),
-    numberType = c('integer', NA,NA,'whole',NA),
-    missingValueCode = c(NA,NA,NA,NA,NA),
-    missingValueCodeExplanation = c(NA,NA,NA,NA,NA),
-    stringsAsFactors = FALSE)
-Levs <- c(A = 'high', B = 'medium', C = 'low')
-factors1 <- data.frame(attributeName = 'col3', code = names(Levs), definition = unname(Levs))
-factors1
-attributeList1 <- EML::set_attributes(attributes1, factors=factors1)
-phys <- arcticdatautils::pid_to_eml_physical(mnTest, pkg$data[1])
-
-dummy_data_table <- new('dataTable',
-                        entityName = 'Dummy Data Table',
-                        entityDescription = 'Dummy Description',
-                        physical = phys,
-                        attributeList = attributeList1)
-
-eml <- EML::read_eml(rawToChar(getObject(mnTest, pkg$metadata)))
-eml@dataset@dataTable <- c(dummy_data_table)
-eml@dataset@dataTable
-
 
 #Function below includes only required slots.
 #Need to add checks to ensure that fields match measurementScale (e.g. if measurementScale = ratio, unit =/= NULL and definiton must be NA)
@@ -94,8 +59,3 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     return(eml)
 
 }
-
-
-eml.test<-edit_attribute(eml, 1, 2, attributeDefinition = "I hope this works", domain = "numericDomain",
-                                  measurementScale = "ratio", unit = "dimensionless", numberType = "whole", definition = 'NA')
-eml.test
