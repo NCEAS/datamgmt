@@ -42,13 +42,7 @@ eml@dataset@dataTable
 
 
 #Function below includes only required slots.
-#Currently works for all measurementTypes, but not functional yet for enumeratedDomain.
-#Need to add in lines to reset the attributes table after editing.
 #Need to add checks to ensure that fields match measurementScale (e.g. if measurementScale = ratio, unit =/= NULL and definiton must be NA)
-
-data<-get_attributes(eml@dataset@dataTable[[1]]@attributeList)
-data1<-data.frame(data$attributes) #this excludes the factor table for the enumerated domain in col3!!
-data1
 
 #User needs to:
 #specify the eml object in the argument "eml"
@@ -63,7 +57,7 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
                            missingValueCode = NULL, missingValueCodeExplanation = NULL){
 
     data<-get_attributes(eml@dataset@dataTable[[dataTableNumber]]@attributeList)
-    attributeTable<-data.frame(data$attributes)
+    attributeTable<-data.frame(data$attributes) #this excludes the factor table from enumerated domain.
 
     if(!is.null(attributeName)==TRUE){
         attributeTable[attributeNumber,1] <- attributeName
