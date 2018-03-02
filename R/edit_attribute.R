@@ -1,12 +1,10 @@
 ##Function to edit an attribute in an existing attributes table.
 
-library(arcticdatautils)
-library(dataone)
-library(EML)
-library(devtools)
+# for now:
+devtools::install_github("ropensci/EML", force = TRUE)
 
-cnTest <- dataone::CNode('STAGING')
-mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+#cnTest <- dataone::CNode('STAGING')
+#mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
 #dummy package
 pkg <- arcticdatautils::create_dummy_package(mnTest,
@@ -27,8 +25,8 @@ attributes1 <- data.frame(
 Levs <- c(A = 'high', B = 'medium', C = 'low')
 factors1 <- data.frame(attributeName = 'col3', code = names(Levs), definition = unname(Levs))
 factors1
-attributeList1 <- set_attributes(attributes1, factors=factors1)
-phys <- pid_to_eml_physical(mnTest, pkg$data[1])
+attributeList1 <- EML::set_attributes(attributes1, factors=factors1)
+phys <- arcticdatautils::pid_to_eml_physical(mnTest, pkg$data[1])
 
 dummy_data_table <- new('dataTable',
                         entityName = 'Dummy Data Table',
@@ -36,7 +34,7 @@ dummy_data_table <- new('dataTable',
                         physical = phys,
                         attributeList = attributeList1)
 
-eml <- read_eml(rawToChar(getObject(mnTest, pkg$metadata)))
+eml <- EML::read_eml(rawToChar(getObject(mnTest, pkg$metadata)))
 eml@dataset@dataTable <- c(dummy_data_table)
 eml@dataset@dataTable
 
@@ -57,7 +55,7 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
                            measurementScale = NULL, unit = NULL, numberType = NULL, definition = NULL, formatString = NULL,
                            missingValueCode = NULL, missingValueCodeExplanation = NULL){
 
-    data<-get_attributes(eml@dataset@dataTable[[dataTableNumber]]@attributeList)
+    data<-EML::get_attributes(eml@dataset@dataTable[[dataTableNumber]]@attributeList)
     attributeTable<-data.frame(data$attributes) #this excludes the factor table from enumerated domain.
 
     if(!is.null(attributeName)==TRUE){
