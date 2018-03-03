@@ -1,17 +1,18 @@
-#' Return the 'formatType' of a Dataone object.
+#' Return the Data object identifiers associated with a Resource Map.
 #'
 #' @param mn (MNode/CNode) The Node to query
-#' @param pid (character) The unique object identifier
+#' @param pid (character) The resource map identifier to query
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (character)
-get_format_type <- function(mn, pid) {
-    format_type <- unlist(dataone::query(mn,
-                                         paste0("q=identifier:\"",
-                                                pid,
-                                                "\"&fl=formatType")))
-    return(format_type)
+get_data_pids <- function(mn, pid) {
+    data_pids <- unlist(dataone::query(mn,
+                                          paste0("q=resourceMap:\"",
+                                                 resource_map,
+                                                 "\"+AND+formatType:DATA",
+                                                 "&fl=identifier")))
+    return(data_pids)
 }
 
 #' Check if data objects exist in a list of Data Packages.
@@ -39,8 +40,8 @@ data_objects_exist <- function(mn,
 
     # Argument checks
     stopifnot(methods::is(mn, "MNode"))
-    stopifnot(is.character(pids))
     stopifnot(length(pids) > 0)
+    stopifnot(is.character(pids))
     stopifnot(arcticdatautils::object_exists(mn, pids))
     if (write_to_csv) {
         stopifnot(file.exists(folder_path))
@@ -73,12 +74,7 @@ data_objects_exist <- function(mn,
 
         # Query data objects if resource_map exsists
         if (!is.null(resource_map)) {
-            data_objects <- unlist(dataone::query(mn,
-                                                  paste0("q=resourceMap:\"",
-                                                         resource_map,
-                                                         "\"+AND+formatType:DATA",
-                                                         "&fl=identifier"),
-                                                  as = "list"))
+
 
             # Define data_objects_present in results data frame
             if (!is.null(data_objects)) {
