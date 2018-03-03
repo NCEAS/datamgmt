@@ -71,11 +71,11 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
     # Checks that each data object has a matching url in the eml.
     wrong_URL <- FALSE
-    for (data in package$data) {
-        n <- which(grepl(paste0(data, "$"), urls))
+    for (datapid in package$data) {
+        n <- which(grepl(paste0(datapid, "$"), urls))
 
         if (length(n) != 1) {
-            cat(crayon::red(paste0("\nThe URL/distribution for ", data, " is missing/incongruent in the physical section of the eml.")))
+            cat(crayon::red(paste0("\nThe URL/distribution for ", datapid, " is missing/incongruent in the physical section of the eml.")))
             wrong_URL <- TRUE
         }
     }
@@ -88,7 +88,6 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
     for (objectpid in package$data)
     {
-
         n_dT <- which(grepl(paste0(objectpid, "$"), urls_dataTable))
         n_oE <- which(grepl(paste0(objectpid, "$"), urls_otherEntity))
 
