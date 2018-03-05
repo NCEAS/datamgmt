@@ -128,6 +128,7 @@ import_package_data <- function(mn, pids) {
     resource_map_pids <- get_resource_maps(mn, pids)
 
     # import data objects
+
     # assign filename appended with metadata doi
 
     # if add_attributes = T then look in EML for attributes
