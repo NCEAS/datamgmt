@@ -89,7 +89,7 @@ get_format_type <- function(mn, pid) {
 #' Return the Resource Map identifieres associated with a list of Dataone objects.
 #'
 #' @param mn (MNode/CNode) The Node to query
-#' @param pid (character) The unique object identifier
+#' @param pids (character) The unique object identifiers
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
@@ -118,6 +118,7 @@ get_resource_maps <- function(mn, pids) {
 
 resource_map_pids = c("resource_map_urn:uuid:477cf55d-32f3-4515-87b7-15fce9e11e33",
                       "resource_map_doi:10.18739/A2F299")
+
 import_package_data <- function(mn, pids) {
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(length(pids) > 0)
@@ -132,6 +133,6 @@ import_package_data <- function(mn, pids) {
     # if add_attributes = T then look in EML for attributes
     return(resource_map_pids)
 }
-import_package_data(mnReal, resource_map_pids)
+#import_package_data(mnReal, resource_map_pids)
 
 # TODO edit merge to accomodate attribute metadata

@@ -25,3 +25,6 @@ testthat::test_that("attributes can be called with $ operator", {
 
 # test all 3 error checks
 # test a message is output when a package has no data
+
+# test that get format type returns resource, metadata, data, and null
+# test that get_resource map messages and returns null
