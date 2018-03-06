@@ -29,6 +29,10 @@ testthat::test_that("attributes can be called with $ operator", {
 # test that get format type returns resource, metadata, data, and null
 # test that get_resource map messages and returns null
 
+# test that add_attributes
+# - update old tests
+# - new one for column level metadata
+
 # test that transfer_attributes
 # - initializes blank lists correctly
 # - all argument checks work

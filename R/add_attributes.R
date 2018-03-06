@@ -169,6 +169,7 @@ transfer_attributes <- function(..., target, append_metadata = TRUE) {
     # TODO
     # TODO add checks that all ... are data.frame or data.table
     # TODO print message if no attribute metadata is present in ...
+    # TODO transfer metadata level at data.frame level (in addition to columns)
 
     inputs <- list(...)
     n_inputs <- length(inputs)
