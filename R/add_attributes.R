@@ -47,22 +47,30 @@ add_attributes <- function(data, attributes) {
 
     # Initialize attribute list
     attribute_list <- list()
+    attribute_names <- colnames(attributes)
 
     # Convert each row of 'attributes' to a list and store in 'attribute_list'
     for (i in seq_len(n_attributes)) {
         metadata_list <- list()
 
         for (j in seq_len(n_meta_col)) {
-            temp_var <- assign("x", attributes[i, j])
-            metadata_list <- c(metadata_list, list(x))
+            metadata_list <- c(metadata_list, attributes[i,j])
         }
 
-        names(metadata_list) = colnames(attributes)
+        names(metadata_list) <- attribute_names
         attribute_list[[i]] <- metadata_list
     }
 
     names(attribute_list) <- colnames(data)
-    attributes(data) <- c(attributes(data), attribute_list)
+
+    # store attributes in empty data.frame
+    x <- data.frame()
+    attributes(x) <- attribute_list
+
+    # Add attributes at the column level
+    for (name in colnames(data)) {
+        attributes(data[[name]]) <- attributes(x)[[name]]
+    }
 
     return(data)
 }
@@ -162,27 +170,14 @@ transfer_attributes <- function(..., target, append_metadata = TRUE) {
     # TODO add checks that all ... are data.frame or data.table
     # TODO print message if no attribute metadata is present in ...
 
-    # Initialize attribute list
-    attribute_list <- list()
+    inputs <- list(...)
+    n_inputs <- length(inputs)
 
-    # Convert each row of 'attributes' to a list and store in 'attribute_list'
-    for (i in seq_len(n_attributes)) {
-        metadata_list <- list()
+    # initialize blank lists
+    atts <- replicate(n_inputs, list())
 
-        for (j in seq_len(n_meta_col)) {
-            temp_var <- assign("x", attributes[i, j])
-            metadata_list <- c(metadata_list, list(x))
-        }
-
-        names(metadata_list) = colnames(attributes)
-        attribute_list[[i]] <- metadata_list
-    }
-
-    names(attribute_list) <- colnames(data)
-    attributes(data) <- c(attributes(data), attribute_list)
-
-    return(data)
 }
+transfer_attributes(1,2)
 
 x <- data.frame("X1" = 1, "X2" = 2, "X3" = 3)
 n <- 0
@@ -195,9 +190,11 @@ for (i in colnames(x)) {
 y <- data.frame("X1" = 1, "X2" = 2, "X4" = 4)
 
 x <- function(x, y, target) {
-# store metadata for x and y
-    names <- colnames(x)
-    sapply(names, function(names) {attributes(x$names)})
+    # store metadata for x and y
+    att <- replicate(2, list())
+    for(i in 1:2) {
+        att[[i]] <-
+    }
 # find columns in target
 }
 
@@ -205,4 +202,8 @@ for.setattr <- function() {
     for (i in seq_along(myList)) {
         setattr(myList[[i]], name = 'myname', value = 'myStaticName')
     }
+}
+
+for (i in 1:13) {
+    attributes(data2$DOY) <- list(paste0(attribute_names[i]) = attributes[1,i])
 }
