@@ -37,6 +37,7 @@
 #' @return (data.frame())
 add_attributes <- function(data, attributes) {
     # TODO add $factors case from 'get_attributes'
+    # TODO modify to add attributes at the column level
     stopifnot(is.data.frame(data))
     stopifnot(is.data.frame(attributes))
     stopifnot(ncol(data) == nrow(attributes))
@@ -137,3 +138,71 @@ import_package_data <- function(mn, pids) {
 #import_package_data(mnReal, resource_map_pids)
 
 # TODO edit merge to accomodate attribute metadata
+
+
+#' Transfer attribute metadata to from multiple data.frames or data.tables to a
+#' data.frame or data.table object
+#'
+#' @param ... (data.frame / data.table) Input data.frame or data.table objects.
+#' @param target (data.frame / data.table) Object to add attribute metadata to.
+#' @param append_metadata (logical) Optional.  Concatenate column metadata if columns have the same name.  Defaults to \code{TRUE}
+#' @param attributes (data.frame) Data frame of attribute metadata to add.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' }
+#'
+#' @author Dominic Mullen \email{dmullen17@@gmail.com}
+#'
+#' @return (data.frame())
+transfer_attributes <- function(..., target, append_metadata = TRUE) {
+    # TODO
+    # TODO add checks that all ... are data.frame or data.table
+    # TODO print message if no attribute metadata is present in ...
+
+    # Initialize attribute list
+    attribute_list <- list()
+
+    # Convert each row of 'attributes' to a list and store in 'attribute_list'
+    for (i in seq_len(n_attributes)) {
+        metadata_list <- list()
+
+        for (j in seq_len(n_meta_col)) {
+            temp_var <- assign("x", attributes[i, j])
+            metadata_list <- c(metadata_list, list(x))
+        }
+
+        names(metadata_list) = colnames(attributes)
+        attribute_list[[i]] <- metadata_list
+    }
+
+    names(attribute_list) <- colnames(data)
+    attributes(data) <- c(attributes(data), attribute_list)
+
+    return(data)
+}
+
+x <- data.frame("X1" = 1, "X2" = 2, "X3" = 3)
+n <- 0
+# set attributes to column variables in for loop
+for (i in colnames(x)) {
+    print(i)
+    attributes(x[[i]]) <- list("attribute" = paste0("hi", n))
+    n <- n + 1
+}
+y <- data.frame("X1" = 1, "X2" = 2, "X4" = 4)
+
+x <- function(x, y, target) {
+# store metadata for x and y
+    names <- colnames(x)
+    sapply(names, function(names) {attributes(x$names)})
+# find columns in target
+}
+
+for.setattr <- function() {
+    for (i in seq_along(myList)) {
+        setattr(myList[[i]], name = 'myname', value = 'myStaticName')
+    }
+}
