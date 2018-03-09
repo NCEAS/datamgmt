@@ -23,7 +23,6 @@ get_object_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
                             as = "data.frame")
 
     # Replace NA fields
-    query$formatId[which(is.na(query$formatId))] <- "application/octet-stream"
     query$fileName[which(is.na(query$fileName))] <- query$identifier
 
     if (nrow(query) == 0) {
@@ -153,7 +152,7 @@ get_eml_pids <- function(eml) {
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (list) List of all the identifiers in the new Data Package.
-clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
+clone_package <- function(resource_map_pid, mn_pull, mn_push) {
     #' TODO switch remaining for loops to applys
     #' TODO add more messages
     #' TODO better way to set physical in Update Metadata section?
@@ -164,11 +163,10 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
 
     package <- arcticdatautils::get_package(mn_pull, resource_map_pid)
 
-    response <- list()
-    response[["child_packages"]] <- package$child_packages
+    response <- list("child_packages" = package$child_packages)
 
     # Download EML
-    message(paste0("Downloading metadata from package: ", package$metadata))
+    message("Downloading metadata from package: ", package$metadata)
     #' TODO since messages print in red (scary!), you might want to consider the crayon workaround you found. maybe it's worth having a discussion on our package 'style'?
     eml <- EML::read_eml(rawToChar(dataone::getObject(mn_pull, package$metadata)))
 
@@ -201,7 +199,7 @@ clone_one_package <- function(mn_pull, mn_push, resource_map_pid) {
         data_pids <- unlist(old_data_pids)
 
         # Upload data objects and update metadata
-        new_data_pids <- vector("character")
+        new_data_pids <- vector("character", length = n_data_pids)
         for (i in seq_len(n_data_pids)) {
 
             # Attempt getObject up to 3 times
