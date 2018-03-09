@@ -3,14 +3,14 @@
 \name{get_all_attributes}
 \alias{get_all_attributes}
 \title{Get all attribute from an EML document.  Document for the function \code{get_attributes}
-from the EML(LINK) Package}
+from the EML(url) Package}
 \usage{
-get_all_attributes(eml = NULL, link = NULL, node = NULL)
+get_all_attributes(eml = NULL, url = NULL, node = NULL)
 }
 \arguments{
-\item{eml}{(S4) Optional. The full eml document. Required if \code{link} is not specified.}
+\item{eml}{(S4) Optional. The full eml document. Required if \code{url} is not specified.}
 
-\item{link}{(character) Optional. The link to the Dataone Package. Required if \code{eml} is not specified.}
+\item{url}{(character) Optional. The url to the Dataone Package. Required if \code{eml} is not specified.}
 
 \item{node}{(MNode/CNode) Optional.  Defaults to Arctic Data Center Production node.}
 }
@@ -19,12 +19,19 @@ get_all_attributes(eml = NULL, link = NULL, node = NULL)
 }
 \description{
 Get all attribute from an EML document.  Document for the function \code{get_attributes}
-from the EML(LINK) Package
+from the EML(url) Package
 }
 \examples{
 \dontrun{
-eml_pid <- "doi:10.18739/A23W02"
-eml <- read_eml(rawToChar(getObject(mn, eml_pid)))
+install_github("ropensci/EML)
+library(EML)
+library(dataone)
+cn <- dataone::CNode('PROD')
+node <- dataone::getMNode(cn,'urn:node:ARCTIC')
+eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
+attributes <- datamgmt::get_all_attributes(eml)
+
+attributes <- datamgmt::get_all_attributes(link = "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 }
 }
 \author{

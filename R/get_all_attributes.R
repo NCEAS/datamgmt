@@ -12,8 +12,21 @@
 #'
 #' @examples
 #' \dontrun{
-#' eml_pid <- "doi:10.18739/A23W02"
-#' eml <- read_eml(rawToChar(getObject(mn, eml_pid)))
+#' install_github("ropensci/EML)
+#' library(EML)
+#' library(dataone)
+#' cn <- dataone::CNode('PROD')
+#' node <- dataone::getMNode(cn,'urn:node:ARCTIC')
+#' eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
+#' attributes <- datamgmt::get_all_attributes(eml)
+#'
+#' attributes <- datamgmt::get_all_attributes(link = "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+#'
+#' # switch nodes
+#' cn <- dataone::CNode('PROD')
+#' knb <- dataone::getMNode(cn,"urn:node:KNB")
+#' attributes <- get_all_attributes(url = "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV",
+#'                                  node = knb)
 #' }
 get_all_attributes <- function(eml = NULL, url = NULL, node = NULL) {
     if (is.null(eml) & is.null(url)) {
@@ -28,7 +41,7 @@ get_all_attributes <- function(eml = NULL, url = NULL, node = NULL) {
         stopifnot(methods::is(node, "MNode") || is(node, "CNode"))
     } else {
         cn <- dataone::CNode('PROD')
-        mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
+        node <- dataone::getMNode(cn,'urn:node:ARCTIC')
     }
 
     # If url is specified extract pid and download eml
