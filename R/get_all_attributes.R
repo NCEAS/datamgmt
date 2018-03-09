@@ -1,8 +1,8 @@
 #' Get all attribute from an EML document.  Document for the function \code{get_attributes}
-#' from the EML(LINK) Package
+#' from the EML(url) Package
 #'
-#' @param eml (S4) Optional. The full eml document. Required if \code{link} is not specified.
-#' @param link (character) Optional. The link to the Dataone Package. Required if \code{eml} is not specified.
+#' @param eml (S4) Optional. The full eml document. Required if \code{url} is not specified.
+#' @param url (character) Optional. The url to the Dataone Package. Required if \code{eml} is not specified.
 #' @param node (MNode/CNode) Optional.  Defaults to Arctic Data Center Production node.
 #' @return (list) A list of all attribute metadata from the EML in data.frame objects
 #'
@@ -15,9 +15,9 @@
 #' eml_pid <- "doi:10.18739/A23W02"
 #' eml <- read_eml(rawToChar(getObject(mn, eml_pid)))
 #' }
-get_all_attributes <- function(eml = NULL, link = NULL, node = NULL) {
-    if (is.null(eml) & is.null(link)) {
-        stop("One of the arguments 'eml' or 'link' must be specified.")
+get_all_attributes <- function(eml = NULL, url = NULL, node = NULL) {
+    if (is.null(eml) & is.null(url)) {
+        stop("One of the arguments 'eml' or 'url' must be specified.")
     }
     if (!is.null(eml)) {
         stopifnot(isS4(eml))
@@ -31,11 +31,11 @@ get_all_attributes <- function(eml = NULL, link = NULL, node = NULL) {
         mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
     }
 
-    # If link is specified extract pid and download eml
-    if (!is.null(link)) {
-        stopifnot(is.character(link))
+    # If url is specified extract pid and download eml
+    if (!is.null(url)) {
+        stopifnot(is.character(url))
 
-        pid <- unlist(strsplit(link, "view/"))[[2]]
+        pid <- unlist(strsplit(url, "view/"))[[2]]
         eml <- EML::read_eml(rawToChar(dataone::getObject(node, pid)))
     }
 
