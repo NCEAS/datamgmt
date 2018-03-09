@@ -31,5 +31,6 @@ License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
 Suggests: testthat
-Remotes: NCEAS/arcticdatautils
+Remotes: NCEAS/arcticdatautils,
+         ropensci/EML
 RoxygenNote: 6.0.1
