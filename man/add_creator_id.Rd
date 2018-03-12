@@ -22,18 +22,28 @@ This function allows you to add an ORCID or reference ID to a creator in EML.
 The function invisibly returns the full EML, which
 can be saved to a variable. It also prints the changed creator
 entry so that it's easy to check that the appropriate change was
-made. All prameters other than the EML are optional, but since
-the point of the function is to modify either the orcid, ref id,
-or both, you need to specify at least one. Requires the
-crayon package.
+made. In addition to the EML, at least one of either the orcid or
+reference id is required.
+
+Note: updated creator information cannot be used as a
+reference for associatedParties because the extra "role"
+field is required. Also, the function does not (yet) account
+for cases in which multiple creators have the same surname.
 }
 \examples{
 \dontrun{
-cnTest <- dataone::CNode('STAGING')
-mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
-eml_pid <- arcticdatautils::create_dummy_metadata(mnTest)
-eml1 <- EML::read_eml(rawToChar(getObject(mnTest, eml_pid)))
-add_creator_id(eml1, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
+eml_path <- file.path(system.file(package = "datamgmt"), "dummy_meta_full.xml")
+eml <- EML::read_eml(eml_path_original)
+add_creator_id(eml, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
+
+eml <- eml \%>\%
+           add_creator_id(surname = "high-stakes",
+                          orcid = "https://orcid.org/0000-1234-5678-4321",
+                          id = "henrietta")
+
+#use references to add updated contact info to Henrietta's other roles
+eml@dataset@contact[[1]] <- new('contact', reference = "henrietta")
+eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
 }
 
 }
