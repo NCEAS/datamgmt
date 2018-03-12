@@ -1,8 +1,8 @@
 #' Get all attribute from an EML document.  Document for the function \code{get_attributes}
 #' from the EML(url) Package
 #'
-#'@param node (MNode/CNode) The Dataone Node that stores the Metadata object.
-#' @param eml (S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
+#' @param node (MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}
+#' @param metadata (S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
 #' The S4 object input is a more reliable method.
 #' @return (list) A list of all attribute metadata from the EML in data.frame objects
 #'

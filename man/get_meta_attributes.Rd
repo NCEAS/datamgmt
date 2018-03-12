@@ -8,9 +8,9 @@ from the EML(url) Package}
 get_meta_attributes(node = "ADC", metadata)
 }
 \arguments{
-\item{node}{(MNode/CNode) The Dataone Node that stores the Metadata object.}
+\item{node}{(MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}
 
-\item{eml}{(S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
+\item{metadata}{(S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
 The S4 object input is a more reliable method.}
 }
 \value{
