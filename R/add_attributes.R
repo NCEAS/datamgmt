@@ -129,6 +129,7 @@ resource_map_pids = c("resource_map_urn:uuid:477cf55d-32f3-4515-87b7-15fce9e11e3
                       "resource_map_doi:10.18739/A2F299")
 
 import_package_data <- function(mn, pids) {
+    #TODO make this function call add_attributes and get_all_attributes
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(length(pids) > 0)
     stopifnot(all(is.character(pids)))
