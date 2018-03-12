@@ -10,7 +10,7 @@ load(path)
 
 test_that("error checks function correctly", {
     expect_error(get_meta_attributes(metadata = 5))
-    expect_error(get_meta_attributes("dummy node", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02"))
+    #expect_error(get_meta_attributes("dummy node", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02"))
     expect_error(get_meta_attributes("ADC", "https://arcticdata.io/catalog/#view/DUMMY_PID"))
     eml@dataset@dataTable <- new("ListOfdataTable")
     expect_error(get_meta_attributes(eml))
@@ -18,12 +18,12 @@ test_that("error checks function correctly", {
 
 test_that("get_meta_attributes 'eml' argument outputs the correct .RData object", {
     results <- get_meta_attributes(metadata = eml)
-    expect_equal(results, get_meta_attributes_output)
+    expect_equal(results, get_all_attributes_output)
 })
 
 test_that("get_meta_attributes 'link' argument outputs the correct .RData object", {
     results <- get_meta_attributes("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
-    expect_equal(results, get_meta_attributes_output)
+    expect_equal(results, get_all_attributes_output)
 })
 
 test_that("get_meta_attributes returns the same table for 'eml' and 'url' arguments", {
