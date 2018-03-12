@@ -12,34 +12,39 @@
 #'
 #' @examples
 #' \dontrun{
-#' devtools::install_github("ropensci/EML")
-#' library(EML)
-#' library(dataone)
-#' cn <- dataone::CNode('PROD')
-#' node <- dataone::getMNode(cn,'urn:node:ARCTIC')
+#  cn <- dataone::CNode('PROD')
+#' node <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
-#' attributes <- datamgmt::get_attributes_url(eml)
+#' attributes <- datamgmt::get_attributes_url(metadata = eml)
 #'
-#' attributes <- datamgmt::get_attributes_url(node, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+#' attributes <- datamgmt::get_attributes_url("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
 #' knb <- dataone::getMNode(cn,"urn:node:KNB")
-#' attributes <- get_attributes_url(node = knb,
-#'                                  url = "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+#' attributes <- get_attributes_url("KNB", "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
 #' }
-get_attributes_url <- function(node, eml) {
+get_meta_attributes <- function(node = "ADC", metadata) {
+    # TODO - make all TODO's individual functions
     # TODO - load RData objects
     # TODO - write to individual csvs
     # TODO - write to one excel workbook
     # TODO - make sure it works for otherEntities
-    stopifnot(methods::is(node, "MNode") || is(node, "CNode"))
-    stopifnot(any(isS4(eml), is.character(eml)))
+    # TODO - switch nodes with "ADC", etc.
+    stopifnot(any(isS4(metadata), is.character(metadata)))
+
+    switch(node,
+           "ADC" = {
+               cn <- dataone::CNode('PROD')
+               mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
+           })
 
     # If url input is specified extract pid and download eml
-    if (is.character(eml)) {
-        pid <- unlist(strsplit(eml, "view/"))[[2]]
-        eml <- EML::read_eml(rawToChar(dataone::getObject(node, pid)))
+    if (isS4(metadata)) {
+        eml <- metadata
+    } else {
+        pid <- unlist(strsplit(metadata, "view/"))[[2]]
+        eml <- EML::read_eml(rawToChar(dataone::getObject(mn, pid)))
     }
 
     n1 <- length(eml@dataset@dataTable)
