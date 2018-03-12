@@ -15,14 +15,14 @@
 #  cn <- dataone::CNode('PROD')
 #' node <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
-#' attributes <- datamgmt::get_attributes_url(metadata = eml)
+#' attributes <- datamgmt::get_meta_attributes(metadata = eml)
 #'
-#' attributes <- datamgmt::get_attributes_url("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+#' attributes <- datamgmt::get_meta_attributes("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
 #' knb <- dataone::getMNode(cn,"urn:node:KNB")
-#' attributes <- get_attributes_url("KNB", "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+#' attributes <- get_meta_attributes("KNB", "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
 #' }
 get_meta_attributes <- function(node = "ADC", metadata) {
     # TODO - make all TODO's individual functions
