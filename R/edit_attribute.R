@@ -57,5 +57,6 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     attribute.list<-set_attributes(attributeTable, factors = data$factors)
     eml@dataset@dataTable[[dataTableNumber]]@attributeList <- attribute.list
     return(eml)
+    EML:::check_and_complete_attributes(attributeTable, NULL)
 
 }
