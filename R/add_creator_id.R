@@ -20,21 +20,23 @@
 #' @export
 #'
 #' @examples
-#' library(dataone)
-#' library(arcticdatautils)
-#' library(EML)
-#'
+#' \dontrun{
 #' cnTest <- dataone::CNode('STAGING')
 #' mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 #' eml_pid <- arcticdatautils::create_dummy_metadata(mnTest)
 #' eml1 <- EML::read_eml(rawToChar(getObject(mnTest, eml_pid)))
 #' add_creator_id(eml1, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
-
+#' }
+#'
 add_creator_id <- function(eml,
                            orcid = NULL,
                            id = NULL,
                            surname = NULL) { #not sensitive to capitalization
-    library(crayon)
+
+    if (!requireNamespace("crayon")) {
+   stop(call. = FALSE,
+       "The crayon package is required. Please install it and try again.")
+ }
 
     #variable checks:
     for (args in c(orcid, id, surname)) {
@@ -52,7 +54,7 @@ add_creator_id <- function(eml,
     #determine surname position to access correct creator
     #if none are specified, the first creator will be modified
     if (is.null(surname)) {
-        cat(green("Since surname was not specified, the first creator entry will be modified. "))
+        cat(crayon::green("Since surname was not specified, the first creator entry will be modified. "))
         pos <- 1
     } else {
         #make vector of creator surnames
@@ -69,13 +71,13 @@ add_creator_id <- function(eml,
         if (surname_u %in% surNames_u) {
             pos <- which(surNames_u == surname_u)
         } else {
-            stop(red("Surname not found. Check your spelling."))
+            stop(crayon::red("Surname not found. Check your spelling."))
         }
     }
 
     #add orcid if specified
     if (!is.null(orcid)) {
-        creatorList[[pos]]@userId <- c(new('userId',
+        creatorList[[pos]]@userId <- c(methods::new('userId',
                                            .Data = orcid,
                                            directory = "https://orcid.org"))
     }
@@ -88,7 +90,7 @@ add_creator_id <- function(eml,
     #add updated creatorList back into eml
     eml@dataset@creator@.Data <- creatorList
 
-    cat(green("The following entry has been changed:"))
+    cat(crayon::green("The following entry has been changed:"))
     print(creatorList[[pos]]) #prints changed entry
     invisible(eml) #returns full eml
 }

@@ -4,15 +4,15 @@
 \alias{get_object_metadata}
 \title{Return the object metadata of each data object in a Data Package}
 \usage{
-get_object_metadata(node, package_identifier, formatType = "DATA")
+get_object_metadata(mn, resource_map_pid, formatType = "DATA")
 }
 \arguments{
-\item{node}{(MNode/CNode) The Node to query for Object sizes}
+\item{mn}{(MNode/CNode) The Node to query for Object sizes}
+
+\item{resource_map_pid}{(character) The identifier of the Data Package's Resource Map}
 
 \item{formatType}{(character) Optional. Filter to just Objects of the given
 formatType. One of METADATA, RESOURCE, or DATA or * for all types}
-
-\item{resource_map_pid}{(character) The identifier of the Data Package's Resource Map}
 }
 \value{
 (character) The formatId, fileName, and identifier of each data object in a package.
