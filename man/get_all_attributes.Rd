@@ -32,6 +32,12 @@ eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
 attributes <- datamgmt::get_all_attributes(eml)
 
 attributes <- datamgmt::get_all_attributes(link = "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+
+# switch nodes
+cn <- dataone::CNode('PROD')
+knb <- dataone::getMNode(cn,"urn:node:KNB")
+attributes <- get_all_attributes(url = "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV",
+                                 node = knb)
 }
 }
 \author{
