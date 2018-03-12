@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+-->
+<stmml:unitList xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.1"
+                xmlns:sch="http://www.ascc.net/xml/schematron"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns="http://www.xml-cml.org/schema/stmml-1.1"
+                xsi:schemaLocation="http://www.xml-cml.org/schema/stmml-1.1 stmml.xsd">
+<!-- ======================================================================= -->
+<!-- ========================= unit types =========================== -->
+<!-- ======================================================================= -->
+
+<!-- ======================================================================= -->
+<!-- ====================== Unit Definitions =============================== -->
+<!-- ======================================================================= -->
+  <!--volumePerVolume-->
+    <unit id="partsPerMillion" name="partsPerMillion" unitType="dimensionless" abbreviation="ppm">
+        <description>parts per million</description>
+    </unit>
+    <unit id="partsPerBillion" name="partsPerBillion" unitType="dimensionless" abbreviation="ppb">
+        <description>parts per billion</description>
+    </unit>
+    <unit id="partsPerTrillion" name="partsPerTrillion" unitType="dimensionless" abbreviation="ppt">
+        <description>parts per trillion</description>
+    </unit>
+    <unit id="partsPerThousand" name="partsPerThousand" unitType="dimensionless">
+        <description>parts per thousand</description>
+    </unit>
+</stmml:unitList>

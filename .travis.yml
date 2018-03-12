@@ -12,3 +12,4 @@ addons:
       - librdf0-dev
       - libnetcdf-dev
       - r-cran-ncdf4
+      - libudunits2-dev
