@@ -39,6 +39,7 @@ LazyData: true
 Suggests: testthat,
     knitr,
     rmarkdown
-Remotes: NCEAS/arcticdatautils
+Remotes: NCEAS/arcticdatautils,
+         ropensci/EML
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
