@@ -2,8 +2,7 @@
 % Please edit documentation in R/get_meta_attributes.R
 \name{get_meta_attributes}
 \alias{get_meta_attributes}
-\title{Get all attribute from an EML document.  Document for the function \code{get_attributes}
-from the EML(url) Package}
+\title{Return attribute metadata from an EML object or Dataone Package URL.}
 \usage{
 get_meta_attributes(node = "ADC", metadata)
 }
@@ -17,21 +16,22 @@ The S4 object input is a more reliable method.}
 (list) A list of all attribute metadata from the EML in data.frame objects
 }
 \description{
-Get all attribute from an EML document.  Document for the function \code{get_attributes}
-from the EML(url) Package
+Return attribute metadata from an EML object or Dataone Package URL.
+This is largely a wrapper for the function \code{get_attributes} from the EML Package
+\url{https://github.com/ropensci/EML}.
 }
 \examples{
 \dontrun{
 node <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
-attributes <- datamgmt::get_attributes_url(metadata = eml)
+attributes <- datamgmt::get_meta_attributes(metadata = eml)
 
-attributes <- datamgmt::get_attributes_url("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+attributes <- datamgmt::get_meta_attributes("ADC", https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 
 # switch nodes
 cn <- dataone::CNode('PROD')
 knb <- dataone::getMNode(cn,"urn:node:KNB")
-attributes <- get_attributes_url("KNB", "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+attributes <- get_meta_attributes("https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
 }
 }
 \author{

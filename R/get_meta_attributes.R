@@ -1,5 +1,8 @@
-#' Get all attribute from an EML document.  Document for the function \code{get_attributes}
-#' from the EML(url) Package
+#' Return attribute metadata from an EML object or Dataone Package URL.
+#'
+#' @description Return attribute metadata from an EML object or Dataone Package URL.
+#' This is largely a wrapper for the function \code{get_attributes} from the EML Package
+#' \url{https://github.com/ropensci/EML}.
 #'
 #' @param node (MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}
 #' @param metadata (S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
@@ -17,12 +20,12 @@
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
 #' attributes <- datamgmt::get_meta_attributes(metadata = eml)
 #'
-#' attributes <- datamgmt::get_meta_attributes("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+#' attributes <- datamgmt::get_meta_attributes("ADC", https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
 #' knb <- dataone::getMNode(cn,"urn:node:KNB")
-#' attributes <- get_meta_attributes("KNB", "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+#' attributes <- get_meta_attributes("https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
 #' }
 get_meta_attributes <- function(node = "ADC", metadata) {
     # TODO - make all TODO's individual functions
