@@ -39,15 +39,14 @@ guess_member_node <- function(cn = "PROD", pid) {
                                           "\"&fl=datasource")))
     }))
 
-    if (length(results == 0)) {
-        message("Identifier not found in nodes:", cn)
-        exit()
+    if (length(results) == 0) {
+        stop(paste0("Identifier not found in nodes: ", cn))
     }
 
     if (length(results) > 1) {
-        message("Identifier found on multiple nodes\n")
+        message("Identifier found on multiple nodes:\n")
         print(results)
-        exit()
+        return()
     }
 
 
