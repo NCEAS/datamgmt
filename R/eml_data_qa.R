@@ -23,7 +23,8 @@
 #' @examples
 #' \dontrun{
 #' # For a package, run QA checks
-#' qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE, check_creators = FALSE, check_access = FALSE)
+#' qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE,
+#'            check_creators = FALSE, check_access = FALSE)
 #' }
 qa_package <- function(node, pid, readAllData = TRUE,
                        check_attributes = TRUE,
