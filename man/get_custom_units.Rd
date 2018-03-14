@@ -4,10 +4,12 @@
 \alias{get_custom_units}
 \title{Get custom unit data frame}
 \usage{
-get_custom_units(units)
+get_custom_units(units, quiet = FALSE)
 }
 \arguments{
 \item{units}{(character) unit or vector of units}
+
+\item{quiet}{(logical) if true will quiet console text}
 }
 \value{
 (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)

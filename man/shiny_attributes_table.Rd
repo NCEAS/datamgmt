@@ -2,15 +2,15 @@
 % Please edit documentation in R/create_attributes_table.R
 \name{shiny_attributes_table}
 \alias{shiny_attributes_table}
-\title{Build shiny UI for editing attributes table within function create_attributes_table()}
+\title{Create/Edit EML attributes}
 \usage{
 shiny_attributes_table(att_table, data)
 }
 \arguments{
-\item{att_table}{an attribute table built from create_attributes_table()}
+\item{att_table}{(data.frame) initial attributes table}
 
-\item{data}{(data.frame) PI submitted data as a data.frame() object}
+\item{data}{(data.frame) the data.frame of data that needs an attribute table}
 }
 \description{
-Build shiny UI for editing attributes table within function create_attributes_table()
+create/edit EML attributes, custom units, and factors in a dynamic setting
 }

@@ -739,6 +739,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 
 #' Get custom unit data frame
 #' @param units (character) unit or vector of units
+#' @param quiet (logical) if true will quiet console text
 #' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
 #' @description Uses the udunits2 unit library to format inputted unit into an EML unit form.
 #' @examples
@@ -749,7 +750,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' get_custom_units('km s-2')
 #' get_custom_units('s-2 /     kilometers-1') #works but is not advised
 #' @export
-get_custom_units <- function(units) {
+get_custom_units <- function(units, quiet = FALSE) {
 
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
@@ -764,11 +765,15 @@ get_custom_units <- function(units) {
     EML_units = mem_load_EML_units(all_units)
 
     # Initillize progress bar
-    progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)
+    if (quiet == FALSE) {
+    progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)}
 
     # Get custom units
     custom_units <- lapply(seq_along(units), function(i) {
-        utils::setTxtProgressBar(progressBar, i)
+
+        if (quiet == FALSE) {
+        utils::setTxtProgressBar(progressBar, i)}
+
         unit_split <- get_unit_split(units[i], all_units)
         id <- format_unit_split(unit_split, form = "id", all_units)
 
