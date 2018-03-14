@@ -20,7 +20,7 @@
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(node, "doi:10.18739/A23W02")))
 #' attributes <- datamgmt::get_meta_attributes(metadata = eml)
 #'
-#' attributes <- datamgmt::get_meta_attributes("ADC", https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+#' attributes <- datamgmt::get_meta_attributes("ADC", "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
