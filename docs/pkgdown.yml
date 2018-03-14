@@ -1,0 +1,8 @@
+pandoc: 1.19.2.1
+pkgdown: 0.1.0.9000
+pkgdown_sha: 17f683717d0a1547f13a08a259b34c58927452d6
+articles:
+  01_datateam: 01_datateam.html
+  02_pi: 02_pi.html
+  03_datadev: 03_datadev.html
+
