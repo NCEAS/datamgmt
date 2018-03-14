@@ -330,7 +330,6 @@ shiny_attributes_table <- function(att_table, data) {
                 att_out <- df_att()
                 att_out$unit[(input$att_table$changes$row + 1)] <- id
                 df_att(att_out)
-                print(df_att())
                 }
 
                 # Update Units Table
