@@ -19,5 +19,4 @@ test_that("guess_member_node error checks catch incorrect args", {
     expect_error(guess_member_node(5, "doi:10.18739/A2G287"))
     expect_error(guess_member_node("DUMMY NODE", "doi:10.18739/A2G287"))
     expect_error(guess_member_node("PROD", 5))
-
 })
