@@ -1,0 +1,76 @@
+---
+title: "Advanced functions for package developers and contributors"
+date: "Last updated `r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Clone or download packages
+
+The `clone_package` function copies a Data Package from one DataOne member node to another. It can also be used to copy an older version of a Data Package to the same member node in order to restore it, provided that the old Package is then obsoleted by the copied version.
+
+NOTE: BUGS ARE CURRENTLY BEING FIXED
+
+Example:
+
+```{r}
+cn_pull <- CNode("PROD")
+mn_pull <- getMNode(cn_pull, "urn:node:ARCTIC")
+cn_push <- CNode('STAGING')
+mn_push <- getMNode(cn_push,'urn:node:mnTestARCTIC')
+clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
+```
+
+## Create a dummy package
+
+The function `create_dummy_package2` creates a fuller package than create_dummy_package but is otherwise based on the same concept. This dummy package includes multiple data objects (2 csv's, and 2 jpg's), responsible parties, geographic locations, method steps, etc. You can also define a unique title for the package to distinguish it from other test packages.
+
+```{r}
+create_dummy_package2(mn, title = "A Dummy Package")
+```
+
+## Get NSF awards
+
+The `get_awards` function uses the NSF API to get all records pertaining to the Arctic or Polar programs.
+
+Example:
+
+```{r}
+all_awards <- get_awards()
+new_awards <- get_awards(from_date = "01/01/2017")
+```
+
+## Which in EML
+
+The `which_in_eml` function returns indices within an EML list that contain an instance where test == TRUE. See examples for more information.
+
+```{r}
+# Question: Which creators have a surName "Smith"?
+n <- which_in_eml(eml@dataset@creator, "surName", "Smith")
+# Answer: eml@dataset@creator[n]
+
+# Question: Which dataTables have an entityName that begins with "2016"
+n <- which_in_eml(eml@dataset@dataTable, "entityName", function(x) {grepl("^2016", x)})
+# Answer: eml@dataset@dataTable[n]
+
+# Question: Which attributes in dataTable[[1]] have a numberType "natural"?
+n <- which_in_eml(eml@dataset@dataTable[[1]]@attributeList@attribute, "numberType", "natural")
+# Answer: eml@dataset@dataTable[[1]]@attributeList@attribute[n]
+
+# Question: Which dataTables have at least one attribute with a numberType "natural"?
+n <- which_in_eml(eml@dataset@dataTable, "numberType", function(x) {"natural" %in% x})
+# Answer: eml@dataset@dataTable[n]
+```
+
