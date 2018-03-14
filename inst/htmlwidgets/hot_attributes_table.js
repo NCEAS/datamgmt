@@ -41,23 +41,6 @@ HTMLWidgets.widget({
             Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders, changes: changes});
         }
 
-        // Units settings
-        if (x.rType == "units") {
-
-            // Set 1st column to read-only ("attributesName")
-            instance.hot.updateSettings({
-                cells: function (row, col, prop) {
-                    var cellProperties = {};
-
-                    if (col === 0) {
-                        cellProperties.readOnly = true;
-                        return cellProperties;
-                    }
-
-                }
-            });
-        }
-
         // Attributes settings
         if (x.rType == "attributes") {
 
@@ -164,6 +147,16 @@ HTMLWidgets.widget({
 
                 Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders,
                     changes: {oldVal: oldVal, newVal: newVal, row: row, col: col}});
+            }
+
+        });
+
+        //TODO: 'afterPaste' for pasting in units
+
+        instance.hot.addHook('afterRemoveRow', function(changes, src) {
+
+            if (HTMLWidgets.shinyMode) {
+                Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders, changes: null});
             }
 
         });

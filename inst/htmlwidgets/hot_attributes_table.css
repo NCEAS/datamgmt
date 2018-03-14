@@ -3,7 +3,7 @@
 }
 
 .handsontable .needData {
-    background: #ff7575;
+    background: #ff6666;
 }
 
 .handsontable .htInvalid {
@@ -15,5 +15,5 @@
 }
 
 .handsontable .standardUnit {
-    background: #75ff90;
+    background: #ccff99;
 }

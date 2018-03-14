@@ -214,6 +214,10 @@ shiny_attributes_table <- function(att_table, data) {
                                               type = "button",
                                               class = "btn action-button btn-danger btn-lg",
                                               onclick = "setTimeout(function(){window.close();},100);", "Quit App"),
+                           shiny::tags$button(id = "help",
+                                              type = "button",
+                                              class = "btn action-button btn-info btn-lg",
+                                              "Help"),
                            shiny::br(),
                            shiny::br(),
                            shiny::mainPanel(width = 12,
@@ -229,7 +233,7 @@ shiny_attributes_table <- function(att_table, data) {
                                                                                shiny::br(),
                                                                                shiny::br(),
                                                                                hot_attributes_output("att_table")),
-                                                               shiny::tabPanel("Custom Units",
+                                                               shiny::tabPanel("Units Table",
                                                                                shiny::br(),
                                                                                shiny::tags$button(id = "print_units",
                                                                                                   type = "button",
@@ -241,7 +245,7 @@ shiny_attributes_table <- function(att_table, data) {
                                                                                shiny::br(),
                                                                                shiny::br(),
                                                                                hot_attributes_output("units_table")),
-                                                               shiny::tabPanel("Factors",
+                                                               shiny::tabPanel("Factors Table",
                                                                                shiny::br(),
                                                                                shiny::tags$button(id = "print_factors",
                                                                                                   type = "button",
@@ -255,18 +259,25 @@ shiny_attributes_table <- function(att_table, data) {
                                                                                hot_attributes_output("factors_table")))))
 
     # Server
-    server <- function(input, output) {
+    server <- function(input, output, session) {
         #################### Attributes Table Inputs ####################
-        # Attributes reactive
-        df_att <- reactive({
+        # Intialize units
+        first_build_units <- unlist(lapply(att_table$unit, function(x) {
 
-            if (is.null(input$att_table)) {
-                att_table
+            if (x != "") {
+                build_units_table(x)$id
 
             } else {
-                table_to_r(input$att_table)
+                ""
             }
+        }))
+        att_table$unit <- first_build_units
 
+        # Attributes reactive
+        df_att <- reactiveVal(att_table)
+
+        observeEvent(input$att_table$changes, {
+            df_att(table_to_r(input$att_table))
         })
 
         # Disable/Enable download button
@@ -284,14 +295,7 @@ shiny_attributes_table <- function(att_table, data) {
         #################### Attributes Table Outputs ####################
         # Attributes output table
         out_att <- reactive({
-            out <- table_to_r(input$att_table)
-            units <- df_units()
-
-            for (i in seq_along(units$id)) {
-                out$unit[out$unit == units$unit[i]] <- units$id[i]
-            }
-
-            out
+            table_to_r(input$att_table)
         })
 
         # Attributes hot table
@@ -316,10 +320,24 @@ shiny_attributes_table <- function(att_table, data) {
         observeEvent(input$att_table$changes, {
 
             if (colnames(df_att())[input$att_table$changes$col + 1] == "unit") {
+
+                # Get units
                 new <- build_units_table(input$att_table$changes$newVal)
-                out <- rbind(df_units(), new)
-                out <- out[!duplicated(out$unit), ]
-                out <- out[which(out$unit %in% df_att()$unit), ]
+                id <- new$id
+
+                # Update Attributes Table
+                if (length(id) > 0) {
+                att_out <- df_att()
+                att_out$unit[(input$att_table$changes$row + 1)] <- id
+                df_att(att_out)
+                print(df_att())
+                }
+
+                # Update Units Table
+                out <- rbind(df_units(), new, stringsAsFactors = FALSE)
+                out <- out[!duplicated(out$id), ]
+                out <- out[which(out$id %in% df_att()$unit), ]
+
                 df_units(out)
             }
 
@@ -327,7 +345,9 @@ shiny_attributes_table <- function(att_table, data) {
 
         # Save changes to units_table
         observeEvent(input$units_table$changes, {
-            df_units(table_to_r(input$units_table))
+            out <- table_to_r(input$units_table)
+            out <- out[, !(colnames(out) %in% c("isStandardUnit"))]
+            df_units(out)
         })
 
         EML_units <- EML::get_unitList()$units
@@ -411,14 +431,14 @@ shiny_attributes_table <- function(att_table, data) {
         })
 
         #################### Factors Outputs ####################
-        # Factors output table
-        out_factors <- reactive({
-            out <- table_to_r(input$factors_table)
-        })
-
         # Factors hot table
         output$factors_table <- render_hot_attributes({
             hot_attributes_table(df_factors(), type = "factors")
+        })
+
+        # Factors output table
+        out_factors <- reactive({
+            out <- table_to_r(input$factors_table)
         })
 
         shiny::observeEvent(input$print_factors, {
@@ -433,6 +453,32 @@ shiny_attributes_table <- function(att_table, data) {
         #################### Quit ####################
         shiny::observeEvent(input$quit, {
             shiny::stopApp()
+        })
+
+        #################### Help ####################
+        shiny::observeEvent(input$help, {
+
+        shiny::showModal(modalDialog(
+            size = "l",
+            title = "Help",
+            shiny::HTML("Use the <b>Attributes Table</b> tab to build attribute information.<br>
+                        <font color='#ff6666'>Pink</font> cells indicate an incomplete cell that needs information.<br>
+                        <font color='#999999'>Grey</font> cells indicate no information is needed for that cell.<br><br>
+
+                        Units will automatically update to an EML format.<br>
+                        To prevent automatic generation of EML format, input unit in quotes (e.g. 'pH').<br><br>
+
+                        Use the <b>Units Table</b> tab to build units information.<br>
+                        <font color='#99cc33'>Green</font> cells indicate the id corresponds to an EML standard unit.<br>
+                        <font color='#99cc33'>Green</font> cells will not be exported when exporting the <b>Units Table</b>.<br><br>
+
+                        Use the <b>Factors Table</b> tab to build factors information.<br>
+                        Factors are needed for attributes with enumeratedDomains.<br>
+                        Factor codes will automatically generate for each enumeratedDomain when data is present.<br><br>
+
+                        Use the buttons above each table to export.<br>
+                        Either print the table to the R console or download the table to a csv file.")
+            ))
         })
 
     }
@@ -476,17 +522,22 @@ build_units_table <- function(units) {
 
     # Get custom units
     units_table <- suppressWarnings(as.data.frame(get_custom_units(units, quiet = TRUE), stringsAsFactors = FALSE))
-    units_table$definition <- NA
-    units_table_colname <- colnames(units_table)
-    units_table$unit <- units
 
-    # Arrange columns
-    units_table <- units_table[, c("unit", units_table_colname)]
+    # Remove escape characters
+    units <- gsub("\"|\'", "", units)
+
+    # If id is NA, set to original unit
+    units_table$id[is.na(units_table$id)] <- units[is.na(units_table$id)]
+
+    # Initialize definition
+    definition <- rep(NA, nrow(units_table))
+    units_table <- cbind(units_table, definition, stringsAsFactors = FALSE)
 
     # Clean
-    units_table <- units_table[!is.na(units_table$unit), ]
-    units_table <- units_table[units_table$unit != "", ]
-    units_table <- units_table[!duplicated(units_table$unit), ]
+    units_table <- units_table[!is.na(units_table$id),]
+    units_table <- units_table[units_table$id != "",]
+    units_table <- units_table[!duplicated(units_table$id),]
+    return(units_table)
 }
 
 #' Build factor table
