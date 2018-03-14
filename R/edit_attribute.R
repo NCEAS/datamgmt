@@ -54,7 +54,7 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
         attributeTable[attributeNumber,15] <- missingValueCodeExplanation
     }
 
-    attribute.list<-set_attributes(attributeTable, factors = data$factors)
+    attribute.list<-EML::set_attributes(attributeTable, factors = data$factors)
     eml@dataset@dataTable[[dataTableNumber]]@attributeList <- attribute.list
     return(eml)
     EML:::check_and_complete_attributes(attributeTable, NULL)
