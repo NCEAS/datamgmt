@@ -1,0 +1,24 @@
+reference:
+  - title: Editing EML
+    contents:
+    - create_attributes_table
+    - get_custom_units
+    - add_creator_id
+    - which_in_eml
+
+  - title: Working with packages
+    contents:
+    - clone_package
+    - download_package
+    - download_packages
+    - create_dummy_package2
+
+  - title: Quality Assurance
+    contents:
+    - qa_access
+    - qa_package
+
+  - title: Miscellaneous
+    contents:
+    - get_awards
+    - excel_to_csv
