@@ -20,18 +20,11 @@ HTMLWidgets.widget({
 
         // If instance already exists destroy old instance
         if (instance.hot) {
-            selection = instance.hot.getSelected();
-            instance.hot.destroy();
-            instance.hot = new Handsontable(el, x);
-
-            if (selection !== undefined) {
-                instance.hot.selectCell(selection[0], selection[1], selection[2], selection[3]);
-            }
+            instance.hot.updateSettings(x);
 
         // Create new handsontable
         } else {
             instance.hot = new Handsontable(el, x);
-            instance.hot.selectCell(0, 0);
         }
 
         var colHeaders =  instance.hot.getColHeader(),
@@ -46,9 +39,10 @@ HTMLWidgets.widget({
 
             // Set source information and get column names
             var allDomains = ["dateTimeDomain", "enumeratedDomain", "numericDomain", "textDomain"],
-            allMeasurementScales = ["dateTime", "interval", "nominal", "ordinal", "ratio"];
+            allMeasurementScales = ["dateTime", "interval", "nominal", "ordinal", "ratio"],
             allNumberTypes = ["integer", "natural", "real", "whole"];
-            n_measurementScale = colHeaders.findIndex(n => n == "measurementScale"),
+
+            var n_measurementScale = colHeaders.findIndex(n => n == "measurementScale"),
             n_domain = colHeaders.findIndex(n => n == "domain"),
             n_definition = colHeaders.findIndex(n => n == "definition"),
             n_formatString = colHeaders.findIndex(n => n == "formatString"),
@@ -85,73 +79,23 @@ HTMLWidgets.widget({
             // Create dynamic updates
             instance.hot.addHook('beforeChange', function(changes, src) {
 
-                var row = changes[0][0],
-                col = changes[0][1],
-                newVal = changes[0][3];
-
-                if (col == n_measurementScale) {
-
-                    if (newVal == "dateTime") {
-                        instance.hot.setDataAtCell(row, n_domain, allDomains[0]);
-
-                    } else if (newVal == "interval" || newVal == "ratio") {
-                        instance.hot.setDataAtCell(row, n_domain, allDomains[2]);
-
-                    } else if (newVal === null || newVal === "") {
-                        instance.hot.setDataAtCell(row, n_domain, "");
-                        instance.hot.setDataAtCell(row, n_unit, "");
-                    }
-
-                }
-
-                if (col == n_domain) {
-
-                    if (newVal != "textDomain") {
-                        instance.hot.setDataAtCell(row, n_definition, "");
-                    }
-
-                    if (newVal != "dateTimeDomain") {
-                        instance.hot.setDataAtCell(row, n_formatString, "");
-                    }
-
-                    if (newVal != "numericDomain") {
-                        instance.hot.setDataAtCell(row, n_unit, "");
-                        instance.hot.setDataAtCell(row, n_numberType, "");
-                    }
-
-                }
-
-                if (col == n_mVC) {
-                    if (newVal === null || newVal  ===  "") {
-                        instance.hot.setDataAtCell(row, n_mVCE, "");
-                    }
-                }
+                updateAttCells(changes);
 
             });
+
         }
 
         // Ensure validation of cells
-        instance.hot.addHook('beforeRender', function(){
-            instance.hot.validateCells();
-        });
 
         // Record change
         instance.hot.addHook('afterChange', function(changes, src) {
 
             if (HTMLWidgets.shinyMode) {
 
-                var row = changes[0][0],
-                col = changes[0][1],
-                oldVal = changes[0][2],
-                newVal = changes[0][3];
-
-                Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders,
-                    changes: {oldVal: oldVal, newVal: newVal, row: row, col: col}});
+                Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders, changes: changes});
             }
 
         });
-
-        //TODO: 'afterPaste' for pasting in units
 
         instance.hot.addHook('afterRemoveRow', function(changes, src) {
 
@@ -195,6 +139,56 @@ HTMLWidgets.widget({
                 return allMeasurementScales;
             }
         }
+
+        function updateAttCells(changes) {
+
+            for (i = 0; i < changes.length; i++) {
+                row = changes[i][0],
+                col = changes[i][1],
+                newVal = changes[i][3];
+
+                if (col == n_measurementScale) {
+
+                    if (newVal === null || newVal === "") {
+                        x.data[row][n_domain] = "",
+                        x.data[row][n_unit] = "",
+                        x.data[row][n_numberType] = "";
+
+                    } else if (newVal == "dateTime") {
+                        x.data[row][n_domain] = allDomains[0];
+
+                    } else if (newVal == "interval" || newVal == "ratio") {
+                        x.data[row][n_domain] = allDomains[2];
+                    }
+
+                }
+
+                if (col == n_domain) {
+
+                    if (newVal != "textDomain") {
+                        x.data[row][n_definition] = "";
+                    }
+
+                    if (newVal != "dateTimeDomain") {
+                        x.data[row][n_formatString] = "";
+                    }
+
+                    if (newVal != "numericDomain") {
+                        x.data[row][n_unit] = "";
+                        x.data[row][n_numberType] = "";
+                    }
+
+                }
+
+                if (col == n_mVC) {
+                    if (newVal === null || newVal  ===  "") {
+                        x.data[row][n_mVCE] = "";
+                    }
+                }
+            }
+
+        }
+
     }
 
 });
@@ -315,8 +309,20 @@ function customDropdown_att( instance, td, row, col, prop, value, cellProperties
 
     if (value === null || value === "") {
 
-        if (colHeaders[col] == "measurementScale" | colHeaders[col] == "domain") {
+        if (colHeaders[col] == "measurementScale") {
             td.className = "needData";
+        }
+
+        if (colHeaders[col] == "domain") {
+
+            if (instance.getData()[row][n_measurementScale] === null || instance.getData()[row][n_measurementScale] === "") {
+                td.className = "notNeeded";
+                cellProperties.readOnly = true;
+
+            } else {
+                td.className = "needData";
+                cellProperties.readOnly = false;
+            }
         }
 
         if (colHeaders[col] == "numberType") {

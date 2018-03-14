@@ -292,52 +292,37 @@ shiny_attributes_table <- function(att_table, data) {
 
         })
 
-        #################### Attributes Table Outputs ####################
-        # Attributes output table
-        out_att <- reactive({
-            table_to_r(input$att_table)
-        })
-
-        # Attributes hot table
-        output$att_table <- render_hot_attributes({
-            hot_attributes_table(df_att(), type = "attributes")
-        })
-
-        shiny::observeEvent(input$print_att, {
-            output_text_func(out_att())
-        })
-
-        output$download_att <- shiny::downloadHandler(filename = "Attributes_Table.csv", content = function(file) {
-            data <- out_att()
-            write.csv(data, file, row.names = FALSE)
-        })
-
         #################### Units Table Inputs ####################
         # Initiallize units
         df_units <- reactiveVal(build_units_table(att_table$unit))
 
-        # Get new units from att_table
+        # Get new units from att_table (update attributes and units tables)
         observeEvent(input$att_table$changes, {
 
-            if (colnames(df_att())[input$att_table$changes$col + 1] == "unit") {
+            changes <- input$att_table$changes
 
-                # Get units
-                new <- build_units_table(input$att_table$changes$newVal)
-                id <- new$id
+            for(i in seq(length(changes))) {
 
-                # Update Attributes Table
-                if (length(id) > 0) {
-                att_out <- df_att()
-                att_out$unit[(input$att_table$changes$row + 1)] <- id
-                df_att(att_out)
+                if (colnames(df_att())[changes[[i]][[2]] + 1] == "unit") {
+
+                    # Get units
+                    new <- build_units_table(changes[[i]][[4]])
+                    id <- new$id
+
+                    # Update Attributes Table
+                    if (length(id) > 0) {
+                        att_out <- df_att()
+                        att_out$unit[(changes[[i]][[1]] + 1)] <- id
+                        df_att(att_out)
+                    }
+
+                    # Update Units Table
+                    out <- rbind(df_units(), new, stringsAsFactors = FALSE)
+                    out <- out[!duplicated(out$id), ]
+                    out <- out[which(out$id %in% df_att()$unit), ]
+
+                    df_units(out)
                 }
-
-                # Update Units Table
-                out <- rbind(df_units(), new, stringsAsFactors = FALSE)
-                out <- out[!duplicated(out$id), ]
-                out <- out[which(out$id %in% df_att()$unit), ]
-
-                df_units(out)
             }
 
         })
@@ -362,6 +347,74 @@ shiny_attributes_table <- function(att_table, data) {
 
         })
 
+        #################### Factors Inputs ####################
+        # Initiallize factors
+        df_factors <- reactiveVal(build_factors(att_table, data))
+
+        # Get new factors from att_table
+        observeEvent(input$att_table$changes, {
+
+            changes <- input$att_table$changes
+
+            for(i in seq(length(changes))) {
+
+                if (colnames(df_att())[changes[[i]][[2]] + 1] == "domain") {
+
+                    if (!is.null(changes[[i]][[4]]) && changes[[i]][[4]] == "enumeratedDomain") {
+                        change <- df_att()[changes[[i]][[1]] + 1, ]
+                        new <- build_factors(change, data)
+                        out <- rbind(df_factors(), new)
+                        df_factors(out)
+
+                    } else if (!is.null(changes[[i]][[3]]) && changes[[i]][[3]] ==
+                               "enumeratedDomain" && changes[[i]][[4]] != "enumeratedDomain") {
+                        out <- df_factors()[df_factors()$attributeName != df_att()$attributeName[changes[[i]][[1]] + 1], ]
+                        df_factors(out)
+                    }
+
+                }
+            }
+
+        })
+
+        # Save changes to factors_table
+        observeEvent(input$factors_table$changes, {
+            df_factors(table_to_r(input$factors_table))
+        })
+
+        # Disable/Enable download button
+        observeEvent(input$factors_table, {
+
+            tryCatch({
+                out_factors()
+                shinyjs::enable("download_factors")
+            }, error = function(err) {
+                shinyjs::disable("download_factors")
+            })
+
+        })
+
+
+        #################### Attributes Table Outputs ####################
+        # Attributes output table
+        out_att <- reactive({
+            table_to_r(input$att_table)
+        })
+
+        # Attributes hot table
+        output$att_table <- render_hot_attributes({
+            hot_attributes_table(df_att(), type = "attributes")
+        })
+
+        shiny::observeEvent(input$print_att, {
+            output_text_func(out_att())
+        })
+
+        output$download_att <- shiny::downloadHandler(filename = "Attributes_Table.csv", content = function(file) {
+            data <- out_att()
+            write.csv(data, file, row.names = FALSE)
+        })
+
         #################### Units Table Outputs ####################
         # Units output table
         out_units <- reactive({
@@ -384,49 +437,6 @@ shiny_attributes_table <- function(att_table, data) {
         output$download_units <- shiny::downloadHandler(filename = "Custom_Units.csv", content = function(file) {
             data <- out_units()
             write.csv(data, file, row.names = FALSE)
-        })
-
-        #################### Factors Inputs ####################
-        # Initiallize factors
-        df_factors <- reactiveVal(build_factors(att_table, data))
-
-        # Get new factors from att_table
-        observeEvent(input$att_table$changes, {
-
-            if (colnames(df_att())[input$att_table$changes$col + 1] == "domain") {
-
-                if (input$att_table$changes$newVal == "enumeratedDomain") {
-                    change <- df_att()[input$att_table$changes$row + 1, ]
-                    new <- build_factors(change, data)
-                    out <- rbind(df_factors(), new)
-                    df_factors(out)
-
-                } else if (!is.null(input$att_table$changes$oldVal) && input$att_table$changes$oldVal ==
-                           "enumeratedDomain" && input$att_table$changes$newVal != "enumeratedDomain") {
-                    out <- df_factors()[df_factors()$attributeName != df_att()$attributeName[input$att_table$changes$row +
-                                                                                                 1], ]
-                    df_factors(out)
-                }
-
-            }
-
-        })
-
-        # Save changes to factors_table
-        observeEvent(input$factors_table$changes, {
-            df_factors(table_to_r(input$factors_table))
-        })
-
-        # Disable/Enable download button
-        observeEvent(input$factors_table, {
-
-            tryCatch({
-                out_factors()
-                shinyjs::enable("download_factors")
-            }, error = function(err) {
-                shinyjs::disable("download_factors")
-            })
-
         })
 
         #################### Factors Outputs ####################
@@ -457,10 +467,10 @@ shiny_attributes_table <- function(att_table, data) {
         #################### Help ####################
         shiny::observeEvent(input$help, {
 
-        shiny::showModal(modalDialog(
-            size = "l",
-            title = "Help",
-            shiny::HTML("Use the <b>Attributes Table</b> tab to build attribute information.<br>
+            shiny::showModal(modalDialog(
+                size = "l",
+                title = "Help",
+                shiny::HTML("Use the <b>Attributes Table</b> tab to build attribute information.<br>
                         <font color='#ff6666'>Pink</font> cells indicate an incomplete cell that needs information.<br>
                         <font color='#999999'>Grey</font> cells indicate no information is needed for that cell.<br><br>
 
@@ -554,13 +564,13 @@ build_factors <- function(att_table, data) {
         out <- data.frame(matrix(nrow = 0, ncol = 3), stringsAsFactors = F)
         colnames(out) <- c("attributeName", "code", "definition")
 
-    # If data is null or attribute is not in data make one blank row
+        # If data is null or attribute is not in data make one blank row
     } else if (is.null(data) || !all(attributeNames %in% colnames(data))) {
         out <- data.frame(matrix(nrow = length(attributeNames), ncol = 3), stringsAsFactors = F)
         colnames(out) <- c("attributeName", "code", "definition")
         out$attributeName <- attributeNames
 
-    # Else, get all codes
+        # Else, get all codes
     } else {
         en_data <- data[attributeNames]
         en_data <- lapply(seq_along(en_data), function(i) {
@@ -569,6 +579,7 @@ build_factors <- function(att_table, data) {
             definition <- NA
             out <- data.frame(attributeName, code, definition, stringsAsFactors = F)
             colnames(out) <- c("attributeName", "code", "definition")
+            out <- out[!is.na(code),]
             out
         })
 
