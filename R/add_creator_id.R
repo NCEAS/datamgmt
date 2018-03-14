@@ -1,4 +1,4 @@
-#' add_creator_id
+#' Add an ORCID or reference ID to a creator
 #'
 #' This function allows you to add an ORCID or reference ID to a creator in EML.
 #' @param eml EML script to modify
