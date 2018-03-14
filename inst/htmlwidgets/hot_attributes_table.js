@@ -162,7 +162,7 @@ HTMLWidgets.widget({
                 oldVal = changes[0][2],
                 newVal = changes[0][3];
 
-                Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders, unit: unit,
+                Shiny.onInputChange(el.id, {data: instance.hot.getData(), colnames: colHeaders,
                     changes: {oldVal: oldVal, newVal: newVal, row: row, col: col}});
             }
 
