@@ -1,25 +1,30 @@
-# datamgmt: Data Management Utilities for Curating, Documenting, and Publishing Data
+# datamgmt
+### *Data management utilities for curating, documenting, and publishing data*
 
 [![Build Status](https://travis-ci.org/NCEAS/datamgmt.svg?branch=master)](https://travis-ci.org/NCEAS/datamgmt)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/datamgmt)](https://cran.r-project.org/package=datamgmt)
 
-- **Authors**: TBD
-- DOI: TBD
+- **Authors**: Data Science Fellows, Spring 2018
 - **License**: [Apache 2](http://opensource.org/licenses/Apache-2.0)
 - [Package source code on Github](https://github.com/NCEAS/datamgmt)
 - [**Submit Bugs and feature requests**](https://github.com/NCEAS/datamgmt/issues)
 
-The *datamgmt* R package provides ...
+The *datamgmt* R package supports management of data packages on the [Arctic Data Center](https://arcticdata.io/) (ADC) and [State of Alaska's Salmon and People](https://alaskasalmonandpeople.org/) (SASAP) data portals. 
+
+## Installation
+You can install the development version from github with:
+
+```{r}
+# install.packages("devtools")
+
+devtools::install_github("NCEAS/datamgmt")
+```
 
 ## Style
 We generally follow the [tidyverse style conventions](http://style.tidyverse.org/), with the following specific style preferences: 
 
 - underscore for all variable names unless referring to an EML object (i.e. otherEntity, publicationDate, etc.)
 - all functions should include argument checks in the form of `stopifnot` statements
-
-## Quick Start
-
-To be written...
 
 ## Acknowledgements
 Work on this package was supported by:
