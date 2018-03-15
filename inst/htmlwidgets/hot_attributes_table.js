@@ -18,7 +18,7 @@ HTMLWidgets.widget({
         x.viewportRowRenderingOffset = 0;
         x.fixedColumnsLeft = 1;
 
-        // If instance already exists destroy old instance
+        // If instance already exists update old instance
         if (instance.hot) {
             instance.hot.updateSettings(x);
 
