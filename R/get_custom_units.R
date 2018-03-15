@@ -305,11 +305,13 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
     exponents_bad <- c("squared", "cubed")
 
     # if symbolic, use units package to try to deparse
-    tryCatch({
-        unit <- suppressWarnings(try_units_deparse(unit, exponents, exponents_numeric, all_units))
-    }, error = function(e) {
-        unit <- unit
-    })
+    unit <- tryCatch({
+        out <- try_units_deparse(unit, exponents, exponents_numeric, all_units)
+        stopifnot(out != "")
+        out},
+        error = function(e) {
+            unit
+        })
 
     # Replace '/' with ' Per '
     unit <- gsub("\\/", " Per ", unit)
