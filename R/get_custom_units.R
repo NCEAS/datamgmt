@@ -51,6 +51,7 @@
 #' @import gsubfn
 #' @import udunits2
 #' @import xml2
+#' @importFrom stringi stri_reverse
 #' @importFrom compare compare
 #' @importFrom memoise memoise
 #' @importFrom utils setTxtProgressBar txtProgressBar
@@ -240,9 +241,20 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     # Preformat unit
     unit <- gsub("(\\^)(-{0,1}[[:digit:]]+)", "\\2", unit)  # remove ^ in front of digits
     unit <- gsub("(^|[[:blank:]]+)[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
-    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+)",
+
+    # Deal with parenthesis
+    unit <- gsub("[[:blank:]]", "\\*", unit)
+    unit <- gsub("\\)\\*|\\*\\(", " ", unit)
+    unit <- gsub("\\(|\\)", " ", unit)
+
+    # replace * with / in denominators
+    unit <- stringi::stri_reverse(gsub("(\\*)(?=[^ ]+[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
+
+    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
-    unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # fix --
+    unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # change -- to -
+    unit <- gsub("-{1}[[:blank:]]{1}", "-1 ", unit)  # change -[[:blank:]] to -1
+    unit <- gsub("\\*", " ", unit) # remove "*"
     unit <- gsub("[[:blank:]]+", " ", unit)  # remove multple spaces
     unit <- gsub("^[[:blank:]]|[[:blank:]]$", "", unit)  # remove leading/trailing spaces
 
@@ -305,13 +317,13 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
     exponents_bad <- c("squared", "cubed")
 
     # if symbolic, use units package to try to deparse
-    unit <- tryCatch({
+    unit <- suppressWarnings(tryCatch({
         out <- try_units_deparse(unit, exponents, exponents_numeric, all_units)
         stopifnot(out != "")
         out},
         error = function(e) {
             unit
-        })
+        }))
 
     # Replace '/' with ' Per '
     unit <- gsub("\\/", " Per ", unit)

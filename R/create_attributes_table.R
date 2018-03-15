@@ -276,10 +276,6 @@ shiny_attributes_table <- function(att_table, data) {
         # Attributes reactive
         df_att <- reactiveVal(att_table)
 
-        observeEvent(input$att_table$changes, {
-            df_att(table_to_r(input$att_table))
-        })
-
         # Disable/Enable download button
         observeEvent(input$att_table, {
 
@@ -298,6 +294,8 @@ shiny_attributes_table <- function(att_table, data) {
 
         # Get new units from att_table (update attributes and units tables)
         observeEvent(input$att_table$changes, {
+
+            df_att(table_to_r(input$att_table))
 
             changes <- input$att_table$changes
 
