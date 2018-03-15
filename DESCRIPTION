@@ -32,7 +32,10 @@ Imports:
     gsubfn,
     udunits2,
     compare,
-    memoise
+    memoise,
+    htmlwidgets,
+    jsonlite,
+    shinyjs
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
