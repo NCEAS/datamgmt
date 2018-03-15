@@ -66,6 +66,28 @@ get_custom_units('km s-2')
 get_custom_units('s-2 /     kilometers-1') #works but is not advised
 ```
 
+## Updating objects
+
+The `arcticdatautils::update_object` function updates an object in a package but does not change the resource map or EML. To simultaneously update all three parts of a data package, you can use the `update_package_object` function.
+
+The `update_package_object` function updates a data object, and then automatically updates the package resource map with the new data pid. If an object already has a dataTable or otherEntity with a working physical section, the EML will be updated with the new data's physical. 
+
+Example:
+
+```{r eval = FALSE}
+#input token to run
+cnTest <- dataone::CNode('STAGING')
+mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
+pkg <- create_dummy_package2(mnTest, title = "My package")
+
+file.create("new_file.csv")
+update_package_object(mnTest, pkg$data[1], "new_file.csv", pkg$resource_map, format_id = "text/csv")
+file.remove("new_file.csv") #clean up
+
+#check out the package on test.arcticdata.io
+```
+
 
 ## Adding an ORCID to a creator
 

@@ -8,6 +8,7 @@ reference:
 
   - title: Working with packages
     contents:
+    - update_package_object
     - clone_package
     - download_package
     - download_packages
