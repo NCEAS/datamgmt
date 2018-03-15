@@ -239,7 +239,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
 
     # Preformat unit
     unit <- gsub("(\\^)(-{0,1}[[:digit:]]+)", "\\2", unit)  # remove ^ in front of digits
-    unit <- gsub("[[:blank:]]+[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
+    unit <- gsub("(^|[[:blank:]]+)[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
     unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
     unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # fix --
@@ -247,7 +247,12 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     unit <- gsub("^[[:blank:]]|[[:blank:]]$", "", unit)  # remove leading/trailing spaces
 
     # Attempt to deparse unit
+    if (grepl("^[[:blank:]]*\\/", unit)) {
+        unit <- units::deparse_unit(units::as.units(sub("^[[:blank:]]*\\/","",unit)))
+        unit <- paste0("per ", unit)
+    } else {
     unit <- units::deparse_unit(units::as.units(unit))
+    }
 
     # Change exponent form
     unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ",
@@ -301,7 +306,7 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
 
     # if symbolic, use units package to try to deparse
     tryCatch({
-        unit <- try_units_deparse(unit, exponents, exponents_numeric, all_units)
+        unit <- suppressWarnings(try_units_deparse(unit, exponents, exponents_numeric, all_units))
     }, error = function(e) {
         unit <- unit
     })
