@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Allows editing of an attribute table and custom units table in a shiny environment — create_attributes_table • datamgmt</title>
+<title>Create/Edit EML attributes — create_attributes_table • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -27,9 +27,9 @@
 <script src="../pkgdown.js"></script>
   
   
-<meta property="og:title" content="Allows editing of an attribute table and custom units table in a shiny environment — create_attributes_table" />
+<meta property="og:title" content="Create/Edit EML attributes — create_attributes_table" />
 
-<meta property="og:description" content="Allows editing of an attribute table and custom units table in a shiny environment" />
+<meta property="og:description" content="create/edit EML attributes, custom units, and factors in a dynamic setting" />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -99,11 +99,11 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Allows editing of an attribute table and custom units table in a shiny environment</h1>
+    <h1>Create/Edit EML attributes</h1>
     </div>
 
     
-    <p>Allows editing of an attribute table and custom units table in a shiny environment</p>
+    <p>create/edit EML attributes, custom units, and factors in a dynamic setting</p>
     
 
     <pre class="usage"><span class='fu'>create_attributes_table</span>(<span class='kw'>data</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>attributes_table</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
@@ -113,11 +113,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data</th>
-      <td><p>The data.frame of data that needs an attribute table</p></td>
+      <td><p>(data.frame) the data.frame of data that needs an attribute table</p></td>
     </tr>
     <tr>
       <th>attributes_table</th>
-      <td><p>A existing attributes table for <code>data</code> that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in <code>attributes_table</code>, then this function will use those values instead of automatically generating values from <code>data</code>).</p></td>
+      <td><p>(data.frame) an existing attributes table for <code>data</code> that needs to be updated (if specified along with <code>data</code>, all non-empty fields will be used over any values automatically generated from <code>data</code>)</p></td>
     </tr>
     </table>
     
@@ -126,7 +126,7 @@
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='fu'>create_attributes_table</span>(<span class='kw'>NULL</span>, <span class='kw'>NULL</span>)
 
-<span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'>read.csv</span>(<span class='st'>"Test.csv"</span>)
+<span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'>read.csv</span>(<span class='st'>'Test.csv'</span>)
 <span class='fu'>create_attributes_table</span>(<span class='no'>data</span>, <span class='kw'>NULL</span>)
 
 <span class='no'>attributes_table</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>EML</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/EML/topics/get_attributes'>get_attributes</a></span>(<span class='no'>eml</span>@<span class='kw'>dataset</span>@<span class='kw'>dataTable</span><span class='kw'>[[</span><span class='no'>i</span>]]@<span class='kw'>attributeList</span>)$<span class='no'>attributes</span>

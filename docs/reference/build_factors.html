@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Build shiny factors table — build_factors • datamgmt</title>
+<title>Build factor table — build_factors • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -27,9 +27,9 @@
 <script src="../pkgdown.js"></script>
   
   
-<meta property="og:title" content="Build shiny factors table — build_factors" />
+<meta property="og:title" content="Build factor table — build_factors" />
 
-<meta property="og:description" content="Build shiny factors table" />
+<meta property="og:description" content="Get factors" />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -99,29 +99,25 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Build shiny factors table</h1>
+    <h1>Build factor table</h1>
     </div>
 
     
-    <p>Build shiny factors table</p>
+    <p>Get factors</p>
     
 
-    <pre class="usage"><span class='fu'>build_factors</span>(<span class='no'>inputdf</span>, <span class='no'>inputdf2</span>, <span class='no'>data</span>)</pre>
+    <pre class="usage"><span class='fu'>build_factors</span>(<span class='no'>att_table</span>, <span class='no'>data</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>inputdf</th>
-      <td><p>attributes table</p></td>
-    </tr>
-    <tr>
-      <th>inputdf2</th>
-      <td><p>current factors table</p></td>
+      <th>att_table</th>
+      <td><p>(data.frame) input attributes table</p></td>
     </tr>
     <tr>
       <th>data</th>
-      <td><p>initial data inputed by user</p></td>
+      <td><p>(data.frame) input data</p></td>
     </tr>
     </table>
     

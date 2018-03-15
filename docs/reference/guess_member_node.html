@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Get EML numberType — get_numberType • datamgmt</title>
+<title>Guess the Member Node — guess_member_node • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -27,9 +27,14 @@
 <script src="../pkgdown.js"></script>
   
   
-<meta property="og:title" content="Get EML numberType — get_numberType" />
+<meta property="og:title" content="Guess the Member Node — guess_member_node" />
 
-<meta property="og:description" content="returns the EML numberType (either 'real', 'integer', 'whole', or 'natural') of input values" />
+<meta property="og:description" content="Guess the member node that stores a Dataone object based on its
+unique identifier (pid) and coordinating node (cn).  In most cases
+the object is stored on the Production ("PROD") Node, however this function can
+search across all coordinating nodes.  If only one member node is identified this
+function returns the member node as a Dataone "MNode" object.  If multiple member
+nodes are identified a vector of nodes is printed." />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -99,45 +104,59 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Get EML numberType</h1>
+    <h1>Guess the Member Node</h1>
     </div>
 
     
-    <p>returns the EML numberType (either 'real', 'integer', 'whole', or 'natural') of input values</p>
+    <p>Guess the member node that stores a Dataone object based on its
+unique identifier (<code>pid</code>) and coordinating node (<code>cn</code>).  In most cases
+the object is stored on the Production ("PROD") Node, however this function can
+search across all coordinating nodes.  If only one member node is identified this
+function returns the member node as a Dataone "MNode" object.  If multiple member
+nodes are identified a vector of nodes is printed.</p>
     
 
-    <pre class="usage"><span class='fu'>get_numberType</span>(<span class='no'>values</span>)</pre>
+    <pre class="usage"><span class='fu'>guess_member_node</span>(<span class='kw'>cn</span> <span class='kw'>=</span> <span class='st'>"PROD"</span>, <span class='no'>pid</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>values</th>
-      <td><p>(numeric/character) a vector of values, if vector is non-numeric will return NA</p></td>
+      <th>cn</th>
+      <td><p>(character) A character vector of coordinate nodes to search.  Defaults to "PROD".
+Can be set to any combination of ("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2").</p></td>
+    </tr>
+    <tr>
+      <th>pid</th>
+      <td><p>(character) The Datone unique object identifier.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>the numberType of <code>values</code> (either 'real', 'integer', 'whole', or 'natural').</p>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='co'># To get numberType for each column in a data.frame:</span>
+    <pre class="examples"># NOT RUN {
+The following two calls are equivalent:
+mn <- guess_member_node("doi:10.18739/A2G287")
+mn <- guess_member_node("PROD", "doi:10.18739/A2G287")
 
-<span class='fu'>unlist</span>(<span class='fu'>lapply</span>(<span class='no'>df</span>, <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'>get_numberType</span>(<span class='no'>x</span>)))
-<span class='co'># }</span></pre>
+Search all coordinating nodes:
+cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2"))
+mn <- guess_member_node(cn, "doi:10.18739/A2G287")
+# }
+<div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-      
+            
       <li><a href="#examples">Examples</a></li>
     </ul>
+
+    <h2>Author</h2>
+    
+Dominic Mullen, <a href='mailto:dmullen17@gmail.com'>dmullen17@gmail.com</a>
 
   </div>
 </div>

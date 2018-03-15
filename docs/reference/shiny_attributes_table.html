@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Build shiny UI for editing attributes table within function create_attributes_table() — shiny_attributes_table • datamgmt</title>
+<title>Create/Edit EML attributes — shiny_attributes_table • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -27,9 +27,9 @@
 <script src="../pkgdown.js"></script>
   
   
-<meta property="og:title" content="Build shiny UI for editing attributes table within function create_attributes_table() — shiny_attributes_table" />
+<meta property="og:title" content="Create/Edit EML attributes — shiny_attributes_table" />
 
-<meta property="og:description" content="Build shiny UI for editing attributes table within function create_attributes_table()" />
+<meta property="og:description" content="create/edit EML attributes, custom units, and factors in a dynamic setting" />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -99,11 +99,11 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Build shiny UI for editing attributes table within function create_attributes_table()</h1>
+    <h1>Create/Edit EML attributes</h1>
     </div>
 
     
-    <p>Build shiny UI for editing attributes table within function create_attributes_table()</p>
+    <p>create/edit EML attributes, custom units, and factors in a dynamic setting</p>
     
 
     <pre class="usage"><span class='fu'>shiny_attributes_table</span>(<span class='no'>att_table</span>, <span class='no'>data</span>)</pre>
@@ -113,11 +113,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>att_table</th>
-      <td><p>an attribute table built from create_attributes_table()</p></td>
+      <td><p>(data.frame) initial attributes table</p></td>
     </tr>
     <tr>
       <th>data</th>
-      <td><p>(data.frame) PI submitted data as a data.frame() object</p></td>
+      <td><p>(data.frame) the data.frame of data that needs an attribute table</p></td>
     </tr>
     </table>
     
