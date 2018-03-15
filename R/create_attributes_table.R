@@ -323,6 +323,11 @@ shiny_attributes_table <- function(att_table, data) {
 
                     df_units(out)
                 }
+
+                # Clean up units when removed by deleting measurementScale
+                out <-df_units()
+                out <- out[which(out$id %in% df_att()$unit), ]
+                df_units(out)
             }
 
         })
