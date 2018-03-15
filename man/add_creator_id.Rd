@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_creator_id.R
 \name{add_creator_id}
 \alias{add_creator_id}
-\title{add_creator_id}
+\title{Add an ORCID or reference ID to a creator}
 \usage{
 add_creator_id(eml, orcid = NULL, id = NULL, surname = NULL)
 }
