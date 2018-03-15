@@ -1,0 +1,21 @@
+# Data management utilities for curating, documenting, and publishing data
+
+## Installation
+You can install the development version from github with:
+
+```{r eval = FALSE}
+# install.packages("devtools")
+
+devtools::install_github("NCEAS/datamgmt")
+```
+
+## Usage
+Click on "Articles" to see information about functions for:
+
+- General ADC/SASAP data team use
+- PIs/data package submitters
+- datamgmt developers and contributers
+
+
+
+[![nceas_footer](https://www.nceas.ucsb.edu/files/newLogo_0.png)](http://www.nceas.ucsb.edu)

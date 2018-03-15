@@ -238,23 +238,26 @@ load_all_units <- function() {
 #' @return (character) unit. Fails if cannot deparse.
 try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = load_all_units()) {
 
+    stopifnot(length(unlist(gregexpr("\\(", unit))) == length(unlist(gregexpr("\\)", unit))))
+    stopifnot(!grepl("\\([^\\)]*\\(", unit))
+
     # Preformat unit
     unit <- gsub("(\\^)(-{0,1}[[:digit:]]+)", "\\2", unit)  # remove ^ in front of digits
     unit <- gsub("(^|[[:blank:]]+)[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
 
     # Deal with parenthesis
-    unit <- gsub("[[:blank:]]", "\\*", unit)
-    unit <- gsub("\\)\\*|\\*\\(", " ", unit)
-    unit <- gsub("\\(|\\)", " ", unit)
-
-    # replace * with / in denominators
-    unit <- stringi::stri_reverse(gsub("(\\*)(?=[^ ]+[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
+    unit <- stringi::stri_reverse(gsub("([[:blank:]])(?=[^\\)]+\\({1}[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
+    unit <- gsub("\\(|\\)", "", unit) # remove parenthesis
+    unit <- gsub("\\*", " ", unit) # remove "*"
 
     unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
     unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # change -- to -
     unit <- gsub("-{1}[[:blank:]]{1}", "-1 ", unit)  # change -[[:blank:]] to -1
-    unit <- gsub("\\*", " ", unit) # remove "*"
+
+    # Remove leading 1 from instances like "1/m"
+    unit <- gsub("(^|[[:blank:]])1", "", unit)
+
     unit <- gsub("[[:blank:]]+", " ", unit)  # remove multple spaces
     unit <- gsub("^[[:blank:]]|[[:blank:]]$", "", unit)  # remove leading/trailing spaces
 
@@ -267,8 +270,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     }
 
     # Change exponent form
-    unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ",
-                 unit)
+    unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ", unit)
     unit <- gsub("(-)([[:digit:]]+)", "per \\2", unit)
     for (i in seq_along(exponents_numeric)) {
         unit <- gsub(paste0("[[:blank:]]", exponents_numeric[i], "[[:blank:]]"),
@@ -500,7 +502,7 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
                 "Use 'square' and 'cubic'.")
     }
 
-    if (any(split_type == "unknown")) {
+    if (any(split_type == "unknown") || all(split_type == "per")) {
         unit_split <- NA
     }
 
