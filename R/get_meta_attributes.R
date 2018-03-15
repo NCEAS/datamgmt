@@ -21,16 +21,16 @@
 #  cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-#' attributes <- datamgmt::get_meta_attributes(mn, eml)
+#' attributes <- datamgmt::get_eml_attributes(mn, eml)
 #'
-#' attributes <- datamgmt::get_meta_attributes(mn, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+#' attributes <- datamgmt::get_eml_attributes(mn, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
 #' knb <- dataone::getMNode(cn,"urn:node:KNB")
-#' attributes <- get_meta_attributes(knb, "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+#' attributes <- get_eml_attributes(knb, "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
 #' }
-get_meta_attributes <- function(mn,
+get_eml_attributes <- function(mn,
                                 metadata,
                                 write_to_csv = FALSE,
                                 download_directory = NULL) {
