@@ -7,8 +7,7 @@ testthat::test_that("get_custom_units accepts multiple unit input formats", {
     form_3 <- datamgmt::get_custom_units('km/s^2')
     form_4 <- datamgmt::get_custom_units('km s-2')
     form_5 <- datamgmt::get_custom_units('s-2 /     kilometers-1')
-    form_6 <- datamgmt::get_custom_units('km/kg km/(s^2 km)*kg^4/(kg kilograms kg seconds) sec')
-
+    form_6 <- datamgmt::get_custom_units('km/kg km/(s^2*km)*kg^4/(kg kilograms kg seconds) sec')
 
     forms_equal <- (form_1 == form_2 &&
                     form_1 == form_3 &&

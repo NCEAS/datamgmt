@@ -239,14 +239,15 @@ load_all_units <- function() {
 try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = load_all_units()) {
 
     stopifnot(length(unlist(gregexpr("\\(", unit))) == length(unlist(gregexpr("\\)", unit))))
-    stopifnot(!grepl("\\([^\\)]*\\(", unit))
+    stopifnot(!grepl("\\([^\\)]*\\(", unit)) # stop if nested parenthesis
+    stopifnot(!grepl("\\([^\\)]*\\/[^\\)]*\\)", unit)) # stop if fractions in parenthesis
 
     # Preformat unit
     unit <- gsub("(\\^)(-{0,1}[[:digit:]]+)", "\\2", unit)  # remove ^ in front of digits
     unit <- gsub("(^|[[:blank:]]+)[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
 
     # Deal with parenthesis
-    unit <- stringi::stri_reverse(gsub("([[:blank:]])(?=[^\\)]+\\({1}[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
+    unit <- stringi::stri_reverse(gsub("([[:blank:]]|\\*)(?=[^\\)]+\\({1}[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
     unit <- gsub("\\(|\\)", "", unit) # remove parenthesis
     unit <- gsub("\\*", " ", unit) # remove "*"
 
