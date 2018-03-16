@@ -37,7 +37,8 @@ Imports:
     memoise,
     htmlwidgets,
     jsonlite,
-    shinyjs
+    shinyjs,
+    stringi
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
