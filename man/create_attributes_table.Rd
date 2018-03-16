@@ -2,23 +2,23 @@
 % Please edit documentation in R/create_attributes_table.R
 \name{create_attributes_table}
 \alias{create_attributes_table}
-\title{Allows editing of an attribute table and custom units table in a shiny environment}
+\title{Create/Edit EML attributes}
 \usage{
 create_attributes_table(data = NULL, attributes_table = NULL)
 }
 \arguments{
-\item{data}{The data.frame of data that needs an attribute table}
+\item{data}{(data.frame) the data.frame of data that needs an attribute table}
 
-\item{attributes_table}{A existing attributes table for \code{data} that needs to be updated. If specified, all non empty fields will be used (i.e. if numberType is specified in \code{attributes_table}, then this function will use those values instead of automatically generating values from \code{data}).}
+\item{attributes_table}{(data.frame) an existing attributes table for \code{data} that needs to be updated (if specified along with \code{data}, all non-empty fields will be used over any values automatically generated from \code{data})}
 }
 \description{
-Allows editing of an attribute table and custom units table in a shiny environment
+create/edit EML attributes, custom units, and factors in a dynamic setting
 }
 \examples{
 \dontrun{
 create_attributes_table(NULL, NULL)
 
-data <- read.csv("Test.csv")
+data <- read.csv('Test.csv')
 create_attributes_table(data, NULL)
 
 attributes_table <- EML::get_attributes(eml@dataset@dataTable[[i]]@attributeList)$attributes
