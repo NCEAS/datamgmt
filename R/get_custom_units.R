@@ -248,7 +248,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
 
     # Deal with parenthesis
     unit <- stringi::stri_reverse(gsub("([[:blank:]]|\\*)(?=[^\\)]+\\({1}[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
-    unit <- gsub("\\(|\\)", "", unit) # remove parenthesis
+    unit <- gsub("\\(|\\)", " ", unit) # remove parenthesis
     unit <- gsub("\\*", " ", unit) # remove "*"
 
     unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
