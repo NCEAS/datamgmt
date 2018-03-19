@@ -1,10 +1,10 @@
 testthat::context("edit_attribute")
 
+eml_path <- file.path(system.file(package = "datamgmt"), "dummy_eml_w_attributes.xml")
+eml <- EML::read_eml(eml_path)
+eml_key_path <- file.path(system.file(package = "datamgmt"), "key_eml_w_attributes.xml")
+eml_key <- EML::read_eml(eml_key_path)
 testthat::test_that("attributes are updated in correct slots", {
-    eml_path <- file.path(system.file(package = "datamgmt"), "dummy_eml_w_attributes.xml")
-    eml <- EML::read_eml(eml_path)
-    eml_key_path <- file.path(system.file(package = "datamgmt"), "key_eml_w_attributes.xml")
-    eml_key <- EML::read_eml(eml_key_path)
 
     eml_test <- edit_attribute(eml, 1, 2, attributeDefinition = "test definition", domain = "numericDomain",
                                measurementScale = "ratio", unit = "dimensionless", numberType = "whole", definition = NA)
