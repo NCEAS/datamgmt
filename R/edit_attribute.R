@@ -1,16 +1,27 @@
-#'Edit a single attribute.
+#' Edit a single attribute.
 #'
-#'This function edits the slots of a single attribute in an existing attribute table.
+#' This function edits the slots of a single attribute in an existing attribute table.
 #'
-#'Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit the factor table of an enumeratedDomain.
-#'In cases with very large attribute lists, user may want to use which_in_eml function first to locate the attribute position.
+#' Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit the factor table of an enumeratedDomain.
+#' In cases with very large attribute lists, user may want to use which_in_eml function first to locate the attribute position.
 #'
-#'@param eml The eml object containing the attributeList
-#'@param dataTableNumber The number of the dataTable containing the attributeList; in other words its position in the dataTable list.
-#'@param attributeNumber The number of the attribute of interest; in other words its position in the attributeList.
-#'@param attributeName... Arguments for specifying new values of attribute slots.
+#' @param eml The eml object containing the attributeList
+#' @param dataTableNumber The number of the dataTable containing the attributeList; in other words its position in the dataTable list.
+#' @param attributeNumber The number of the attribute of interest; in other words its position in the attributeList.
+#' @param attributeName The new name to give to the attribute
+#' @param attributeDefinition The new attributeDefinition to give to the attribute
+#' @param domain The new domain to give to the attribute
+#' @param measurementScale The new measurementScale to give to the attribute
+#' @param unit The new unit to give to the attribute
+#' @param numberType The new numberType to give to the attribute
+#' @param definition The new definition (for textDomain) to give to the attribute
+#' @param formatString The new formatString to give to the attribute
+#' @param missingValueCode The new missing value code to give to the attribute
+#' @param missingValueCodeExplanation The new missing value code explaination to give to the attribute
 #'
-#'@examples
+#' @export
+#'
+#' @examples
 #' \dontrun{
 #' #To change an attribute's name and add a missing value code where there hadn't been one:
 #' new_eml <- edit_attribute(eml, 2, 8, attributeName = "new name", missingValueCode = "NA", missingValueCodeExplanation = "Data unavailable")
@@ -19,11 +30,7 @@
 #' measurementScale = "ratio", unit = "dimensionless", numberType = "whole", definition = NA)
 #' }
 #'
-#'@export
-
-
-devtools::install_github("ropensci/EML", force = TRUE)
-
+#'
 edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName = NULL, attributeDefinition = NULL, domain=NULL,
                            measurementScale = NULL, unit = NULL, numberType = NULL, definition = NULL, formatString = NULL,
                            missingValueCode = NULL, missingValueCodeExplanation = NULL){
