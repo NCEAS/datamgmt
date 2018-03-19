@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 datamgmt.Rproj
+inst/UDUNITS
+inst/doc
