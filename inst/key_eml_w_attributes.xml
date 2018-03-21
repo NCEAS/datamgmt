@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" packageId="urn:x-wmo:md:org.aoncadis.www::ee386c24-66ac-11e3-9147-00c0f03d5b7c" system="knb" scope="system" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.1.1 ~/development/eml/eml.xsd">
+  <dataset>
+    <alternateIdentifier>some-alternate-identifier-string</alternateIdentifier>
+    <title>arcticdata R package test</title>
+    <creator>
+      <individualName>
+        <givenName>Bryce</givenName>
+        <surName>Mecum</surName>
+      </individualName>
+      <organizationName>National Center for Ecological Analysis and Synthesis</organizationName>
+    </creator>
+    <associatedParty>
+      <individualName>
+        <givenName>Bryce</givenName>
+        <surName>Mecum</surName>
+      </individualName>
+      <organizationName>National Center for Ecological Analysis and Synthesis</organizationName>
+      <role>creator</role>
+    </associatedParty>
+    <pubDate>2013-12-16</pubDate>
+    <language>eng</language>
+    <abstract>
+      <para>Just an abstract.</para>
+    </abstract>
+    <keywordSet>
+      <keyword>SOME_KEY_WORD</keyword>
+    </keywordSet>
+    <intellectualRights>
+      <para>This work is licensed under the Creative Commons Attribution 4.0 International License.To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.</para>
+    </intellectualRights>
+    <coverage>
+      <geographicCoverage>
+        <geographicDescription>No geographic description provided.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-135</westBoundingCoordinate>
+          <eastBoundingCoordinate>-134</eastBoundingCoordinate>
+          <northBoundingCoordinate>59</northBoundingCoordinate>
+          <southBoundingCoordinate>57</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <temporalCoverage>
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>2011-06-15</calendarDate>
+            <time>00:00:00</time>
+          </beginDate>
+          <endDate>
+            <calendarDate>2013-05-31</calendarDate>
+            <time>00:00:00</time>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+    </coverage>
+    <contact>
+      <organizationName>NSF Arctic Data Center</organizationName>
+    </contact>
+    <project>
+      <title>A Test Project Title</title>
+      <personnel>
+        <individualName>
+          <givenName>Bryce</givenName>
+          <surName>Mecum</surName>
+        </individualName>
+        <role>principalInvestigator</role>
+      </personnel>
+      <abstract>An abstract.</abstract>
+      <funding>
+        <para>NSF Award XXXXXX</para>
+      </funding>
+    </project>
+    <dataTable>
+      <entityName>Dummy Data Table</entityName>
+      <entityDescription>Dummy Description</entityDescription>
+      <physical scope="document">
+        <objectName>dummy_object</objectName>
+        <size unit="bytes">27</size>
+        <authentication method="SHA1">bc710d714ce6864338fbbd0a901f0a749464a672</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>application/octet-stream</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+        <distribution scope="document">
+          <online>
+            <url function="download">https://cn.dataone.org/cn/v2/resolve/urn:uuid:8c851d00-3fd1-4816-a44c-df745f542941</url>
+          </online>
+        </distribution>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>col1</attributeName>
+          <attributeDefinition>Numbers</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>integer</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>col2</attributeName>
+          <attributeDefinition>test definition</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>col3</attributeName>
+          <attributeDefinition>Levs</attributeDefinition>
+          <measurementScale>
+            <ordinal>
+              <nonNumericDomain>
+                <enumeratedDomain>
+                  <codeDefinition>
+                    <code>A</code>
+                    <definition>high</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>B</code>
+                    <definition>medium</definition>
+                  </codeDefinition>
+                  <codeDefinition>
+                    <code>C</code>
+                    <definition>low</definition>
+                  </codeDefinition>
+                </enumeratedDomain>
+              </nonNumericDomain>
+            </ordinal>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>col4</attributeName>
+          <attributeDefinition>IntervalNums</attributeDefinition>
+          <measurementScale>
+            <interval>
+              <unit>
+                <standardUnit>dimensionless</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>whole</numberType>
+              </numericDomain>
+            </interval>
+          </measurementScale>
+        </attribute>
+        <attribute>
+          <attributeName>col5</attributeName>
+          <attributeDefinition>SampleDate</attributeDefinition>
+          <measurementScale>
+            <dateTime>
+              <formatString>YYYY-MM-DD</formatString>
+            </dateTime>
+          </measurementScale>
+        </attribute>
+      </attributeList>
+    </dataTable>
+    <otherEntity id="5179254207aed0f39ded1add3d9bab3ea0e10b084c2c194ccf0a033b8f5e7789" scope="document">
+      <entityName>NA</entityName>
+      <physical scope="document">
+        <objectName>NA</objectName>
+        <size>27</size>
+        <authentication method="SHA256">5179254207aed0f39ded1add3d9bab3ea0e10b084c2c194ccf0a033b8f5e7789</authentication>
+        <dataFormat>
+          <externallyDefinedFormat>
+            <formatName>application/octet-stream</formatName>
+          </externallyDefinedFormat>
+        </dataFormat>
+        <distribution scope="document">
+          <online>
+            <url function="download">ecogrid://knb/urn:uuid:89bec5d0-26db-48ac-ae54-e1b4c999c456</url>
+          </online>
+        </distribution>
+      </physical>
+      <entityType>Other</entityType>
+    </otherEntity>
+  </dataset>
+</eml:eml>

@@ -7,7 +7,7 @@
 output_text_func(df)
 }
 \arguments{
-\item{df}{data.frame}
+\item{df}{(data.frame)}
 }
 \description{
 Outputs data.frame to text for shiny app

@@ -1,0 +1,34 @@
+---
+title: "Functions for PI's"
+date: "Last updated `r Sys.Date()`"
+output: 
+    rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PIs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Download package
+
+The `download_package` function downloads all of the Data Objects in a Data Package to the local filesystem. It is particularly useful when a Data Package is too large to download using the web interface.
+
+Setting check_download_size to TRUE is recommended if you are uncertain of the total download size and want to avoid downloading very large Data Packages.
+
+This function will also download any data objects it finds in any child Data Packages of the input data package. If you would only like to download data from one Data Package, set download_child_packages to FALSE.
+
+Example:
+
+```{r}
+cn <- CNode("PROD")
+mn <- getMNode(cn, "urn:node:ARCTIC")
+download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269")
+```
