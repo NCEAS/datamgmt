@@ -2,12 +2,12 @@
 % Please edit documentation in R/clone_package.R
 \name{clone_package}
 \alias{clone_package}
-\title{Clone a Data Package between Member Nodes without its child packages.}
+\title{Clone a Data Package between Member Nodes.}
 \usage{
 clone_package(resource_map_pid, from, to, clone_child_packages = FALSE)
 }
 \arguments{
-\item{resource_map_pid}{(chraracter) The identifier of the Resource Map for the package to download.}
+\item{resource_map_pid}{(chraracter) The PID of the Resource Map for the package to download.}
 
 \item{from}{(MNode) The Member Node to download from.}
 
@@ -17,9 +17,9 @@ clone_package(resource_map_pid, from, to, clone_child_packages = FALSE)
 }
 \description{
 This function copies a Data Package from one DataOne member node to another.
-It can also be used to copy an older version of a Data Package to the same
-member node in order to restore it, provided that the old Package is then
-obsoleted by the copied version.  This will not update the pids in the metadata.
+This will not update the information in the metadata object.  This can also be used
+to restore an older version of a Package to a member node, provided that the user subsequently
+obsoletes the version of the package that they used to create the clone.
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}

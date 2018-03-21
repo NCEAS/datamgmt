@@ -63,25 +63,12 @@ get_eml_pids <- function(eml) {
 #' Clone a Data Package between Member Nodes without its child packages.
 #'
 #' @description The datamgmt wrapper function `clone_package` should be used instead.
-#' This function copies a Data Package from one DataOne member node to another.
-#' It can also be used to copy an older version of a Data Package to the same
-#' member node in order to restore it, provided that the old Package is then
-#' obsoleted by the copied version.  This will not update the pids in the metadata.
 #'
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #' @param from (MNode) The Member Node to download from.
 #' @param to (MNode) The Member Node to upload to.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
-#'
-#' @examples
-#' \dontrun{
-#' cn_from <- dataone::CNode("PROD")
-#' from <- dataone::getMNode(cn_from, "urn:node:ARCTIC")
-#' cn_to <- dataone::CNode('STAGING')
-#' to <- dataone::getMNode(cn_to,'urn:node:mnTestARCTIC')
-#' clone_package("resource_map_doi:10.18739/A2RZ6X", from, to)
-#' }
 #'
 #' @return (list) List of all the identifiers in the new Data Package.
 clone_one_package <- function(resource_map_pid, from, to) {
@@ -103,7 +90,16 @@ clone_one_package <- function(resource_map_pid, from, to) {
     response <- list()
 
     # Solr query data formatId, fileName, and identifier
-    solr_query <- get_object_metadata(from, resource_map_pid)
+    data_meta <- get_object_metadata(from, resource_map_pid, formatType = "DATA")
+    eml_meta <- get_object_metadata(from, resource_map_pid, formatType = "METADATA")
+
+    # Write metadata
+    meta_path <- file.path(tempdir(), eml_meta$fileName)
+    writeBin(dataone::getObject(from, package$metadata), meta_path)
+    new_eml_pid <- arcticdatautils::publish_object(to,
+                                                   meta_path,
+                                                   eml_meta$formatId)
+    response[["metadata"]] <- new_eml_pid
 
     # Download pids, save in tempfiles, and publish to new node
     n_data_pids <- length(data_pids)
@@ -145,15 +141,6 @@ clone_one_package <- function(resource_map_pid, from, to) {
         response[["data"]] <- character(0)
     }
 
-    # Write EML
-    eml <- EML::read_eml(rawToChar(getObject(from, package$metadata)))
-    eml_path <- file.path(tempdir(), "science_metadata.xml")
-    EML::write_eml(eml, eml_path)
-    new_eml_pid <- arcticdatautils::publish_object(to,
-                                                   eml_path,
-                                                   arcticdatautils::format_eml())
-    response[["metadata"]] <- new_eml_pid
-
     # Create resource map
     if (length(new_data_pids) > 0) {
         new_resource_map_pid <- arcticdatautils::create_resource_map(to,
@@ -169,14 +156,14 @@ clone_one_package <- function(resource_map_pid, from, to) {
     return(response)
 }
 
-#' Clone a Data Package between Member Nodes without its child packages.
+#' Clone a Data Package between Member Nodes.
 #'
-#' This function copies a Data Package from one DataOne member node to another.
-#' It can also be used to copy an older version of a Data Package to the same
-#' member node in order to restore it, provided that the old Package is then
-#' obsoleted by the copied version.  This will not update the pids in the metadata.
+#' @description This function copies a Data Package from one DataOne member node to another.
+#' This will not update the information in the metadata object.  This can also be used
+#' to restore an older version of a Package to a member node, provided that the user subsequently
+#' obsoletes the version of the package that they used to create the clone.
 #'
-#' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
+#' @param resource_map_pid (chraracter) The PID of the Resource Map for the package to download.
 #' @param from (MNode) The Member Node to download from.
 #' @param to (MNode) The Member Node to upload to.
 #' @param clone_child_packages (logical) Whether or not to clone the child packages.  Defaults to \code{FALSE}
@@ -185,11 +172,48 @@ clone_one_package <- function(resource_map_pid, from, to) {
 #'
 #' @examples
 #' \dontrun{
+#' First we set up the member nodes we're cloning between:
+#' Member node we're cloning from:
 #' cn_from <- dataone::CNode("PROD")
 #' from <- dataone::getMNode(cn_from, "urn:node:ARCTIC")
+#'
+#' Member node we're cloning to:
 #' cn_to <- dataone::CNode('STAGING')
 #' to <- dataone::getMNode(cn_to,'urn:node:mnTestARCTIC')
+#'
+#' Clone the package using a resource map pid:
 #' clone_package(resource_map_doi:10.18739/A2RZ6X", from, to)
+#'
+#'
+#' Restore a previous version of a package:
+#' This takes place on the same node, so we use the same node for 'from' and 'to':
+#' cn <- dataone::CNode('STAGING')
+#' from <- dataone::getMNode(cn_to,'urn:node:mnTestARCTIC')
+#' to <- from
+#'
+#' This is the package we would like to restore:
+#' package <- arcticdatautils::get_package(from, "resource_map")
+#' clone <- clone_package(package$resource_map, from, to)
+#'
+#' Now we need to obsolete 'package' with 'clone' in the system metadata:
+#' First we need to identify the most recent version of the package we cloned:
+#' versions <- arcticdatautils::get_all_versions(from, package$resource_map)
+#' most_recent_package <- arcticdatautils::get_package(from, tail(versions, n=1))
+#'
+#' s1 <- dataone::getSystemMetadata(to, most_recent_package$metadata)
+#' This should be NA:
+#' s1@@obsoletedBy
+#' s1@@obsoletedBy <- clone$metadata
+#' This should evaluate to TRUE:
+#' dataone::updateSystemMetadata(to, most_recent_package$metadata, s1)
+#'
+#' s2 <- dataone::getSystemMetadata(to, clone$metadata)
+#' This should be NA:
+#' s2@@obsoletes
+#' s2@@obsoletes <- most_recent_package$metadata
+#' This should evaluate to TRUE:
+#' dataone::updateSystemMetadata(to, clone$metadata, s2)
+#'
 #' }
 #'
 #' @export
@@ -200,10 +224,7 @@ clone_package <- function(resource_map_pid,
     #' TODO - create dynamic structure that allows for more than one level of
     #' children (3+ nesting levels)
     #' TODO - add messages per child package?
-    #' TODO - possible function names? 1) clone_package 2) duplicate_package
-    #' 3) copy_package
     #' TODO - query all pids for unique rightsHolders and add to Sysmeta
-    # Clone initial package without children
     stopifnot(is.logical(clone_child_packages))
 
     # Get package information

@@ -35,7 +35,7 @@ test_that("clone_package copies a package with no data pids", {
     new_pids <- clone_package(package$resource_map, mn_test, mn_test)
 
     # Package tests
-    expect_named(new_pids, c("data", "metadata", "resource_map"))
+    expect_named(new_pids, c("metadata", "data", "resource_map"))
     expect_true(all(arcticdatautils::object_exists(mn_test, unlist(new_pids))))
     expect_length(new_pids, 3)
 
@@ -57,7 +57,7 @@ test_that("clone_package copies a package", {
     new_pids <- clone_package(package$resource_map, mn_test, mn_test)
 
     # Package tests
-    expect_named(new_pids, c("data", "metadata", "resource_map"))
+    expect_named(new_pids, c("metadata", "data", "resource_map"))
     expect_true(all(arcticdatautils::object_exists(mn_test, unlist(new_pids))))
     expect_length(new_pids, 3)
 
@@ -90,7 +90,7 @@ test_that("clone_package copies a package with a child package", {
     # Clone package
     new_pids <- clone_package(rm, mn_test, mn_test, clone_child_packages = TRUE)
 
-    expect_named(new_pids, c("data", "metadata", "resource_map", "child_packages"))
+    expect_named(new_pids, c("metadata", "data", "resource_map", "child_packages"))
     expect_true(all(arcticdatautils::object_exists(mn_test, unlist(new_pids))))
     expect_length(new_pids, 4)
 

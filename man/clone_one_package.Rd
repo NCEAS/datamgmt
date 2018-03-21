@@ -20,20 +20,6 @@ TODO add more messages
 }
 \description{
 The datamgmt wrapper function `clone_package` should be used instead.
-This function copies a Data Package from one DataOne member node to another.
-It can also be used to copy an older version of a Data Package to the same
-member node in order to restore it, provided that the old Package is then
-obsoleted by the copied version.  This will not update the pids in the metadata.
-}
-\examples{
-\dontrun{
-cn_from <- dataone::CNode("PROD")
-from <- dataone::getMNode(cn_from, "urn:node:ARCTIC")
-cn_to <- dataone::CNode('STAGING')
-to <- dataone::getMNode(cn_to,'urn:node:mnTestARCTIC')
-clone_package("resource_map_doi:10.18739/A2RZ6X", from, to)
-}
-
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}
