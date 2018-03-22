@@ -4,14 +4,11 @@ export(add_creator_id)
 export(create_attributes_table)
 export(create_dummy_package2)
 export(download_packages)
+export(edit_attribute)
 export(excel_to_csv)
 export(get_awards)
 export(get_custom_units)
-<<<<<<< HEAD
 export(get_eml_attributes)
-=======
-export(get_meta_attributes)
->>>>>>> eddd3720b6367d02a9826319526f1ce2917084d3
 export(get_numberType)
 export(guess_member_node)
 export(qa_attributes)

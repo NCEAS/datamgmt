@@ -24,11 +24,11 @@
 #' attributes <- datamgmt::get_eml_attributes(mn, eml)
 #'
 #' # Download with URL input:
-#' attributes <- datamgmt::get_eml_attributes(mn,
+#' attributes <- get_eml_attributes(mn,
 #' "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 #'
 #' # Download attribute metadata in csv format:
-#' attributes <- datamgmt::get_eml_attributes(mn,
+#' attributes <- get_eml_attributes(mn,
 #' "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02",
 #' write_to_csv = TRUE,
 #' download_directory = tempdir())

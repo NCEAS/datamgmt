@@ -33,17 +33,19 @@ eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
 attributes <- datamgmt::get_eml_attributes(mn, eml)
 
 # Download with URL input:
-attributes <- datamgmt::get_eml_attributes(mn, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+attributes <- get_eml_attributes(mn,
+"https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
 
 # Download attribute metadata in csv format:
-attributes <- datamgmt::get_eml_attributes(mn,
+attributes <- get_eml_attributes(mn,
 "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02",
 write_to_csv = TRUE,
 download_directory = tempdir())
 # switch nodes
 cn <- dataone::CNode('PROD')
 knb <- dataone::getMNode(cn,"urn:node:KNB")
-attributes <- get_eml_attributes(knb, "https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+attributes <- get_eml_attributes(knb,
+"https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
 }
 }
 \author{
