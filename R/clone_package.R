@@ -13,7 +13,7 @@
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (character) The formatId, fileName, and identifier of each data object in a package.
-get_object_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
+get_package_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
     query <- dataone::query(mn,
                             paste0("q=resourceMap:\"",
                                    resource_map_pid,
@@ -60,6 +60,56 @@ get_eml_pids <- function(eml) {
     return(pids)
 }
 
+#' Clone data pids between Dataone Member Nodes.
+#'
+#' This is a helper function for datamgmt::clone_package
+#'
+#' @param resource_map (character) Resource map for the data pids.
+#' @param from (MNode) Dataone Member Node to clone data objects from
+#' @param to (MNode) Dataone Member Node to clone data objects to
+#' @param file_paths
+#' @param
+#'
+#' @return (list) Vector of data object pids.
+clone_data_objects <- function(resource_map,
+                               from,
+                               to,
+                               n_max = 3) {
+    stopifnot(is.character(data_pids))
+    stopinot(length(data_pids) > 0)
+    stopifnot(methods::is(from, "MNode"))
+    stopifnot(methods::is(to, "MNode"))
+    stopifnot(is.integer(n_max))
+
+    query <- get_package_metadata(from, resource_map_pid, formatType = "DATA")
+    format_ids <- query$formatId
+    file_paths <- file.path(tempdir(), query$fileName)
+
+    new_data_pids <- vector("character", length = length(data_pids))
+
+    for (i in seq_along(data_pids)) {
+
+        n_tries <- 0
+        dataObj <- "error"
+
+        while (dataObj[1] == "error" & n_tries < n_max) {
+            dataObj <- tryCatch({
+                dataone::getObject(from, data_pids[i])
+
+                writeBin(dataObj, file_paths[i])
+
+                new_data_pids[i] <- arcticdatautils::publish_object(to,
+                                                                    file_paths[i],
+                                                                    format_ids[i])
+            },
+            error = function(e) {return("error")})
+            n_tries <- n_tries + 1
+        }
+    }
+
+    return(new_data_pids)
+}
+
 #' Clone a Data Package between Member Nodes without its child packages.
 #'
 #' @description The datamgmt wrapper function `clone_package` should be used instead.
@@ -80,63 +130,32 @@ clone_one_package <- function(resource_map_pid, from, to) {
 
     package <- arcticdatautils::get_package(from, resource_map_pid)
 
-    # Initialize data pids vector
-    data_pids <- vector("character")
-    if (length(package$data) != 0) {
-        data_pids <- package$data
-    }
-
     # Prepare the response object
     response <- list()
 
     # Solr query data formatId, fileName, and identifier
-    data_meta <- get_object_metadata(from, resource_map_pid, formatType = "DATA")
-    eml_meta <- get_object_metadata(from, resource_map_pid, formatType = "METADATA")
+    meta_eml <- get_package_metadata(from, resource_map_pid, formatType = "METADATA")
 
     # Write metadata
-    meta_path <- file.path(tempdir(), eml_meta$fileName)
+    meta_path <- file.path(tempdir(), metadata_eml$fileName)
     writeBin(dataone::getObject(from, package$metadata), meta_path)
     new_eml_pid <- arcticdatautils::publish_object(to,
                                                    meta_path,
-                                                   eml_meta$formatId)
+                                                   metadata_eml$formatId)
     response[["metadata"]] <- new_eml_pid
 
-    # Download pids, save in tempfiles, and publish to new node
+    # Initialize data pids vector
+    data_pids <- vector("character")
     n_data_pids <- length(data_pids)
+    if (length(n_data_pids) > 0) {
+        data_pids <- package$data
+    }
 
     if (n_data_pids > 0) {
         message(paste0("Uploading data objects from package: ", package$metadata))
 
-        file_names <- solr_query$fileName
-        format_ids <- solr_query$formatId
-        data_paths <- file.path(tempdir(), file_names)
-
-        # download data objects
-        new_data_pids <- vector("character", length = n_data_pids)
-        for (i in seq_len(n_data_pids)) {  # change to sapply
-
-            # Attempt getObject up to 3 times
-            n_attempts <- 0
-            dataObj <- "upload_error"
-
-            while (dataObj[1] == "upload_error" & n_attempts < 3) {
-                dataObj <- tryCatch({
-                    dataone::getObject(from, data_pids[i])
-
-                    # Write object to temporary file
-                    writeBin(dataObj, data_paths[i])
-
-                    new_data_pids[i] <- arcticdatautils::publish_object(to,
-                                                                        data_paths[i],
-                                                                        format_ids[i])
-                },
-                error = function(e) {return("upload_error")})
-
-                n_attempts <- n_attempts + 1
-            }
-        }
+        clone_data_objects(resource_map_pid, from, to)
         response[["data"]] <- new_data_pids
-
     } else {
         response[["data"]] <- character(0)
     }
