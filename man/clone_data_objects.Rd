@@ -15,7 +15,7 @@ clone_data_objects(resource_map_pid, data_pids, from, to, n_max = 3L)
 
 \item{to}{(MNode) Dataone Member Node to clone data objects to}
 
-\item{nmax}{(integer) Optional. Number of tries to download a DataOne object.
+\item{n_max}{(integer) Optional. Number of tries to download a DataOne object.
 Can fail due to internet connectivity, suggested n_max >= 3.}
 }
 \value{
