@@ -6,7 +6,9 @@ Authors@R: c(
   person("Matt", "Jones", email = "jones@nceas.ucsb.edu", role = "cre"),
   person("Dominic", "Mullen", email = "dmullen17@gmail.com", role = c("aut")),
   person("Irene", "Steves", comment = "https://github.com/isteves", role = c("aut")),
-  person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = c("aut"))
+  person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = c("aut")),
+  person("Emily", "O'Dean", email = "eodean10@gmail.com", role = c("aut")),
+  person("Stephanie", "Freund", email = "smfreu@gmail.com", role = c("aut"))
   )
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
@@ -32,11 +34,18 @@ Imports:
     gsubfn,
     udunits2,
     compare,
-    memoise
+    memoise,
+    htmlwidgets,
+    jsonlite,
+    shinyjs,
+    stringi
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown
 Remotes: NCEAS/arcticdatautils,
          ropensci/EML
 RoxygenNote: 6.0.1
+VignetteBuilder: knitr

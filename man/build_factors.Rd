@@ -2,17 +2,15 @@
 % Please edit documentation in R/create_attributes_table.R
 \name{build_factors}
 \alias{build_factors}
-\title{Build shiny factors table}
+\title{Build factor table}
 \usage{
-build_factors(inputdf, inputdf2, data)
+build_factors(att_table, data)
 }
 \arguments{
-\item{inputdf}{attributes table}
+\item{att_table}{(data.frame) input attributes table}
 
-\item{inputdf2}{current factors table}
-
-\item{data}{initial data inputed by user}
+\item{data}{(data.frame) input data}
 }
 \description{
-Build shiny factors table
+Get factors
 }

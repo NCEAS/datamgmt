@@ -30,7 +30,8 @@ Note: this function also calls \code{\link{qa_attributes}} and passes the data o
 \examples{
 \dontrun{
 # For a package, run QA checks
-qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE, check_creators = FALSE, check_access = FALSE)
+qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE,
+           check_creators = FALSE, check_access = FALSE)
 }
 }
 \author{

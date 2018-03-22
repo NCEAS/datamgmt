@@ -51,6 +51,7 @@
 #' @import gsubfn
 #' @import udunits2
 #' @import xml2
+#' @importFrom stringi stri_reverse
 #' @importFrom compare compare
 #' @importFrom memoise memoise
 #' @importFrom utils setTxtProgressBar txtProgressBar
@@ -237,21 +238,40 @@ load_all_units <- function() {
 #' @return (character) unit. Fails if cannot deparse.
 try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = load_all_units()) {
 
+    stopifnot(length(unlist(gregexpr("\\(", unit))) == length(unlist(gregexpr("\\)", unit))))
+    stopifnot(!grepl("\\([^\\)]*\\(", unit)) # stop if nested parenthesis
+    stopifnot(!grepl("\\([^\\)]*\\/[^\\)]*\\)", unit)) # stop if fractions in parenthesis
+
     # Preformat unit
     unit <- gsub("(\\^)(-{0,1}[[:digit:]]+)", "\\2", unit)  # remove ^ in front of digits
-    unit <- gsub("[[:blank:]]+[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
-    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+)",
+    unit <- gsub("(^|[[:blank:]]+)[p|P]er[[:blank:]]+"," / ", unit) # remove "per"
+
+    # Deal with parenthesis
+    unit <- stringi::stri_reverse(gsub("([[:blank:]]|\\*)(?=[^\\)]+\\({1}[[:blank:]]*\\/{1})", "/", stringi::stri_reverse(unit), perl = TRUE))
+    unit <- gsub("\\(|\\)", " ", unit) # remove parenthesis
+    unit <- gsub("\\*", " ", unit) # remove "*"
+
+    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
-    unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # fix --
+    unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # change -- to -
+    unit <- gsub("-{1}[[:blank:]]{1}", "-1 ", unit)  # change -[[:blank:]] to -1
+
+    # Remove leading 1 from instances like "1/m"
+    unit <- gsub("(^|[[:blank:]])1", "", unit)
+
     unit <- gsub("[[:blank:]]+", " ", unit)  # remove multple spaces
     unit <- gsub("^[[:blank:]]|[[:blank:]]$", "", unit)  # remove leading/trailing spaces
 
     # Attempt to deparse unit
+    if (grepl("^[[:blank:]]*\\/", unit)) {
+        unit <- units::deparse_unit(units::as.units(sub("^[[:blank:]]*\\/","",unit)))
+        unit <- paste0("per ", unit)
+    } else {
     unit <- units::deparse_unit(units::as.units(unit))
+    }
 
     # Change exponent form
-    unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ",
-                 unit)
+    unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ", unit)
     unit <- gsub("(-)([[:digit:]]+)", "per \\2", unit)
     for (i in seq_along(exponents_numeric)) {
         unit <- gsub(paste0("[[:blank:]]", exponents_numeric[i], "[[:blank:]]"),
@@ -300,11 +320,13 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
     exponents_bad <- c("squared", "cubed")
 
     # if symbolic, use units package to try to deparse
-    tryCatch({
-        unit <- try_units_deparse(unit, exponents, exponents_numeric, all_units)
-    }, error = function(e) {
-        unit <- unit
-    })
+    unit <- suppressWarnings(tryCatch({
+        out <- try_units_deparse(unit, exponents, exponents_numeric, all_units)
+        stopifnot(out != "")
+        out},
+        error = function(e) {
+            unit
+        }))
 
     # Replace '/' with ' Per '
     unit <- gsub("\\/", " Per ", unit)
@@ -481,7 +503,7 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
                 "Use 'square' and 'cubic'.")
     }
 
-    if (any(split_type == "unknown")) {
+    if (any(split_type == "unknown") || all(split_type == "per")) {
         unit_split <- NA
     }
 
@@ -739,6 +761,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 
 #' Get custom unit data frame
 #' @param units (character) unit or vector of units
+#' @param quiet (logical) if true will quiet console text
 #' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
 #' @description Uses the udunits2 unit library to format inputted unit into an EML unit form.
 #' @examples
@@ -749,7 +772,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' get_custom_units('km s-2')
 #' get_custom_units('s-2 /     kilometers-1') #works but is not advised
 #' @export
-get_custom_units <- function(units) {
+get_custom_units <- function(units, quiet = FALSE) {
 
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
@@ -764,11 +787,15 @@ get_custom_units <- function(units) {
     EML_units = mem_load_EML_units(all_units)
 
     # Initillize progress bar
-    progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)
+    if (quiet == FALSE) {
+    progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)}
 
     # Get custom units
     custom_units <- lapply(seq_along(units), function(i) {
-        utils::setTxtProgressBar(progressBar, i)
+
+        if (quiet == FALSE) {
+        utils::setTxtProgressBar(progressBar, i)}
+
         unit_split <- get_unit_split(units[i], all_units)
         id <- format_unit_split(unit_split, form = "id", all_units)
 
