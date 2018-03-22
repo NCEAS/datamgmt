@@ -41,7 +41,7 @@ test_that("clone_package copies a package with no data pids", {
 
     # Check object lengths
     lengths <- sapply(new_pids, length)
-    expect_equivalent(lengths, c(0,1,1))
+    expect_equivalent(lengths, c(1,0,1))
 })
 
 test_that("clone_package copies a package", {

@@ -64,22 +64,25 @@ get_eml_pids <- function(eml) {
 #'
 #' This is a helper function for datamgmt::clone_package
 #'
-#' @param resource_map (character) Resource map for the data pids.
+#' @param resource_map_pid (character) Resource map for the data pids.
+#' @param data_pids (character) Data object pids.
 #' @param from (MNode) Dataone Member Node to clone data objects from
 #' @param to (MNode) Dataone Member Node to clone data objects to
-#' @param file_paths
-#' @param
+#' @param nmax (integer) Optional. Number of tries to download a DataOne object.
+#' Can fail due to internet connectivity, suggested n_max >= 3.
 #'
 #' @return (list) Vector of data object pids.
-clone_data_objects <- function(resource_map,
+clone_data_objects <- function(resource_map_pid,
+                               data_pids,
                                from,
                                to,
-                               n_max = 3) {
+                               n_max = 3L) {
+    stopifnot(is.character(resource_map_pid))
     stopifnot(is.character(data_pids))
-    stopinot(length(data_pids) > 0)
+    stopifnot(length(data_pids) > 0)
     stopifnot(methods::is(from, "MNode"))
     stopifnot(methods::is(to, "MNode"))
-    stopifnot(is.integer(n_max))
+    stopifnot(is.numeric(n_max))
 
     query <- get_package_metadata(from, resource_map_pid, formatType = "DATA")
     format_ids <- query$formatId
@@ -134,19 +137,19 @@ clone_one_package <- function(resource_map_pid, from, to) {
     response <- list()
 
     # Solr query data formatId, fileName, and identifier
-    meta_eml <- get_package_metadata(from, resource_map_pid, formatType = "METADATA")
+    meta_eml <- get_package_metadata(from, package$resource_map, formatType = "METADATA")
 
     # Write metadata
-    meta_path <- file.path(tempdir(), metadata_eml$fileName)
+    meta_path <- file.path(tempdir(), meta_eml$fileName)
     writeBin(dataone::getObject(from, package$metadata), meta_path)
     new_eml_pid <- arcticdatautils::publish_object(to,
                                                    meta_path,
-                                                   metadata_eml$formatId)
+                                                   meta_eml$formatId)
     response[["metadata"]] <- new_eml_pid
 
     # Initialize data pids vector
     data_pids <- vector("character")
-    n_data_pids <- length(data_pids)
+    n_data_pids <- length(package$data)
     if (length(n_data_pids) > 0) {
         data_pids <- package$data
     }
@@ -154,14 +157,14 @@ clone_one_package <- function(resource_map_pid, from, to) {
     if (n_data_pids > 0) {
         message(paste0("Uploading data objects from package: ", package$metadata))
 
-        clone_data_objects(resource_map_pid, from, to)
+        new_data_pids <- clone_data_objects(package$resource_map, package$data, from, to)
         response[["data"]] <- new_data_pids
     } else {
         response[["data"]] <- character(0)
     }
 
     # Create resource map
-    if (length(new_data_pids) > 0) {
+    if (n_data_pids > 0) {
         new_resource_map_pid <- arcticdatautils::create_resource_map(to,
                                                                      new_eml_pid,
                                                                      new_data_pids)
@@ -250,7 +253,7 @@ clone_package <- function(resource_map_pid,
     package <- arcticdatautils::get_package(from, resource_map_pid)
 
     # Clone the parent package
-    response <- clone_one_package(resource_map_pid, from, to)
+    response <- clone_one_package(package$resource_map, from, to)
 
     if (clone_child_packages == TRUE) {
         n_child_packages <- length(package$child_packages)
