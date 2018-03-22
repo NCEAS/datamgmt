@@ -245,7 +245,6 @@ clone_package <- function(resource_map_pid,
                           clone_child_packages = FALSE) {
     #' TODO - create dynamic structure that allows for more than one level of
     #' children (3+ nesting levels)
-    #' TODO - add messages per child package?
     #' TODO - query all pids for unique rightsHolders and add to Sysmeta
     stopifnot(is.logical(clone_child_packages))
 
@@ -259,10 +258,12 @@ clone_package <- function(resource_map_pid,
         n_child_packages <- length(package$child_packages)
 
         if (n_child_packages > 0) {
+            progressBar <- utils::txtProgressBar(min = 0, max = n_child_packages, style = 3)
 
             # Clone child packages
             child_packages <- unlist(lapply(seq_len(n_child_packages), function(i) {
                 clone_one_package(package$child_packages[i], from, to)
+                utils::setTxtProgressBar(progressBar, i)
             }))
 
             # Select resource_map_pid(s) of child packages
