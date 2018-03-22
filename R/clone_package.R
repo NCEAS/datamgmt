@@ -125,8 +125,6 @@ clone_data_objects <- function(resource_map_pid,
 #'
 #' @return (list) List of all the identifiers in the new Data Package.
 clone_one_package <- function(resource_map_pid, from, to) {
-    #' TODO switch remaining for loops to applys
-    #' TODO add more messages
     stopifnot(is.character(resource_map_pid))
     stopifnot(methods::is(from, "MNode"))
     stopifnot(methods::is(to, "MNode"))
@@ -155,7 +153,7 @@ clone_one_package <- function(resource_map_pid, from, to) {
     }
 
     if (n_data_pids > 0) {
-        message(paste0("Uploading data objects from package: ", package$metadata))
+        message(paste0("\nUploading data objects from package: ", package$metadata))
 
         new_data_pids <- clone_data_objects(package$resource_map, package$data, from, to)
         response[["data"]] <- new_data_pids
@@ -262,8 +260,9 @@ clone_package <- function(resource_map_pid,
 
             # Clone child packages
             child_packages <- unlist(lapply(seq_len(n_child_packages), function(i) {
-                clone_one_package(package$child_packages[i], from, to)
+                pids <- clone_one_package(package$child_packages[i], from, to)
                 utils::setTxtProgressBar(progressBar, i)
+                pids
             }))
 
             # Select resource_map_pid(s) of child packages
