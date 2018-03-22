@@ -68,7 +68,7 @@ get_eml_pids <- function(eml) {
 #' @param data_pids (character) Data object pids.
 #' @param from (MNode) Dataone Member Node to clone data objects from
 #' @param to (MNode) Dataone Member Node to clone data objects to
-#' @param nmax (integer) Optional. Number of tries to download a DataOne object.
+#' @param n_max (integer) Optional. Number of tries to download a DataOne object.
 #' Can fail due to internet connectivity, suggested n_max >= 3.
 #'
 #' @return (list) Vector of data object pids.
