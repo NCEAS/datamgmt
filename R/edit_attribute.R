@@ -41,34 +41,34 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     attributeTable <- data.frame(data$attributes) #this excludes the factor table from enumerated domain.
 
     if(!is.null(attributeName)) {
-        attributeTable[attributeNumber, 1] <- attributeName
+        attributeTable$attributeName[attributeNumber] <- attributeName
     }
     if(!is.null(attributeDefinition)) {
-        attributeTable[attributeNumber, 17] <- attributeDefinition
+        attributeTable$attributeDefinition[attributeNumber] <- attributeDefinition
     }
     if(!is.null(measurementScale)) {
-        attributeTable[attributeNumber, 16] <- measurementScale
+        attributeTable$measurementScale[attributeNumber] <- measurementScale
     }
     if(!is.null(domain)) {
-        attributeTable[attributeNumber, 2] <- domain
+        attributeTable$domain[attributeNumber] <- domain
     }
     if(!is.null(unit)) {
-        attributeTable[attributeNumber, 6] <- unit
+        attributeTable$unit[attributeNumber] <- unit
     }
     if(!is.null(numberType)) {
-        attributeTable[attributeNumber, 7] <- numberType
+        attributeTable$numberType[attributeNumber] <- numberType
     }
     if(!is.null(definition)) {
-        attributeTable[attributeNumber, 9] <- definition
+        attributeTable$definition[attributeNumber] <- definition
     }
     if(!is.null(formatString)) {
-        attributeTable[attributeNumber, 8] <- formatString
+        attributeTable$formatString[attributeNumber] <- formatString
     }
     if(!is.null(missingValueCode)) {
-        attributeTable[attributeNumber, 14] <- missingValueCode
+        attributeTable$missingValueCode[attributeNumber] <- missingValueCode
     }
     if(!is.null(missingValueCodeExplanation)) {
-        attributeTable[attributeNumber, 15] <- missingValueCodeExplanation
+        attributeTable$missingValueCodeExplanation[attributeNumber] <- missingValueCodeExplanation
     }
 
     attribute_list <- EML::set_attributes(attributeTable, factors = data$factors)
