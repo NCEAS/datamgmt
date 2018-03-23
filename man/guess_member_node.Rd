@@ -27,7 +27,7 @@ mn <- guess_member_node("doi:10.18739/A2G287")
 mn <- guess_member_node("PROD", "doi:10.18739/A2G287")
 
 Search all coordinating nodes:
-cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2"))
+cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")
 mn <- guess_member_node(cn, "doi:10.18739/A2G287")
 }
 
