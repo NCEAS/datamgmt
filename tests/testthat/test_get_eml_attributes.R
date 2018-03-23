@@ -9,37 +9,31 @@ path <- file.path(system.file(package = "datamgmt"), "get_eml_attributes_output.
 load(path)
 
 test_that("error checks function correctly", {
-    expect_error(get_eml_attributes(metadata = 5))
-    expect_error(get_eml_attributes("dummy node",
-                                    "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02"))
-    expect_error(get_eml_attributes("ADC",
-                                    "https://arcticdata.io/catalog/#view/DUMMY_PID"))
-    eml@dataset@dataTable <- new("ListOfdataTable")
-    expect_error(get_eml_attributes(eml))
-    expect_error(get_eml_attributes(mn,
-                                    eml,
-                                    write_to_csv = "dummy value"))
-    expect_error(get_eml_attributes(mn,
-                                    eml,
-                                    write_to_csv = TRUE,
-                                    download_directory = "dummy directory"))
+    expect_error(get_eml_attributes(5))
+    expect_error(get_eml_attributes("dummy eml"))
 })
 
 test_that("get_eml_attributes 'eml' argument outputs the correct .RData object", {
-    results <- get_eml_attributes(mn, eml)
+    results <- get_eml_attributes(eml)
     expect_equal(results, get_eml_attributes_output)
 })
 
-test_that("get_eml_attributes 'url' argument outputs the correct .RData object", {
-    results <- get_eml_attributes(mn, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+test_that("get_eml_attributes_url outputs the correct .RData object", {
+    results <- get_eml_attributes_url(mn, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
     expect_equal(results, get_eml_attributes_output)
 })
 
-test_that("get_eml_attributes returns the same table for 'eml' and 'url' arguments", {
-    eml_attributes <- get_eml_attributes(mn, eml)
-    url_attributes <- get_eml_attributes(mn, "https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
+test_that("download_eml_attributes functions correctly", {
+    download_eml_attributes(eml, tempdir(), TRUE)
 
-    expect_equal(eml_attributes, url_attributes)
+    file_path <- file.path(tempdir(),
+                           "doi1018739A23W02_2013_2014_winter_N2_dissoxy_attributes.csv")
+    expect_true(file.exists(file_path))
+
+    att <- read.csv(file_path, stringsAsFactors = FALSE)
+    expect_equivalent(dim(att), c(5,13))
+
+    expect_equal(att$attributeName[2], "3.3")
 })
 
 # test_that("get_eml_attributes can switch to a different node", {

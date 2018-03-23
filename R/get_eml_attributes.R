@@ -73,8 +73,6 @@ get_eml_attributes <- function(eml) {
 download_eml_attributes <- function(eml,
                                     download_directory,
                                     prefix_file_names = FALSE) {
-    # TODO - write to one excel workbook
-
     stopifnot(isS4(eml))
     stopifnot(file.exists(download_directory))
     stopifnot(is.logical(prefix_file_names))
@@ -155,7 +153,7 @@ get_eml_attributes_url <- function(mn,
         stopifnot(file.exists(download_directory))
     }
 
-    pid <- unlist(strsplit(url_link, "view/"))[[2]]
+    pid <- unlist(strsplit(url_path, "view/"))[[2]]
     eml <- EML::read_eml(rawToChar(dataone::getObject(mn, pid)))
 
     if (write_to_csv == TRUE) {
