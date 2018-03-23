@@ -11,9 +11,9 @@
 #'
 #' @return (character) The formatted identifer as a string
 remove_special_characters <- function(pid) {
-    pid <- gsub(":", "", pid)
-    pid <- gsub("\\/", "", pid)
-    pid <- gsub("\\.", "", pid)
+    pid <- gsub(":", "", pid) %>%
+        gsub("\\/", "") %>%
+        gsub("\\.", "")
 
     return(pid)
 }
@@ -176,6 +176,7 @@ convert_bytes <- function(download_size) {
 #' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
 #' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
+#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommened to also set \code{prefix_file_names = TRUE}
 #' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar write.csv
@@ -196,6 +197,7 @@ download_package <- function(mn,
                              download_child_packages = TRUE,
                              prefix_file_names = FALSE,
                              convert_excel_to_csv = FALSE,
+                             download_column_metadata = FALSE,
                              check_first = TRUE) {
     # TODO How many child levels should it support, currently one. 3 or 4
     # max - could probably do this with a while loop.
@@ -260,7 +262,7 @@ download_package <- function(mn,
 
     # Check that data exists
     if (length(data_pids) == 0) {
-        message(warning("No data selected.  Double check the package you entered contains data files"))
+        message(warning("No data selected.  Double check the package(s) you entered contain data"))
 
     } else {
 
