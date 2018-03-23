@@ -2,50 +2,32 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{get_eml_attributes}
 \alias{get_eml_attributes}
-\title{Return attribute metadata from an EML object or Dataone Package URL.}
+\title{Return attribute (column) metadata from a Dataone Metadata object.}
 \usage{
-get_eml_attributes(mn, metadata, write_to_csv = FALSE,
-  download_directory = NULL)
+get_eml_attributes(eml)
 }
 \arguments{
-\item{mn}{(MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}
-
-\item{metadata}{(S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
-The S4 object input is a more reliable method.}
-
-\item{write_to_csv}{(logical) Optional. Option whether to download the attribute metadata to csv's.  Defaults to \code{FALSE}}
-
-\item{download_directory}{(character) Optional.  Directory to download attribute metadata csv's to.
-Required if \code{write_to_csv} is \code{TRUE}}
+\item{metadata}{(S4) EML object.}
 }
 \value{
 (list) A list of all attribute metadata from the EML in data.frame objects
 }
 \description{
-Return attribute metadata from an EML object or Dataone Package URL.
-This is largely a wrapper for the function \code{get_attributes} from the EML Package
+Return attribute metadata from an EML object. This is largely a
+wrapper for the function \code{get_attributes} from the EML Package
 \url{https://github.com/ropensci/EML}.
 }
 \examples{
 \dontrun{
+cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
 attributes <- datamgmt::get_eml_attributes(mn, eml)
 
-# Download with URL input:
-attributes <- get_eml_attributes(mn,
-"https://arcticdata.io/catalog/#view/doi:10.18739/A23W02")
-
-# Download attribute metadata in csv format:
-attributes <- get_eml_attributes(mn,
-"https://arcticdata.io/catalog/#view/doi:10.18739/A23W02",
-write_to_csv = TRUE,
-download_directory = tempdir())
 # switch nodes
 cn <- dataone::CNode('PROD')
 knb <- dataone::getMNode(cn,"urn:node:KNB")
-attributes <- get_eml_attributes(knb,
-"https://knb.ecoinformatics.org/#view/doi:10.5063/F1639MWV")
+attributes <- get_eml_attributes(knb, "doi:10.5063/F1639MWV")
 }
 }
 \author{
