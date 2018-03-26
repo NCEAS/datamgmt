@@ -29,7 +29,7 @@ remove_special_characters <- function(pid) {
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
 #'
 #' @return (invisible())
-excel_to_csv_prefix <- function(path, prefix = NULL) {
+excel_to_csv_prefix <- function(path, prefix) {
     stopifnot(file.exists(path))
 
     # Try to read excel file and split into csvs
@@ -42,7 +42,7 @@ excel_to_csv_prefix <- function(path, prefix = NULL) {
         lapply(seq_along(sheets), function(i) {
             csv = read_excel(path, sheet = sheets[i])
 
-            if (!is.null(prefix)) {
+            if (length(prefix) > 0) {
                 excel_name <- gsub(prefix, "", excel_name)
 
                 if (length(sheets) == 1) {
@@ -265,7 +265,9 @@ download_one_package <- function(mn,
     }
 
     if (convert_excel_to_csv == TRUE) {
-
+        indices <- which(sapply(out_paths, grepl, pattern = ".xls"))
+        excel_paths <- out_paths[indices]
+        sapply(excel_paths, excel_to_csv_prefix, prefix = prefix)
     }
 
     return(invisible())
