@@ -10,6 +10,8 @@ get_eml_attributes_url(mn, url_path, write_to_csv = FALSE,
 \arguments{
 \item{mn}{(MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}
 
+\item{url_path}{(character) The url of the Dataone Package.}
+
 \item{write_to_csv}{(logical) Optional. Option whether to download the attribute metadata to csv's.  Defaults to \code{FALSE}}
 
 \item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.
@@ -17,9 +19,6 @@ This is useful when downloading files from multiple packages to one directory.}
 
 \item{download_directory}{(character) Optional.  Directory to download attribute metadata csv's to.
 Required if \code{write_to_csv} is \code{TRUE}}
-
-\item{metadata}{(S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
-The S4 object input is a more reliable method.}
 }
 \value{
 (list) A list of all attribute metadata from the EML in data.frame objects

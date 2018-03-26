@@ -11,9 +11,10 @@
 #'
 #' @return (character) The formatted identifer as a string
 remove_special_characters <- function(pid) {
-    pid <- gsub(":", "", pid) %>%
-        gsub("\\/", "") %>%
-        gsub("\\.", "")
+    pid <- pid %>%
+        gsub(":", "", .) %>%
+        gsub("\\/", "", .) %>%
+        gsub("\\.", "", .)
 
     return(pid)
 }

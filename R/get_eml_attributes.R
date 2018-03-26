@@ -12,7 +12,7 @@ list_depth <- function(input_list) {
 #' wrapper for the function \code{get_attributes} from the EML Package
 #' \url{https://github.com/ropensci/EML}.
 #'
-#' @param metadata (S4) EML object.
+#' @param eml (S4) EML object.
 #' @return (list) A list of all attribute metadata from the EML in data.frame objects
 #'
 #' @export
@@ -24,17 +24,16 @@ list_depth <- function(input_list) {
 #' cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 #' eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-#' attributes <- datamgmt::get_eml_attributes(mn, eml)
+#' attributes <- datamgmt::get_eml_attributes(eml)
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
 #' knb <- dataone::getMNode(cn,"urn:node:KNB")
-#' attributes <- get_eml_attributes(knb, "doi:10.5063/F1639MWV")
+#' eml <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
+#' attributes <- get_eml_attributes("doi:10.5063/F1639MWV")
 #' }
 get_eml_attributes <- function(eml) {
     # TODO - make sure it works for otherEntities
-
-    stopifnot(methods::is(mn, "MNode"))
     stopifnot(isS4(eml))
 
     results <- EML::eml_get(eml, "attributeList")
@@ -54,7 +53,7 @@ get_eml_attributes <- function(eml) {
 #' of each csv corresponds to the file name of the Data Object it describes.
 #' This can be prepended with the package identifier by setting \code{prefix_file_names = TRUE} (recommended).
 #'
-#' @param metadata (S4) EML object.
+#' @param eml (S4) EML object.
 #' @param download_directory (character) Directory to download attribute metadata csv's to.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
 #'
@@ -110,8 +109,7 @@ download_eml_attributes <- function(eml,
 #' \url{https://github.com/ropensci/EML}.
 #'
 #' @param mn (MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}
-#' @param metadata (S4 / character) Optional. Either the full eml S4 object document or the url of the Dataone Package.
-#' The S4 object input is a more reliable method.
+#' @param url_path (character) The url of the Dataone Package.
 #' @param write_to_csv (logical) Optional. Option whether to download the attribute metadata to csv's.  Defaults to \code{FALSE}
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.
 #' This is useful when downloading files from multiple packages to one directory.

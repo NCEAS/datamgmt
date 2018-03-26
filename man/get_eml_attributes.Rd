@@ -7,7 +7,7 @@
 get_eml_attributes(eml)
 }
 \arguments{
-\item{metadata}{(S4) EML object.}
+\item{eml}{(S4) EML object.}
 }
 \value{
 (list) A list of all attribute metadata from the EML in data.frame objects
@@ -22,12 +22,13 @@ wrapper for the function \code{get_attributes} from the EML Package
 cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-attributes <- datamgmt::get_eml_attributes(mn, eml)
+attributes <- datamgmt::get_eml_attributes(eml)
 
 # switch nodes
 cn <- dataone::CNode('PROD')
 knb <- dataone::getMNode(cn,"urn:node:KNB")
-attributes <- get_eml_attributes(knb, "doi:10.5063/F1639MWV")
+eml <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
+attributes <- get_eml_attributes("doi:10.5063/F1639MWV")
 }
 }
 \author{

@@ -24,7 +24,7 @@ test_that("get_eml_attributes_url outputs the correct .RData object", {
 })
 
 test_that("download_eml_attributes functions correctly", {
-    download_eml_attributes(eml, tempdir(), TRUE)
+    download_eml_attributes(eml, tempdir(), TRUE) # this isn't working
 
     file_path <- file.path(tempdir(),
                            "doi1018739A23W02_2013_2014_winter_N2_dissoxy_attributes.csv")
@@ -47,13 +47,3 @@ test_that("download_eml_attributes functions correctly", {
 #     expect_equal(dim(attributes$DataTeam_BOF_Proposal_Coding0131.csv[[1]])[2], 17)
 #
 # })
-
-test_that("get_eml_attributes can write output csv's", {
-    results <- get_eml_attributes(mn,
-                                  eml,
-                                  write_to_csv = TRUE,
-                                  download_directory = tempdir())
-    file_path <- file.path(tempdir(), "2013_2014_winter_N2_dissoxy_csv_attributes.csv")
-
-    expect_true(file.exists(file_path))
-})

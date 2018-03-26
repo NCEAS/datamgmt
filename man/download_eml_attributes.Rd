@@ -7,11 +7,11 @@
 download_eml_attributes(eml, download_directory, prefix_file_names = FALSE)
 }
 \arguments{
+\item{eml}{(S4) EML object.}
+
 \item{download_directory}{(character) Directory to download attribute metadata csv's to.}
 
 \item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.}
-
-\item{metadata}{(S4) EML object.}
 }
 \description{
 Download attribute metadata from an EML object as csvs. The name
