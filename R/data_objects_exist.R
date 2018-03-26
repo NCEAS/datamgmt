@@ -1,3 +1,20 @@
+#' Return the Data object identifiers associated with a Resource Map.
+#'
+#' @param mn (MNode/CNode) The Node to query
+#' @param pid (character) The resource map identifier to query
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' @return (character)
+get_data_pids <- function(mn, pid) {
+    data_pids <- unlist(dataone::query(mn,
+                                          paste0("q=resourceMap:\"",
+                                                 resource_map,
+                                                 "\"+AND+formatType:DATA",
+                                                 "&fl=identifier")))
+    return(data_pids)
+}
+
 #' Check if data objects exist in a list of Data Packages.
 #'
 #' This function is primarily intended to assist Mark Schildhauer in preparation
@@ -23,8 +40,8 @@ data_objects_exist <- function(mn,
 
     # Argument checks
     stopifnot(methods::is(mn, "MNode"))
-    stopifnot(is.character(pids))
     stopifnot(length(pids) > 0)
+    stopifnot(is.character(pids))
     stopifnot(arcticdatautils::object_exists(mn, pids))
     if (write_to_csv) {
         stopifnot(file.exists(folder_path))
@@ -38,21 +55,26 @@ data_objects_exist <- function(mn,
                                          pids),
                           stringsAsFactors = F)
 
-    # Get resource map associated with input metadata
     for (i in seq_len(n)) {
-        resource_map <- unlist(dataone::query(mn,
-                                              paste0("q=identifier:\"",
-                                                     pids[i],
-                                                     "\"&fl=resourceMap")))
+        format_type <- get_format_type(mn, pids[i])
+
+        if (format_type == "METADATA") {
+        # Get resource map associated with input metadata
+            resource_map <- unlist(dataone::query(mn,
+                                                  paste0("q=identifier:\"",
+                                                         pids[i],
+                                                         "\"&fl=resourceMap")))
+        } else if (format_type == "RESOURCE") {
+            resource_map = pids[i]
+        } else {
+            message("formatType of object ", pids[i], " is not one of 'RESOURCE' or 'METADATA'.")
+        }
+
+        results$resource_map[i] <- resource_map
 
         # Query data objects if resource_map exsists
         if (!is.null(resource_map)) {
-            data_objects <- unlist(dataone::query(mn,
-                                                  paste0("q=resourceMap:\"",
-                                                         resource_map,
-                                                         "\"+AND+formatType:DATA",
-                                                         "&fl=identifier"),
-                                                  as = "list"))
+
 
             # Define data_objects_present in results data frame
             if (!is.null(data_objects)) {

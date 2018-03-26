@@ -1,0 +1,211 @@
+#' Add attribute metadata to a data.frame object
+#'
+#' Adds attribute metadata to a data.frame object.  Intended for use with a call
+#' to 'EML:get_attributes' in order to extract metadata from an EML and attach
+#' it a data.frame object as an attributes(data.frame) property.
+#'
+#' @param data (data.frame) Data object to add attributes information to.
+#' @param attributes (data.frame) Data frame of attribute metadata to add.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' data <- data.frame("depth" = c(1.2, 2.3), "temperature" = c(10.7, 9.5))
+#' attributes <- data.frame("attributeName" = c("depth", "temperature"),
+#'                          "attributeDefinition" = c("water depth in meters",
+#'                                                     "temperature in celsius"),
+#'                          "unit" = c("meter", "celsius"))
+#' data <- add_attributes(data, attributes)
+#'
+#' # View all attribute metadata
+#' attributes(data)
+#' # View attribute metadata for one variable
+#' attributes(data)$depth
+#'
+#' devtools::install_github("ropensci/EML")
+#' library(EML) # for updated version of 'get_attributes'
+#' eml <- EML::read_eml(rawToChar(dataone::getObject(mnReal, "doi:10.18739/A2F299")))
+#' attributes <- EML::get_attributes(eml@@dataset@@dataTable[[3]]@@attributeList)[[1]]
+#' data <- read.csv(
+#' "https://arcticdata.io/metacat/d1/mn/v2/object/urn%3Auuid%3A11986ca1-5560-48ac-b8f9-0469ce561946")
+#' data <- add_attributes(data, attributes)
+#' }
+#'
+#' @author Dominic Mullen \email{dmullen17@@gmail.com}
+#'
+#' @return (data.frame())
+add_attributes <- function(data, attributes) {
+    # TODO add $factors case from 'get_attributes'
+    # TODO modify to add attributes at the column level
+    stopifnot(is.data.frame(data))
+    stopifnot(is.data.frame(attributes))
+    stopifnot(ncol(data) == nrow(attributes))
+
+    n_attributes <- nrow(attributes)
+    n_meta_col <- ncol(attributes)
+
+    # Initialize attribute list
+    attribute_list <- list()
+    attribute_names <- colnames(attributes)
+
+    # Convert each row of 'attributes' to a list and store in 'attribute_list'
+    for (i in seq_len(n_attributes)) {
+        metadata_list <- list()
+
+        for (j in seq_len(n_meta_col)) {
+            metadata_list <- c(metadata_list, attributes[i,j])
+        }
+
+        names(metadata_list) <- attribute_names
+        attribute_list[[i]] <- metadata_list
+    }
+
+    names(attribute_list) <- colnames(data)
+
+    # store attributes in empty data.frame
+    x <- data.frame()
+    attributes(x) <- attribute_list
+
+    # Add attributes at the column level
+    for (name in colnames(data)) {
+        attributes(data[[name]]) <- attributes(x)[[name]]
+    }
+
+    return(data)
+}
+
+#' Return the 'formatType' of a Dataone object.
+#'
+#' @param mn (MNode/CNode) The Node to query
+#' @param pid (character) The unique object identifier
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' @return (character)
+get_format_type <- function(mn, pid) {
+    stopifnot(methods::is(mn, "MNode"))
+    stopifnot(length(pid) > 0)
+    stopifnot(is.character(pid))
+
+    format_type <- unlist(dataone::query(mn,
+                                         paste0("q=identifier:\"",
+                                                pid,
+                                                "\"&fl=formatType")))
+    return(format_type)
+}
+
+#' Return the Resource Map identifieres associated with a list of Dataone objects.
+#'
+#' @param mn (MNode/CNode) The Node to query
+#' @param pids (character) The unique object identifiers
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' @return (character)
+get_resource_maps <- function(mn, pids) {
+    stopifnot(methods::is(mn, "MNode"))
+    stopifnot(length(pids) > 0)
+    stopifnot(is.character(pids))
+
+    lapply(seq_len(pids), function(i) {
+        format_type <- get_format_type(mn, pids[i])
+
+        if (format_type == "METADATA") {
+            # Get resource map associated with input metadata
+            resource_map <- unlist(dataone::query(mn,
+                                                  paste0("q=identifier:\"",
+                                                         pids[i],
+                                                         "\"&fl=resourceMap")))
+        } else if (format_type == "RESOURCE") {
+            resource_map = pids[i]
+        } else {
+            message("formatType of object ", pids[i], " is not one of 'RESOURCE' or 'METADATA'.")
+        }
+    })
+}
+
+resource_map_pids = c("resource_map_urn:uuid:477cf55d-32f3-4515-87b7-15fce9e11e33",
+                      "resource_map_doi:10.18739/A2F299")
+
+import_package_data <- function(mn, pids) {
+    #TODO make this function call add_attributes and get_all_attributes
+    stopifnot(methods::is(mn, "MNode"))
+    stopifnot(length(pids) > 0)
+    stopifnot(all(is.character(pids)))
+
+    # Check that data objects exist and return resource map pids
+    resource_map_pids <- get_resource_maps(mn, pids)
+
+    # import data objects
+
+    # assign filename appended with metadata doi
+
+    # if add_attributes = T then look in EML for attributes
+    return(resource_map_pids)
+}
+#import_package_data(mnReal, resource_map_pids)
+
+# TODO edit merge to accomodate attribute metadata
+
+
+#' Transfer attribute metadata to from multiple data.frames or data.tables to a
+#' data.frame or data.table object
+#'
+#' @param ... (data.frame / data.table) Input data.frame or data.table objects.
+#' @param target (data.frame / data.table) Object to add attribute metadata to.
+#' @param append_metadata (logical) Optional.  Concatenate column metadata if columns have the same name.  Defaults to \code{TRUE}
+#' @param attributes (data.frame) Data frame of attribute metadata to add.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' }
+#'
+#' @author Dominic Mullen \email{dmullen17@@gmail.com}
+#'
+#' @return (data.frame())
+transfer_attributes <- function(..., target, append_metadata = TRUE) {
+    # TODO
+    # TODO add checks that all ... are data.frame or data.table
+    # TODO print message if no attribute metadata is present in ...
+    # TODO transfer metadata level at data.frame level (in addition to columns)
+
+    inputs <- list(...)
+    n_inputs <- length(inputs)
+
+    # initialize blank lists
+    atts <- replicate(n_inputs, list())
+
+}
+transfer_attributes(1,2)
+
+x <- data.frame("X1" = 1, "X2" = 2, "X3" = 3)
+n <- 0
+# set attributes to column variables in for loop
+for (i in colnames(x)) {
+    print(i)
+    attributes(x[[i]]) <- list("attribute" = paste0("hi", n))
+    n <- n + 1
+}
+y <- data.frame("X1" = 1, "X2" = 2, "X4" = 4)
+
+x <- function(x, y, target) {
+    # store metadata for x and y
+    att <- replicate(2, list())
+    for(i in 1:2) {
+        att[[i]] <-
+    }
+# find columns in target
+}
+
+for.setattr <- function() {
+    for (i in seq_along(myList)) {
+        setattr(myList[[i]], name = 'myname', value = 'myStaticName')
+    }
+}
+
+for (i in 1:13) {
+    attributes(data2$DOY) <- list(paste0(attribute_names[i]) = attributes[1,i])
+}
