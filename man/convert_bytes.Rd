@@ -8,7 +8,6 @@ convert_bytes(download_size)
 }
 \arguments{
 \item{download_size}{(numeric) Total size in bytes
-
 TODO - make this function more robust using gdata::humanReadable as a template}
 }
 \description{
