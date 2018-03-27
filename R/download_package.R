@@ -202,7 +202,6 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
-#' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
 #' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommened to also set \code{prefix_file_names = TRUE}
 #' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  This is not recommended if the separate csv files already exist in the package. The csv files are downloaded as sheetName_excelWorkbookName.csv
 #'
@@ -231,6 +230,8 @@ download_one_package <- function(mn,
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(is.character(resource_map_pid))
     stopifnot(file.exists(download_directory))
+    stopifnot(is.logical(prefix_file_names))
+    stopifnot(is.logical(download_column_metadata))
     stopifnot(is.logical(convert_excel_to_csv))
     if (convert_excel_to_csv == TRUE) {
         # Stop if the user doesn't have the readxl package installed
@@ -279,7 +280,7 @@ download_one_package <- function(mn,
     return(invisible())
 }
 
-#' Download a Data Package
+#' Download a Data Package, with its (optional child_packages).
 #'
 #' This function downloads all of the Data Objects in a Data Package to the local filesystem.
 #' It is particularly useful when a Data Package is too large to download using the web interface.
@@ -292,12 +293,11 @@ download_one_package <- function(mn,
 #' @param mn (MNode) The Member Node to download from.
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
-#' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.
-#' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
+#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this, then its recommened to also set \code{prefix_file_names = TRUE}
 #' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
-#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommened to also set \code{prefix_file_names = TRUE}
-#' @param check_first (logical) Optional. Whether to check the PIDs passed in as aruments exist on the MN before continuing. Checks that objects exist and are of the right format type. Setting this to FALSE speeds up the function, especially when the package has many elements.
+#' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package. Defaults to \code{TRUE}
+#' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar write.csv
 #'
@@ -307,10 +307,58 @@ download_one_package <- function(mn,
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
-#' download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269")
+#' download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
+#' "/home/dmullen")
 #' }
 #'
-child_packages <- list()
+download_package <- function(mn,
+                             resource_map_pid,
+                             download_directory,
+                             prefix_file_names = TRUE,
+                             download_column_metadata = FALSE,
+                             convert_excel_to_csv = FALSE,
+                             download_child_packages = TRUE,
+                             check_download_size = FALSE) {
+
+    stopifnot(methods::is(mn, "MNode"))
+    stopifnot(is.character(resource_map_pid))
+    stopifnot(file.exists(download_directory))
+    stopifnot(is.logical(prefix_file_names))
+    stopifnot(is.logical(download_column_metadata))
+    stopifnot(is.logical(convert_excel_to_csv))
+    if (convert_excel_to_csv == TRUE) {
+        # Stop if the user doesn't have the readxl package installed
+        if (!requireNamespace("readxl")) {
+            stop(call. = FALSE,
+                 "The readxl package is required to show progress. Please install it and try again.")
+        }
+    }
+    stopifnot(is.logical(download_child_packages))
+    stopifnot(is.logical(check_download_size))
+
+    package <- arcticdatautils::get_package(mn, resource_map_pid)
+
+    if (download_child_packages == TRUE) {
+        packages <- c(package$resource_map, package$child_packages)
+    }
+
+    progressBar <- utils::txtProgressBar(0, length(packages), style = 3)
+
+    sapply(seq_along(packages), function(i) {
+        message("\nDownloading data from package ", packages[i], "\n")
+
+        download_one_package(mn = mn,
+                             resource_map_pid = packages[i],
+                             download_directory = download_directory,
+                             prefix_file_names = prefix_file_names,
+                             download_column_metadata = download_column_metadata,
+                             convert_excel_to_csv = convert_excel_to_csv)
+
+        utils::setTxtProgressBar(progressBar, i)
+        })
+
+    return(invisible())
+}
 
 # Get child package pids
 if (download_child_packages == TRUE) {
