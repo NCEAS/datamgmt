@@ -7,6 +7,10 @@ package <- arcticdatautils::get_package(mn,
                                         file_names = TRUE)
 
 test_that("download_data_objects works", {
+    if (!arcticdatautils::is_token_set(mn)) {
+        skip("No token set. Skipping test.")
+    }
+
     out_path <- file.path(tempdir(), names(package$data)[1])
     download_data_objects(mn, package$data[1], out_path)
 
@@ -16,9 +20,6 @@ test_that("download_data_objects works", {
 })
 
 test_that("All package contents download to a directory", {
-    cn <- dataone::CNode('STAGING')
-    mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
-
     if (!arcticdatautils::is_token_set(mn)) {
         skip("No token set. Skipping test.")
     }
