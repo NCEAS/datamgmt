@@ -193,11 +193,6 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
 #' This function downloads all of the Data Objects in a Data Package to the local filesystem.
 #' It is particularly useful when a Data Package is too large to download using the web interface.
 #'
-#' Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size and want to avoid downloading very large Data Packages.
-#'
-#' This function will also download any data objects it finds in any child Data Packages of the input data package.
-#' If you would only like to download data from one Data Package, set \code{download_child_packages} to \code{FALSE}.
-#'
 #' @param mn (MNode) The Member Node to download from.
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
@@ -360,25 +355,6 @@ download_package <- function(mn,
     return(invisible())
 }
 
-# Get child package pids
-if (download_child_packages == TRUE) {
-    # Check that child packages exist
-    if (length(package$child_packages) != 0) {
-        n_child_packages <- length(package$child_packages)
-        progressBar <- utils::txtProgressBar(min = 0, max = n_child_packages, style = 3)
-
-        message("\nDownloading identifiers from child packages...")
-
-        # Loop through child packages and extract pids using get_package()
-        child_packages <- lapply(seq_len(n_child_packages), function(i) {
-            utils::setTxtProgressBar(progressBar, i)
-            arcticdatautils::get_package(mn, package$child_packages[i], file_names = TRUE)
-        })
-
-        close(progressBar)
-    }
-}
-
 #' Download one or multiple Data Packages
 #'
 #' This function is wrapper for download_package It downloads all of the Data Objects in a Data Package
@@ -392,6 +368,7 @@ if (download_child_packages == TRUE) {
 #'
 #' @param mn (MNode) The Member Node to download from.
 #' @param resource_map_pids (chraracter) The identifiers of the Resource Maps for the packages to download.
+#' @param download_directory (character) The path of the directory to download the packages to.
 #' @param ... Allows arguments from \code{\link{download_package}}
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
@@ -404,18 +381,22 @@ if (download_child_packages == TRUE) {
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
-#' download_packages(mn, c("resource_map_doi:10.18739/A21G1P" "resource_map_doi:10.18739/A2RZ6X"),
-#' check_download_size = FALSE, prefix_file_names = TRUE, convert_excel_to_csv == TRUE)
+#' download_packages(mn, c("resource_map_doi:10.18739/A21G1P", "resource_map_doi:10.18739/A2RZ6X"),
+#' "/home/dmullen/downloads", prefix_file_names = TRUE, download_column_metadata = TRUE,
+#' convert_excel_to_csv = TRUE)
 #' }
-download_packages <- function(mn, resource_map_pids, ...) {
+download_packages <- function(mn, resource_map_pids, download_directory, ...) {
 
+    stopifnot(methods::is(mn, "MNode"))
     stopifnot(all(is.character(resource_map_pids)))
     stopifnot(length(resource_map_pids) > 0)
+    stopifnot(file.exists(download_directory))
 
     n_packages <- length(resource_map_pids)
 
-    lapply(seq_len(n_packages), function(i)
-    {download_package(mn, resource_map_pid = resource_map_pids[i], ...)})
+    lapply(seq_len(n_packages), function(i) {
+        message("Downloading package ", i, "/", n_packages)
+        download_package(mn, resource_map_pids[i], download_directory, ...)})
 
     return(invisible())
 }
