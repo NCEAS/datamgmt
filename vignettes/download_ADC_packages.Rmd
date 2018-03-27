@@ -38,7 +38,7 @@ mn <- getMNode(cn, "urn:node:ARCTIC")
 1. Click the "Download" or "Download all" buttons on the ADC User Interface.
   
 <p align="center">
-<img src="inst/images/download.png" width="500px"/>
+<img src="../inst/images/download.png" width="500px"/>
 </p>
   
 2. Download the attribute (column metadata) by pasting the url into this function.  This reads the attributes into a list of data.frames by default.  
@@ -57,12 +57,12 @@ attributes <- get_eml_attributes_url(mn,
 
 
 ### Download a Data Package without the UI
-This is a better option (than the first method) if you would like to prefix your data files (in addition to metadata) with the DOI identifier.  
+This is a better option (than the first method) if you would like to prefix your data files (in addition to metadata files) with the DOI identifier.  
 <br>
 All we need to specificy is the Package resource map. Copy-paste this into R. 
 <br>
 <p align="center">
-<img src="inst/images/resmap.png" width="500px"/>
+<img src="../inst/images/resmap.png" width="500px"/>
 </p>
 <br>
 
@@ -83,7 +83,7 @@ download_package(mn,
 
 
 ### Download multiple Data Packages
-We can download multiple data packages by specifying multiple resource to the function `download_packages`.  Note the s!
+We can download multiple data packages by specifying multiple resource to the function `download_packages`.  Note the s!  
 <br>
 **Tip:** If you want to download Data Packages that are nested under a common Data Package, you can use the common "parent" resource map rather than copying pasting multiple resource maps into R.  
 ```{r}
