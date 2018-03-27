@@ -165,7 +165,7 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(is.character(data_pids))
 
-    lapply(seq_len(data_pids), function(i) {
+    for (i in seq_along(out_paths)) {
 
         if (file.exists(out_paths[i])) {
             warning(call. = FALSE,
@@ -174,16 +174,16 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
             n_tries <- 0
             dataObj <- "error"
 
-            while (n_tries < n_max & dataObj[1] == "download_error") {
+            while (dataObj[1] == "error" & n_tries < n_max) {
                 dataObj <- tryCatch({
                     dataone::getObject(mn, data_pids[i])
-                    writeBin(dataObj, out_paths[i])
-                },
-                error = function(e) {return("error")})
-                ntries <- ntries + 1
+                }, error = function(e) {return("error")})
+
+                n_tries <- n_tries + 1
             }
+            writeBin(dataObj, out_paths[i])
         }
-    })
+    }
 
     return(invisible())
 }
@@ -210,6 +210,13 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
+#'@examples
+#' \dontrun{
+#' cn <- CNode("PROD")
+#' mn <- getMNode(cn, "urn:node:ARCTIC")
+#' download_one_package(mn, "resource_map_doi:10.18739/A2028W", "/home/dmullen")
+#' }
+#'
 download_one_package <- function(mn,
                                  resource_map_pid,
                                  download_directory,
@@ -232,7 +239,6 @@ download_one_package <- function(mn,
                  "The readxl package is required to show progress. Please install it and try again.")
         }
     }
-
     # Get package pids
     package <- arcticdatautils::get_package(mn, resource_map_pid, file_names = TRUE)
 

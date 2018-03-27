@@ -1,5 +1,20 @@
 context("Download package")
 
+cn <- dataone::CNode('PROD')
+mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
+package <- arcticdatautils::get_package(mn,
+                                        "resource_map_doi:10.18739/A23W02",
+                                        file_names = TRUE)
+
+test_that("download_data_objects works", {
+    out_path <- file.path(tempdir(), names(package$data)[1])
+    download_data_objects(mn, package$data[1], out_path)
+
+    expect_true(file.exists(out_path))
+    data <- read.csv(out_path)
+    expect_equal(round(data$DOY[1], digits = 4), 172.4953)
+})
+
 test_that("All package contents download to a directory", {
     cn <- dataone::CNode('STAGING')
     mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
