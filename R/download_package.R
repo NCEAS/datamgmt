@@ -296,6 +296,8 @@ download_one_package <- function(mn,
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar write.csv
 #'
+#' @export
+#'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @examples
