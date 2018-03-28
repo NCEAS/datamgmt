@@ -64,7 +64,7 @@ set_custom_UDUNITS <- function() {
     # Load custom udunits2.xml
     p0 <- paste0(ud_dir, "/", "udunits2.xml")
     Sys.setenv(UDUNITS2_XML_PATH = p0)
-    udunits2:::.onLoad(system.file(package = "udunits2"), "udunits2")
+    udunits2:::.onLoad(system.file(package = "udunits2"), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
     Sys.getenv("UDUNITS2_XML_PATH") == p0
 }
 
@@ -780,7 +780,7 @@ get_custom_units <- function(units, quiet = FALSE) {
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
     if (!loaded) {
-        stop("EML-units.xml file could not be loaded. ", "Ensure the file is formatted correctly.")
+        stop("There was an error loading custom udunits files.")
     }
 
     stopifnot(is.character(units))
