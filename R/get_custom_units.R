@@ -6,7 +6,6 @@
         find.package("units")
         TRUE
     }, error = function(e) {
-        packageStartupMessage("No units package found. ","Some functions will not work without the R units package.")
         FALSE
     })
 
@@ -22,10 +21,11 @@
 
         # Get udunits2 files
         udunits2_dir <- system.file("share/", package = "udunits2")
-        udunits_xmls <- dir(udunits2_dir, full.names = FALSE)
+        udunits_xmls <- dir(udunits2_dir, full.names = FALSE, recursive = TRUE)
+        udunits_xmls_names <- sub("^.*\\/", "", udunits_xmls)
 
         # Read-in xml files
-        n_accepted <- which(udunits_xmls == "udunits2-accepted.xml")
+        n_accepted <- which(udunits_xmls_names == "udunits2-accepted.xml")
         accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
 
         # Load custom udunits.xml
@@ -45,9 +45,6 @@
                          encoding = "US-ASCII")
         copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
                             ud_dir, overwrite = T)
-        if (!all(copied)) {
-            packageStartupMessage("Could not copy udunits2 package files.")
-        }
     }
 }
 
