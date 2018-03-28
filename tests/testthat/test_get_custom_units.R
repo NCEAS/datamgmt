@@ -1,6 +1,9 @@
 testthat::context("Get Custom Units")
 
+if("units" %in% rownames(installed.packages())) {
+
 testthat::test_that("get_custom_units accepts multiple unit input formats", {
+
 
     form_1 <- datamgmt::get_custom_units('kilometersPerSquareSecond') #preferred input form
     form_2 <- datamgmt::get_custom_units('Kilometers per seconds squared')
@@ -16,6 +19,7 @@ testthat::test_that("get_custom_units accepts multiple unit input formats", {
                     form_1 == form_6)
 
     testthat::expect_true(forms_equal)
+
 })
 
 testthat::test_that("get_custom_units recognizes reciprocals", {
@@ -34,3 +38,5 @@ testthat::test_that("get_custom_units recognizes reciprocals", {
     testthat::expect_true(forms_equal)
     testthat::expect_true(out_1$unitType == "lengthReciprocal")
 })
+
+}

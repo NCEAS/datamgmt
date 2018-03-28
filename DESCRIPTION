@@ -30,7 +30,6 @@ Imports:
     utils,
     XML,
     xml2,
-    units,
     gsubfn,
     udunits2,
     compare,
@@ -44,7 +43,8 @@ Encoding: UTF-8
 LazyData: true
 Suggests: testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    units
 Remotes: NCEAS/arcticdatautils,
          ropensci/EML
 RoxygenNote: 6.0.1

@@ -16,7 +16,7 @@ hot_attributes_table <- function(df, type = NULL) {
         render_type = "text"
         colWidths = 150
 
-        if (col %in% c("attributeDefinition", "definition")) {
+        if (col %in% c("attributeDefinition", "definition", "description")) {
             colWidths = 320
         }
 

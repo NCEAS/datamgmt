@@ -111,7 +111,7 @@ create_attributes_table <- function(data = NULL, attributes_table = NULL) {
 
     # If both data and attributes_table are NULL, initiallize a blank table
     if (is.null(att_table)) {
-        att_table <- data.frame(matrix(nrow = 1, ncol = length(fields)), stringsAsFactors = FALSE)
+        att_table <- data.frame(matrix(nrow = 10, ncol = length(fields)), stringsAsFactors = FALSE)
         colnames(att_table) <- fields
     }
 
@@ -537,13 +537,6 @@ build_units_table <- function(units) {
 
     # Remove escape characters
     units <- gsub("\"|\'", "", units)
-
-    # If id is NA, set to original unit
-    units_table$id[is.na(units_table$id)] <- units[is.na(units_table$id)]
-
-    # Initialize definition
-    definition <- rep(NA, nrow(units_table))
-    units_table <- cbind(units_table, definition, stringsAsFactors = FALSE)
 
     # Clean
     units_table <- units_table[!is.na(units_table$id),]
