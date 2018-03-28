@@ -564,14 +564,13 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
                     unit_split[i] <- unit_split[i + 1]
                     unit_split[i + 1] <- exponent_symbols[n_exp]
 
-                    unit_split[i + 1] <- paste0(unit_split[i], unit_split[i +
-                                                                              1], collapse = "")
+                    unit_split[i + 1] <- paste0(unit_split[i], unit_split[i + 1], collapse = "")
                     unit_split <- unit_split[-i]
 
                 } else if (form == "symbol" && tolower(unit_split[i]) == "per" && i <= length(unit_split)) {
                     unit_split[i] <- "/"
 
-                } else if (form == "symbol" && i < n_per && i > 1 && !(unit_split[i - 1] %in% exponents)) {
+                } else if (form == "symbol" && (i < n_per || n_per == 0) && i > 1 && !(unit_split[i - 1] %in% exponents)) {
                     unit_split[i] <- paste0("*", unit_split[i])
                 }
             }
