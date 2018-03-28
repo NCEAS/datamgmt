@@ -1,11 +1,27 @@
-testthat::context("Download package")
+context("Download package")
 
-testthat::test_that("All package contents download to a directory", {
-    cn <- dataone::CNode('STAGING')
-    mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+cn <- dataone::CNode('PROD')
+mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
+package <- arcticdatautils::get_package(mn,
+                                        "resource_map_doi:10.18739/A23W02",
+                                        file_names = TRUE)
 
+test_that("download_data_objects works", {
     if (!arcticdatautils::is_token_set(mn)) {
-        testthat::skip("No token set. Skipping test.")
+        skip("No token set. Skipping test.")
+    }
+
+    out_path <- file.path(tempdir(), names(package$data)[1])
+    download_data_objects(mn, package$data[1], out_path)
+
+    expect_true(file.exists(out_path))
+    data <- read.csv(out_path)
+    expect_equal(round(data$DOY[1], digits = 4), 172.4953)
+})
+
+test_that("All package contents download to a directory", {
+    if (!arcticdatautils::is_token_set(mn)) {
+        skip("No token set. Skipping test.")
     }
 
     # Create dummy package
@@ -18,12 +34,12 @@ testthat::test_that("All package contents download to a directory", {
                       directory,
                       check_download_size = FALSE)
 
-    testthat::expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
+    expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
 })
 
-testthat::test_that("Contents of child packages download correctly", {
+test_that("Contents of child packages download correctly", {
     if (!arcticdatautils::is_token_set(mn)) {
-        testthat::skip("No token set. Skipping test.")
+        skip("No token set. Skipping test.")
     }
 
     # Create dummy packages
@@ -47,7 +63,13 @@ testthat::test_that("Contents of child packages download correctly", {
                       directory,
                       check_download_size = FALSE)
 
-    testthat::expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
-    testthat::expect_equal(file.exists(file.path(directory, "dummy_object2")), TRUE)
+    expect_equal(file.exists(file.path(directory, "dummy_object")), TRUE)
+    expect_equal(file.exists(file.path(directory, "dummy_object2")), TRUE)
 
+})
+
+test_that("remove_special_characters works correctly", {
+    input <- "doi:10.18739/A23W02"
+    output <- remove_special_characters(input)
+    expect_equal(output, "doi1018739A23W02")
 })
