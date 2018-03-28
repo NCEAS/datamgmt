@@ -767,7 +767,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
 #' @description Uses the udunits2 unit library to format inputted unit into an EML unit form.
 #' @examples
-#' #' \dontrun{
+#' \dontrun{
 #' #The following all return the same data frame.
 #' get_custom_units('kilometersPerSquareSecond') #preferred input form
 #' get_custom_units('Kilometers per seconds squared')
