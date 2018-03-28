@@ -250,7 +250,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     unit <- gsub("\\(|\\)", " ", unit) # remove parenthesis
     unit <- gsub("\\*", " ", unit) # remove "*"
 
-    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]|_]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
+    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]_]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
     unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # change -- to -
     unit <- gsub("-{1}[[:blank:]]{1}", "-1 ", unit)  # change -[[:blank:]] to -1

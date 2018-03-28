@@ -4,7 +4,7 @@
 \alias{excel_to_csv_prefix}
 \title{Convert excel workbook to multiple csv files}
 \usage{
-excel_to_csv_prefix(path, prefix = NULL)
+excel_to_csv_prefix(path, prefix)
 }
 \arguments{
 \item{path}{(character) File location of the excel workbook.}

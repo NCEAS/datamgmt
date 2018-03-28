@@ -4,12 +4,14 @@
 \alias{download_packages}
 \title{Download one or multiple Data Packages}
 \usage{
-download_packages(mn, resource_map_pids, ...)
+download_packages(mn, resource_map_pids, download_directory, ...)
 }
 \arguments{
 \item{mn}{(MNode) The Member Node to download from.}
 
 \item{resource_map_pids}{(chraracter) The identifiers of the Resource Maps for the packages to download.}
+
+\item{download_directory}{(character) The path of the directory to download the packages to.}
 
 \item{...}{Allows arguments from \code{\link{download_package}}}
 }
@@ -28,8 +30,9 @@ If you would only like to download data from one Data Package, set \code{downloa
 \dontrun{
 cn <- CNode("PROD")
 mn <- getMNode(cn, "urn:node:ARCTIC")
-download_packages(mn, c("resource_map_doi:10.18739/A21G1P" "resource_map_doi:10.18739/A2RZ6X"),
-check_download_size = FALSE, prefix_file_names = TRUE, convert_excel_to_csv == TRUE)
+download_packages(mn, c("resource_map_doi:10.18739/A21G1P", "resource_map_doi:10.18739/A2RZ6X"),
+"/home/dmullen/downloads", prefix_file_names = TRUE, download_column_metadata = TRUE,
+convert_excel_to_csv = TRUE)
 }
 }
 \author{
