@@ -111,18 +111,23 @@ download_packages(mn,
                   download_column_metadata = TRUE)
 ```
 
-### Changing DataOne/LTER Member Nodes 
+### Switching between DataOne/LTER Member Nodes 
 
-We want to download this package from LTER: https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13.  We first need to tell R that we're changing member nodes.  The fastest way of doing this is to reset your `mn` with the `guess_member_node` function.
-
-*Note:* 
+Suppose we want to download this package from LTER: https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13
+  
+We first need to tell R that we're changing member nodes.  The fastest way of doing this is to reset your `mn` with the `guess_member_node` function.
+*Note:* This function accepts metadata and resource map pids, or DataOne package URLs as inputs
+  
 ```{r}
-#' The following two calls return the same member node (mn)
-#' The first uses the metadata identifier and the second uses the resource map identifier:
-
+# The following three calls return the same member node (mn)
+# Metadata pid input: 
 mn <- guess_member_node("https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
+# Resource map pid input: 
 mn <- guess_member_node("doi:10.6073/pasta/97c6d83a5f6a0a065ef3209fcb491b6e")
+# Package URL input: 
+mn <- guess_member_node("https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
 
-# We can now use any of the above functions
+
+# We can now use any of the above functions:
 get_eml_attributes_url(mn, "https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
 ```
