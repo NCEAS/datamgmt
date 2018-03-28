@@ -47,7 +47,6 @@
 
 #' Will return TRUE if properly loaded or FALSE if not
 #' @return (logical)
-#' @import units
 #' @import gsubfn
 #' @import udunits2
 #' @import xml2
@@ -251,7 +250,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     unit <- gsub("\\(|\\)", " ", unit) # remove parenthesis
     unit <- gsub("\\*", " ", unit) # remove "*"
 
-    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
+    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]|_]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
     unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # change -- to -
     unit <- gsub("-{1}[[:blank:]]{1}", "-1 ", unit)  # change -[[:blank:]] to -1
@@ -271,7 +270,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     }
 
     # Change exponent form
-    unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ", unit)
+    unit <- gsub("([^[:blank:]-]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ", unit)
     unit <- gsub("(-)([[:digit:]]+)", "per \\2", unit)
     for (i in seq_along(exponents_numeric)) {
         unit <- gsub(paste0("[[:blank:]]", exponents_numeric[i], "[[:blank:]]"),
@@ -785,6 +784,7 @@ get_custom_units <- function(units, quiet = FALSE) {
     # Load units
     all_units = mem_load_all_units()
     EML_units = mem_load_EML_units(all_units)
+    columns <- c("id", "unitType", "parentSI", "multiplierToSI", "abbreviation", "description")
 
     # Initillize progress bar
     if (quiet == FALSE) {
@@ -799,34 +799,32 @@ get_custom_units <- function(units, quiet = FALSE) {
         unit_split <- get_unit_split(units[i], all_units)
         id <- format_unit_split(unit_split, form = "id", all_units)
 
-        if (!is.na(id)) {
+        # First check if unit is standard
+        n_id <- which(EML_units$units$id == units[i])
+
+        if (length(n_id) == 0) {
+            n_id <- which(EML_units$units$abbreviation == units[i])
+        }
+
+        if (length(n_id) == 1) {
+            custom_unit <- EML_units$units[n_id, columns]
+
+        } else if (!is.na(id)) {
         udunit <- format_unit_split(unit_split, form = "udunit", all_units)
         abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
         parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
+        description <- tolower(udunit)
+        description <- gsub("celsius", "Celsius", description)
+
+        custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = F)
         } else {
-            n_id <- which(EML_units$units$id == units[i])
-
-            if (length(n_id) == 0) {
-                n_id <- which(EML_units$units$abbreviation == units[i])
-            }
-
-            if (length(n_id) == 1) {
-                id <- EML_units$units$id[n_id]
-                abbreviation <- EML_units$units$abbreviation[n_id]
-                unitType <- EML_units$units$unitType[n_id]
-                parentSI <- EML_units$units$parentSI[n_id]
-                multiplierToSI <- EML_units$units$multiplierToSI[n_id]
-            } else {
-                warning("Unknown unit ", units[i], ". NA returned")
-                id <- NA
-                abbreviation <- NA
-                unitType <- NA
-                parentSI <- NA
-                multiplierToSI <- NA
-            }
-            parentSI_df <- data.frame(unitType, parentSI, multiplierToSI, stringsAsFactors = F)
+        warning("Unknown unit ", units[i])
+        custom_unit <- data.frame(matrix(ncol = length(columns), nrow = 1), stringsAsFactors = F)
+        colnames(custom_unit) <- columns
+        custom_unit$id <- units[i]
         }
-        custom_unit <- data.frame(id, parentSI_df, abbreviation, stringsAsFactors = F)
+        rownames(custom_unit) <- c()
+        custom_unit
     })
 
     custom_unit_df <- do.call(rbind, custom_units)
