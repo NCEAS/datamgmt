@@ -7,9 +7,9 @@
 #' function returns the member node as a Dataone "MNode" object.  If multiple member
 #' nodes are identified a vector of nodes is printed.
 #'
+#' @param pid (character) The Datone unique object identifier.  A Dataone package URL can also be used as input (although this method is less reliable).
 #' @param cn (character) A character vector of coordinate nodes to search.  Defaults to "PROD".
 #' Can be set to any combination of ("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2").
-#' @param pid (character) The Datone unique object identifier.
 #'
 #' @export
 #'
@@ -19,17 +19,24 @@
 #' \dontrun{
 #' The following two calls are equivalent:
 #' mn <- guess_member_node("doi:10.18739/A2G287")
-#' mn <- guess_member_node("PROD", "doi:10.18739/A2G287")
+#' mn <- guess_member_node("doi:10.18739/A2G287", "PROD")
 #'
+#' Use a DataOne package URL
+#' mn <- guess_member_node("https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
+#
 #' Search all coordinating nodes:
 #' cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")
-#' mn <- guess_member_node(cn, "doi:10.18739/A2G287")
+#' mn <- guess_member_node("doi:10.18739/A2G287")
 #' }
 #'
-guess_member_node <- function(cn = "PROD", pid) {
+guess_member_node <- function(pid, cn = "PROD", ) {
+    stopifnot(is.character(pid))
     stopifnot(is.character(cn))
     stopifnot(all(cn %in% c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")))
-    stopifnot(is.character(pid))
+    
+    if (grepl("view/", pid)) {
+        pid <- unlist(strsplit(url_path, "view/"))[[2]]
+    }
 
     query_datasource <- function(cn, pid) {
         cn <- dataone::CNode(cn)
