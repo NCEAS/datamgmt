@@ -37,7 +37,9 @@ install.packages("devtools")
 devtools::install_github("ropensci/EML")
 devtools::install_github("NCEAS/arcticdatautils")
 install.packages("dataone")
+install.packages("magrittr")
 library(dataone)
+library(magrittr)
 ```
 Source (copy-paste into your R console) the file (https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R)
 *Note:* This concludes the differences between Mac and PC installs
