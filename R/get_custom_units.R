@@ -1,7 +1,16 @@
 #' Copies udunits2 xml files to datamgmt/UDUNITS
 #' Updates uduntis2-accepted.xml with units from EML-units.xml
 .onLoad <- function(libname, pkgname) {
-    if("units" %in% rownames(installed.packages())) {
+
+    has_units <- tryCatch({
+        find.package("units")
+        TRUE
+    }, error = function(e) {
+        packageStartupMessage("No units package found. ","Some functions will not work without the R units package.")
+        FALSE
+    })
+
+    if(has_units) {
 
         # Get directory for udunits files
         pkg_dir <- system.file(package = "datamgmt")
@@ -14,11 +23,6 @@
         # Get udunits2 files
         udunits2_dir <- system.file("share/", package = "udunits2")
         udunits_xmls <- dir(udunits2_dir, full.names = FALSE)
-        if (!all(udunits_xmls %in% c("udunits2-accepted.xml", "udunits2-base.xml",
-                                     "udunits2-common.xml", "udunits2-derived.xml", "udunits2-prefixes.xml",
-                                     "udunits2.xml"))) {
-            stop("The library for the udunits2 package was not loaded. ", "Please ensure the package udunits2 is installed.")
-        }
 
         # Read-in xml files
         n_accepted <- which(udunits_xmls == "udunits2-accepted.xml")
@@ -42,8 +46,7 @@
         copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
                             ud_dir, overwrite = T)
         if (!all(copied)) {
-            stop("Could not copy udunits2 package files. ",
-                 "Please ensure package is installed.")
+            packageStartupMessage("Could not copy udunits2 package files.")
         }
     }
 }
