@@ -1,47 +1,50 @@
 #' Copies udunits2 xml files to datamgmt/UDUNITS
 #' Updates uduntis2-accepted.xml with units from EML-units.xml
 .onLoad <- function(libname, pkgname) {
-    # Get directory for udunits files
-    pkg_dir <- system.file(package = "datamgmt")
-    ud_dir <- paste0(pkg_dir, "/UDUNITS")
-    if (!dir.exists(ud_dir)) {
-        dir.create(ud_dir)
-    }
-    stopifnot(dir.exists(ud_dir))
+    if("units" %in% rownames(installed.packages())) {
 
-    # Get udunits2 files
-    udunits2_dir <- system.file("share/", package = "udunits2")
-    udunits_xmls <- dir(udunits2_dir, full.names = FALSE)
-    if (!all(udunits_xmls %in% c("udunits2-accepted.xml", "udunits2-base.xml",
-                                 "udunits2-common.xml", "udunits2-derived.xml", "udunits2-prefixes.xml",
-                                 "udunits2.xml"))) {
-        stop("The library for the udunits2 package was not loaded. ", "Please ensure the package udunits2 is installed.")
-    }
+        # Get directory for udunits files
+        pkg_dir <- system.file(package = "datamgmt")
+        ud_dir <- paste0(pkg_dir, "/UDUNITS")
+        if (!dir.exists(ud_dir)) {
+            dir.create(ud_dir)
+        }
+        stopifnot(dir.exists(ud_dir))
 
-    # Read-in xml files
-    n_accepted <- which(udunits_xmls == "udunits2-accepted.xml")
-    accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
+        # Get udunits2 files
+        udunits2_dir <- system.file("share/", package = "udunits2")
+        udunits_xmls <- dir(udunits2_dir, full.names = FALSE)
+        if (!all(udunits_xmls %in% c("udunits2-accepted.xml", "udunits2-base.xml",
+                                     "udunits2-common.xml", "udunits2-derived.xml", "udunits2-prefixes.xml",
+                                     "udunits2.xml"))) {
+            stop("The library for the udunits2 package was not loaded. ", "Please ensure the package udunits2 is installed.")
+        }
 
-    # Load custom udunits.xml
-    datamgmt_dir <- system.file("share/", package = "datamgmt")
-    custom_xml <- dir(datamgmt_dir, full.names = FALSE)
-    n_custom <- which(custom_xml == "EML-units.xml")
-    custom <- xml2::read_xml(paste0(datamgmt_dir, "/", custom_xml[n_custom]))
-    custom_units <- xml2::xml_children(custom)
+        # Read-in xml files
+        n_accepted <- which(udunits_xmls == "udunits2-accepted.xml")
+        accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
 
-    # Add custom units to udunits2-accepted.xml
-    for (x in custom_units) {
-        xml2::xml_add_child(accepted, x)
-    }
+        # Load custom udunits.xml
+        datamgmt_dir <- system.file("share/", package = "datamgmt")
+        custom_xml <- dir(datamgmt_dir, full.names = FALSE)
+        n_custom <- which(custom_xml == "EML-units.xml")
+        custom <- xml2::read_xml(paste0(datamgmt_dir, "/", custom_xml[n_custom]))
+        custom_units <- xml2::xml_children(custom)
 
-    # Write files to ud_dir
-    xml2::write_html(accepted, paste0(ud_dir, "/", "udunits2-accepted.xml"),
-                     encoding = "US-ASCII")
-    copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
-                        ud_dir, overwrite = T)
-    if (!all(copied)) {
-        stop("Could not copy udunits2 package files. ",
-             "Please ensure package is installed.")
+        # Add custom units to udunits2-accepted.xml
+        for (x in custom_units) {
+            xml2::xml_add_child(accepted, x)
+        }
+
+        # Write files to ud_dir
+        xml2::write_html(accepted, paste0(ud_dir, "/", "udunits2-accepted.xml"),
+                         encoding = "US-ASCII")
+        copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
+                            ud_dir, overwrite = T)
+        if (!all(copied)) {
+            stop("Could not copy udunits2 package files. ",
+                 "Please ensure package is installed.")
+        }
     }
 }
 
@@ -266,7 +269,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
         unit <- units::deparse_unit(units::as.units(sub("^[[:blank:]]*\\/","",unit)))
         unit <- paste0("per ", unit)
     } else {
-    unit <- units::deparse_unit(units::as.units(unit))
+        unit <- units::deparse_unit(units::as.units(unit))
     }
 
     # Change exponent form
@@ -597,7 +600,7 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
 
     # Get EML Non Standard units
     unitList_nS <- EML::get_unitList(x = EML::read_eml(system.file("share/EML-nS-unitDictionary.xml",
-                                               package = "datamgmt")))
+                                                                   package = "datamgmt")))
     units_nS <- unitList_nS$units
     unitTypes_nS <- unitList_nS$unitTypes
 
@@ -788,13 +791,13 @@ get_custom_units <- function(units, quiet = FALSE) {
 
     # Initillize progress bar
     if (quiet == FALSE) {
-    progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)}
+        progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)}
 
     # Get custom units
     custom_units <- lapply(seq_along(units), function(i) {
 
         if (quiet == FALSE) {
-        utils::setTxtProgressBar(progressBar, i)}
+            utils::setTxtProgressBar(progressBar, i)}
 
         unit_split <- get_unit_split(units[i], all_units)
         id <- format_unit_split(unit_split, form = "id", all_units)
@@ -810,18 +813,18 @@ get_custom_units <- function(units, quiet = FALSE) {
             custom_unit <- EML_units$units[n_id, columns]
 
         } else if (!is.na(id)) {
-        udunit <- format_unit_split(unit_split, form = "udunit", all_units)
-        abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
-        parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
-        description <- tolower(udunit)
-        description <- gsub("celsius", "Celsius", description)
+            udunit <- format_unit_split(unit_split, form = "udunit", all_units)
+            abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
+            parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
+            description <- tolower(udunit)
+            description <- gsub("celsius", "Celsius", description)
 
-        custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = F)
+            custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = F)
         } else {
-        warning("Unknown unit ", units[i])
-        custom_unit <- data.frame(matrix(ncol = length(columns), nrow = 1), stringsAsFactors = F)
-        colnames(custom_unit) <- columns
-        custom_unit$id <- units[i]
+            warning("Unknown unit ", units[i])
+            custom_unit <- data.frame(matrix(ncol = length(columns), nrow = 1), stringsAsFactors = F)
+            colnames(custom_unit) <- columns
+            custom_unit$id <- units[i]
         }
         rownames(custom_unit) <- c()
         custom_unit
