@@ -29,7 +29,7 @@
 #' mn <- guess_member_node("doi:10.18739/A2G287")
 #' }
 #'
-guess_member_node <- function(pid, cn = "PROD", ) {
+guess_member_node <- function(pid, cn = "PROD") {
     stopifnot(is.character(pid))
     stopifnot(is.character(cn))
     stopifnot(all(cn %in% c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")))
