@@ -38,7 +38,11 @@ Imports:
     htmlwidgets,
     jsonlite,
     shinyjs,
-    stringi
+    stringi,
+    getPass,
+    rt,
+    httr,
+    utils
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
@@ -46,6 +50,7 @@ Suggests: testthat,
     knitr,
     rmarkdown
 Remotes: NCEAS/arcticdatautils,
-         ropensci/EML
+         ropensci/EML,
+         amoeba/rt
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
