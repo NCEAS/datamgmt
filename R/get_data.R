@@ -3,14 +3,16 @@
 #' Helper function to log into RT when downloading data. When run,
 #' it prompts for the user's username and password.
 #'
+#' @param username RT username (enter in when prompted)
+#' @param password RT password (enter in when prompted)
+#'
 #' @import dataone
-#' @import tidyverse
 #' @import rt
 #' @import getPass
 #'
 #' @author Irene Steves
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' rt_login_interactive()
 #' }
@@ -34,16 +36,19 @@ rt_login_interactive <- function(username = readline("Enter username: ") ,
 #' @param download_url (character) RT download URL for the attachment
 #'
 #' @import dataone
-#' @import tidyverse
+#' @import stringr
 #' @import rt
 #' @import getPass
+#' @import httr
+#' @importFrom utils read.delim
 #'
 #' @author Irene Steves
 #'
-#' @example
+#' @examples
 #' \dontrun{
-#' data <- download_rt_csv(ticket = "13843",
-#'                         download_url = "https://support.nceas.ucsb.edu/rt/Ticket/Attachment/291896/209025/2016%20ITEX%20Barrow%20Atqasuk%20Climate%20v1.csv")
+#' data <- download_rt_csv(
+#'     ticket = "13843",
+#'     download_url = "https://support.nceas.ucsb.edu/rt/Ticket/Attachment/291896/209025/2016%20ITEX%20Barrow%20Atqasuk%20Climate%20v1.csv")
 #' }
 #'
 
@@ -52,29 +57,29 @@ get_rt_csv <- function(ticket, download_url) {
     #download_url = "https://support.nceas.ucsb.edu/rt/Ticket/Attachment/355434/261485/Polaris%202017%20Soil.csv"
 
     attachment <- download_url %>%
-        str_replace(".*Attachment/[\\d]{6}/", "") %>%
-        str_replace("/.*", "")
+        stringr::str_replace(".*Attachment/[\\d]{6}/", "") %>%
+        stringr::str_replace("/.*", "")
     url <- paste0("https://support.nceas.ucsb.edu/rt/REST/1.0/ticket/",
                   ticket, "/attachments/", attachment, "/")
     raw <- httr::GET(url)
     data1 <- rawToChar(raw$content) %>%
-        sub(".*Content\\: ", "",.) %>%
-        sub("\n\n\n", "",.)
+        stringr::str_replace(".*Content\\: ", "") %>%
+        stringr::str_replace("\n\n\n", "")
 
-    if(str_detect(data1, "Credentials required")){
+    if(stringr::str_detect(data1, "Credentials required")){
         #log into RT
         message("\nLogging into RT...\n")
         rt_login_interactive()
         raw <- httr::GET(url)
         data1 <- rawToChar(raw$content) %>%
-            sub(".*Content\\: ", "",.) %>%
-            sub("\n\n\n", "",.)
+            stringr::str_replace(".*Content\\: ", "") %>%
+            stringr::str_replace("\n\n\n", "")
     }
 
     #roundabout way to account for commas inside cells
     #for example: 'cell1,cell2,"cell3,3",cell4' will split into 5 cells
     write(data1, "temp.txt")
-    data2 <- read.delim("temp.txt", sep = ",", quote = '\"',
+    data2 <- utils::read.delim("temp.txt", sep = ",", quote = '\"',
                         check.names = FALSE)
     file.remove("temp.txt")
     return(data2)
@@ -90,13 +95,13 @@ get_rt_csv <- function(ticket, download_url) {
 #' @param pid The identifier of the data object
 #'
 #' @import dataone
-#' @import tidyverse
+#' @import stringr
 #'
 #' @export
 #'
 #' @author Irene Steves
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' cn <- CNode('PROD')
 #' mn <- getMNode(cn,'urn:node:ARCTIC')
@@ -106,12 +111,12 @@ get_rt_csv <- function(ticket, download_url) {
 #'
 
 get_csv <- function(mn, pid) {
-    data_raw <- getObject(mn, pid)
+    data_raw <- dataone::getObject(mn, pid)
     # same as: getDataObject(d1c, pid) %>% getData()
-    data_char <- rawToChar(obj) %>%
-        str_split("\r\n") %>%
+    data_char <- rawToChar(data_raw) %>%
+        stringr::str_split("\r\n") %>%
         unlist() %>%
-        str_split(",")
+        stringr::str_split(",")
     data_combined <- do.call(rbind, data_char)
     data_clean <- data.frame(data_combined[-1,])
     colnames(data_clean) <- data_combined[1,]
@@ -128,11 +133,10 @@ get_csv <- function(mn, pid) {
 #'
 #' @import dataone
 #' @import EML
-#' @import tidyverse
 #'
 #' @export
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' cn <- CNode('PROD')
 #' mn <- getMNode(cn,'urn:node:ARCTIC')
