@@ -35,7 +35,8 @@ list_depth <- function(input_list) {
 get_eml_attributes <- function(eml) {
     # TODO - make sure it works for otherEntities
     stopifnot(isS4(eml))
-
+    
+    indices <- vector("numeric")
     indices <- which_in_eml(eml@dataset@dataTable,
                             "attributeList",
                             function(x) {length(x) > 0})
