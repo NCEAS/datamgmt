@@ -92,7 +92,7 @@ download_eml_attributes <- function(eml,
 
     prefix <- character(0)
     if (prefix_file_names == TRUE) {
-        prefix <- eml_get(eml, "packageId") %>%
+        prefix <- EML::eml_get(eml, "packageId") %>%
             as.character() %>%
             remove_special_characters() %>%
             paste0("_")
