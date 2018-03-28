@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 ```
-
-First install the `datamgmt` package.  This will also load `dataone`.    
+*Mac Users:*
+First install the following packages:    
 ```{r}
 install.packages("devtools")
 devtools::install_github("ropensci/EML")
@@ -26,7 +26,20 @@ devtools::install_github("NCEAS/datamgmt")
 library(datamgmt)
 library(dataone)
 ```
-  
+
+*PC Users:*
+We currently have issues installing 'datamgmt' on PCs.  Instead of installing the package, we can load the functions directly into your global environment by copy-pasting.  
+First install the following packages:    
+```{r}
+install.packages("devtools")
+devtools::install_github("ropensci/EML")
+devtools::install_github("NCEAS/arcticdatautils")
+install.packages("dataone")
+library(dataone)
+```
+Source (copy-paste into your R console) the file (https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R)
+*Note:* This concludes the differences between Mac and PC installs
+
 Next, we need to specify which DataOne Member Node we want to interact with.  The following code specifies the Arctic Data Center.  Most of the functions that we use specificy the `mn` as the first argument.  First, we specify the coordinating node and then its corresponding member node.   
 ```{r}
 cn <- CNode("PROD")
