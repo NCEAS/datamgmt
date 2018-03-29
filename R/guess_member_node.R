@@ -26,16 +26,16 @@
 #
 #' Search all coordinating nodes:
 #' cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")
-#' mn <- guess_member_node("doi:10.18739/A2G287")
+#' mn <- guess_member_node("doi:10.18739/A2G287", cn)
 #' }
 #'
 guess_member_node <- function(pid, cn = "PROD") {
     stopifnot(is.character(pid))
     stopifnot(is.character(cn))
     stopifnot(all(cn %in% c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")))
-    
+
     if (grepl("view/", pid)) {
-        pid <- unlist(strsplit(url_path, "view/"))[[2]]
+        pid <- unlist(strsplit(pid, "view/"))[[2]]
     }
 
     query_datasource <- function(cn, pid) {

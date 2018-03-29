@@ -18,10 +18,12 @@ get_custom_units(units, quiet = FALSE)
 Uses the udunits2 unit library to format inputted unit into an EML unit form.
 }
 \examples{
+\dontrun{
 #The following all return the same data frame.
 get_custom_units('kilometersPerSquareSecond') #preferred input form
 get_custom_units('Kilometers per seconds squared')
 get_custom_units('km/s^2')
 get_custom_units('km s-2')
 get_custom_units('s-2 /     kilometers-1') #works but is not advised
+}
 }
