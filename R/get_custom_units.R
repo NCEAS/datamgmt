@@ -55,7 +55,7 @@ set_custom_UDUNITS <- function() {
     # Load custom udunits2.xml
     p0 <- paste0(ud_dir, "/", "udunits2.xml")
     Sys.setenv(UDUNITS2_XML_PATH = p0)
-    udunits2:::.onLoad(system.file(package = "udunits2"), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
+    udunits2:::.onLoad(dirname(system.file(package = "udunits2")), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
     Sys.getenv("UDUNITS2_XML_PATH") == p0
 }
 
@@ -746,7 +746,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
 unset_custom_UDUNITS <- function() {
     Sys.unsetenv("UDUNITS2_XML_PATH")
     Sys.getenv("UDUNITS2_XML_PATH") == ""
-    udunits2:::.onLoad(system.file(package = "udunits2"), "udunits2")
+    udunits2:::.onLoad(dirname(system.file(package = "udunits2")), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
 }
 
 mem_load_all_units <- memoise::memoise(load_all_units)
