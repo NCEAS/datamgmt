@@ -6,7 +6,6 @@
         find.package("units")
         TRUE
     }, error = function(e) {
-        packageStartupMessage("No units package found. ","Some functions will not work without the R units package.")
         FALSE
     })
 
@@ -22,10 +21,11 @@
 
         # Get udunits2 files
         udunits2_dir <- system.file("share/", package = "udunits2")
-        udunits_xmls <- dir(udunits2_dir, full.names = FALSE)
+        udunits_xmls <- dir(udunits2_dir, full.names = FALSE, recursive = TRUE)
+        udunits_xmls_names <- sub("^.*\\/", "", udunits_xmls)
 
         # Read-in xml files
-        n_accepted <- which(udunits_xmls == "udunits2-accepted.xml")
+        n_accepted <- which(udunits_xmls_names == "udunits2-accepted.xml")
         accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
 
         # Load custom udunits.xml
@@ -45,9 +45,6 @@
                          encoding = "US-ASCII")
         copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
                             ud_dir, overwrite = T)
-        if (!all(copied)) {
-            packageStartupMessage("Could not copy udunits2 package files.")
-        }
     }
 }
 
@@ -67,7 +64,7 @@ set_custom_UDUNITS <- function() {
     # Load custom udunits2.xml
     p0 <- paste0(ud_dir, "/", "udunits2.xml")
     Sys.setenv(UDUNITS2_XML_PATH = p0)
-    udunits2:::.onLoad()
+    udunits2:::.onLoad(system.file(package = "udunits2"), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
     Sys.getenv("UDUNITS2_XML_PATH") == p0
 }
 
@@ -564,14 +561,13 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
                     unit_split[i] <- unit_split[i + 1]
                     unit_split[i + 1] <- exponent_symbols[n_exp]
 
-                    unit_split[i + 1] <- paste0(unit_split[i], unit_split[i +
-                                                                              1], collapse = "")
+                    unit_split[i + 1] <- paste0(unit_split[i], unit_split[i + 1], collapse = "")
                     unit_split <- unit_split[-i]
 
                 } else if (form == "symbol" && tolower(unit_split[i]) == "per" && i <= length(unit_split)) {
                     unit_split[i] <- "/"
 
-                } else if (form == "symbol" && i < n_per && i > 1 && !(unit_split[i - 1] %in% exponents)) {
+                } else if (form == "symbol" && (i < n_per || n_per == 0) && i > 1 && !(unit_split[i - 1] %in% exponents)) {
                     unit_split[i] <- paste0("*", unit_split[i])
                 }
             }
@@ -758,7 +754,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
 unset_custom_UDUNITS <- function() {
     Sys.unsetenv("UDUNITS2_XML_PATH")
     Sys.getenv("UDUNITS2_XML_PATH") == ""
-    udunits2:::.onLoad()
+    udunits2:::.onLoad(system.file(package = "udunits2"), "udunits2")
 }
 
 mem_load_all_units <- memoise::memoise(load_all_units)
@@ -784,7 +780,7 @@ get_custom_units <- function(units, quiet = FALSE) {
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
     if (!loaded) {
-        stop("EML-units.xml file could not be loaded. ", "Ensure the file is formatted correctly.")
+        stop("There was an error loading custom udunits files.")
     }
 
     stopifnot(is.character(units))
