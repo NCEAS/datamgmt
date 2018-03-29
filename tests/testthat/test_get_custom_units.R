@@ -1,7 +1,5 @@
 testthat::context("Get Custom Units")
 
-if("units" %in% rownames(installed.packages())) {
-
 testthat::test_that("get_custom_units accepts multiple unit input formats", {
 
 
@@ -38,5 +36,3 @@ testthat::test_that("get_custom_units recognizes reciprocals", {
     testthat::expect_true(forms_equal)
     testthat::expect_true(out_1$unitType == "lengthReciprocal")
 })
-
-}

@@ -37,14 +37,14 @@ Imports:
     htmlwidgets,
     jsonlite,
     shinyjs,
-    stringi
+    stringi,
+    units
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
 Suggests: testthat,
     knitr,
-    rmarkdown,
-    units
+    rmarkdown
 Remotes: NCEAS/arcticdatautils,
          ropensci/EML
 RoxygenNote: 6.0.1
