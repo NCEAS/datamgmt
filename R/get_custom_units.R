@@ -2,50 +2,40 @@
 #' Updates uduntis2-accepted.xml with units from EML-units.xml
 .onLoad <- function(libname, pkgname) {
 
-    has_units <- tryCatch({
-        find.package("units")
-        TRUE
-    }, error = function(e) {
-        FALSE
-    })
-
-    if(has_units) {
-
-        # Get directory for udunits files
-        pkg_dir <- system.file(package = "datamgmt")
-        ud_dir <- paste0(pkg_dir, "/UDUNITS")
-        if (!dir.exists(ud_dir)) {
-            dir.create(ud_dir)
-        }
-        stopifnot(dir.exists(ud_dir))
-
-        # Get udunits2 files
-        udunits2_dir <- system.file("share/", package = "udunits2")
-        udunits_xmls <- dir(udunits2_dir, full.names = FALSE, recursive = TRUE)
-        udunits_xmls_names <- sub("^.*\\/", "", udunits_xmls)
-
-        # Read-in xml files
-        n_accepted <- which(udunits_xmls_names == "udunits2-accepted.xml")
-        accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
-
-        # Load custom udunits.xml
-        datamgmt_dir <- system.file("share/", package = "datamgmt")
-        custom_xml <- dir(datamgmt_dir, full.names = FALSE)
-        n_custom <- which(custom_xml == "EML-units.xml")
-        custom <- xml2::read_xml(paste0(datamgmt_dir, "/", custom_xml[n_custom]))
-        custom_units <- xml2::xml_children(custom)
-
-        # Add custom units to udunits2-accepted.xml
-        for (x in custom_units) {
-            xml2::xml_add_child(accepted, x)
-        }
-
-        # Write files to ud_dir
-        xml2::write_html(accepted, paste0(ud_dir, "/", "udunits2-accepted.xml"),
-                         encoding = "US-ASCII")
-        copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
-                            ud_dir, overwrite = T)
+    # Get directory for udunits files
+    pkg_dir <- system.file(package = "datamgmt")
+    ud_dir <- paste0(pkg_dir, "/UDUNITS")
+    if (!dir.exists(ud_dir)) {
+        dir.create(ud_dir)
     }
+    stopifnot(dir.exists(ud_dir))
+
+    # Get udunits2 files
+    udunits2_dir <- system.file("share/", package = "udunits2")
+    udunits_xmls <- dir(udunits2_dir, full.names = FALSE, recursive = TRUE)
+    udunits_xmls_names <- sub("^.*\\/", "", udunits_xmls)
+
+    # Read-in xml files
+    n_accepted <- which(udunits_xmls_names == "udunits2-accepted.xml")
+    accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
+
+    # Load custom udunits.xml
+    datamgmt_dir <- system.file("share/", package = "datamgmt")
+    custom_xml <- dir(datamgmt_dir, full.names = FALSE)
+    n_custom <- which(custom_xml == "EML-units.xml")
+    custom <- xml2::read_xml(paste0(datamgmt_dir, "/", custom_xml[n_custom]))
+    custom_units <- xml2::xml_children(custom)
+
+    # Add custom units to udunits2-accepted.xml
+    for (x in custom_units) {
+        xml2::xml_add_child(accepted, x)
+    }
+
+    # Write files to ud_dir
+    xml2::write_html(accepted, paste0(ud_dir, "/", "udunits2-accepted.xml"),
+                     encoding = "US-ASCII")
+    copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
+                        ud_dir, overwrite = T)
 }
 
 #' Will return TRUE if properly loaded or FALSE if not
@@ -53,6 +43,7 @@
 #' @import gsubfn
 #' @import udunits2
 #' @import xml2
+#' @import units
 #' @importFrom stringi stri_reverse
 #' @importFrom compare compare
 #' @importFrom memoise memoise
@@ -88,6 +79,7 @@ load_udunits <- function() {
                                    ", ", udunits_unit_system[i, ]$name_plural_aliases)
         name_plural_test <- unlist(strsplit(name_plural_test, ", "))
 
+        # See if there is a plural version for each singular version
         if (length(name_plural_test) == length(name_singular)) {
             name_plural <- name_plural_test
         } else {
@@ -615,7 +607,7 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
     EML_SI_units <- rbind(EML_SI_units, units[units$id == "dimensionless",])
 
     # Exceptions
-    EML_SI_units$name[EML_SI_units$name == "waveNumber"] <- "dimensionlessPerMeter" # This is a cheat to get udunits to recognize unit as dimensionless / meter
+    EML_SI_units$name[EML_SI_units$name == "waveNumber"] <- "radianPerMeter" # This is a cheat to get udunits to recognize unit as dimensionless / meter
     EML_SI_units$name[EML_SI_units$name == "siemen"] <- "siemens"
     EML_SI_units$name[EML_SI_units$name == "milliGramsPerMilliLiter"] <- "milligramsPerMilliliter"
     EML_SI_units$name[EML_SI_units$name == "molality"] <- "molesPerKilogram"
@@ -644,18 +636,18 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
 
     if (has_denominator) {
         numerator <- gsub(" *[p|P]er .*", "", udunit)
-        num_dimensionless <- udunits2::ud.are.convertible(numerator, "dimensionless")
+        num_dimensionless <- udunits2::ud.are.convertible(numerator, "radian")
     } else {
         num_dimensionless <- FALSE
     }
 
-    # Easy check
+    # Easy check. Checks to see if unit is convertible with only one EML unit
     n_EML <- unique(unlist(lapply(EML_units$EML_SI_units$ud, function(x) {
         # Careful with reciprocals here, e.g. "seconds-1" and "seconds" return TRUE here
         # but "meter seconds-1" and " meter seconds" return FALSE
         if (num_dimensionless) {
             if (grepl("^per ", udunit)) {
-                udunit <-  paste0("dimensionless ", udunit)
+                udunit <-  paste0("radian ", udunit)
             }
             is_ud <- udunits2::ud.are.convertible(udunit, ifelse(grepl(" *[p|P]er .*", x), x, ""))
         } else {
@@ -734,7 +726,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
         parent_ud <- EML_units$EML_SI_units$ud[n_EML]
 
         if (grepl("^per ", udunit)) {
-            udunit <-  paste0("dimensionless ", udunit)
+            udunit <-  paste0("radian ", udunit)
         }
 
         multiplierToSI <- udunits2::ud.convert(1, udunit, parent_ud)
@@ -780,7 +772,7 @@ get_custom_units <- function(units, quiet = FALSE) {
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
     if (!loaded) {
-        stop("There was an error loading custom udunits files.")
+        warning("There was an error loading custom udunits files. ", "Not all custom units will be available.")
     }
 
     stopifnot(is.character(units))
