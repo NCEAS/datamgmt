@@ -506,7 +506,7 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
 
 #' Formats unit_split
 #' @param unit_split (character) result of function get_unit_split
-#' @param form ('id', 'symbol', 'udunit'). 'id' is an EML id form. 'symbol' is an EML abbreviation form. 'udunit' is a udunits2 form.
+#' @param form ('id', 'symbol', 'udunit', 'description'). 'id' is an EML id form. 'symbol' is an EML abbreviation form. 'udunit' is a udunits2 form.
 #' @param all_units (data.frame)
 #' @return (character) formated unit_split
 format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_units()) {
@@ -531,6 +531,9 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
 
         if (form == "id") {
             unit_split <- paste(unit_split, collapse = "")
+        } else if (form == "description") {
+            unit_split <- paste(tolower(unit_split), collapse = " ")
+            unit_split <- gsub("celsius", "Celsius", unit_split)
         } else {
 
             for (i in rev(seq_along(unit_split))) {
@@ -545,6 +548,10 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
 
                     if (length(n) == 1) {
                         unit_split[i] <- all_units$symbol[n]
+
+                        if (unit_split[i] == "") {
+                            unit_split[i] <- all_units$unit_single[n]
+                        }
                     }
                 }
 
@@ -703,7 +710,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
         # Compare dimension and power of unitTypes in EML
         n_unitType <- unlist(lapply(p_unitTypes, function(p) {
             test <- compare::compare(EML_units$unitTypes[EML_units$unitTypes$id %in% p,
-                                                         c("dimension", "power")],
+                                     c("dimension", "power")],
                                      unitType_df,
                                      allowAll = T)$result
             return(test)
@@ -729,7 +736,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
             udunit <-  paste0("radian ", udunit)
         }
 
-        multiplierToSI <- udunits2::ud.convert(1, udunit, parent_ud)
+        multiplierToSI <- ifelse(parentSI == "dimensionless", NA, udunits2::ud.convert(1, udunit, parent_ud))
 
     } else {
         unitType <- NA
@@ -767,7 +774,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' get_custom_units('s-2 /     kilometers-1') #works but is not advised
 #' }
 #' @export
-get_custom_units <- function(units, quiet = FALSE) {
+return_eml_units <- function(units, quiet = FALSE) {
 
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
@@ -808,9 +815,8 @@ get_custom_units <- function(units, quiet = FALSE) {
         } else if (!is.na(id)) {
             udunit <- format_unit_split(unit_split, form = "udunit", all_units)
             abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
+            description <-  format_unit_split(unit_split, form = "description", all_units)
             parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
-            description <- tolower(udunit)
-            description <- gsub("celsius", "Celsius", description)
 
             custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = F)
         } else {

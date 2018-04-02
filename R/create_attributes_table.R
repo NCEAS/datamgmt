@@ -533,7 +533,7 @@ table_to_r <- function(table) {
 build_units_table <- function(units) {
 
     # Get custom units
-    units_table <- suppressWarnings(as.data.frame(get_custom_units(units, quiet = TRUE), stringsAsFactors = FALSE))
+    units_table <- suppressWarnings(as.data.frame(return_eml_units(units, quiet = TRUE), stringsAsFactors = FALSE))
 
     # Remove escape characters
     units <- gsub("\"|\'", "", units)
