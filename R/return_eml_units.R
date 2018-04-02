@@ -774,7 +774,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' get_custom_units('s-2 /     kilometers-1') #works but is not advised
 #' }
 #' @export
-get_custom_units <- function(units, quiet = FALSE) {
+return_eml_units <- function(units, quiet = FALSE) {
 
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
