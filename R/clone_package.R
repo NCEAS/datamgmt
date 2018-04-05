@@ -32,34 +32,6 @@ get_package_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
     return(results)
 }
 
-#' Return data identifiers from within an EML
-#'
-#' This function returns data object identifers present within an EML (electronic
-#' metadata language) document.
-#'
-#' @param eml () an EML object
-#'
-#' @return
-#' Returns a list of data object pids in the eml
-get_eml_pids <- function(eml) {
-    # message if no dataTables / otherEntites are found
-
-    # Get urls from EML
-    dataTable_urls <- EML::eml_get(eml@dataset@dataTable, "url")
-    otherEntity_urls <- EML::eml_get(eml@dataset@otherEntity, "url")
-
-    urls <- vector("character")
-    urls <- c(urls, unlist(dataTable_urls), unlist(otherEntity_urls))
-
-    # Select the characters after the last "/" (the pid)
-    pids <- sapply(urls, function(url) {
-        split_string <- strsplit(url, split = "\\/")
-        utils::tail(split_string[[1]], n = 1)
-    })
-
-    return(pids)
-}
-
 #' Clones objects between Dataone Member Nodes.
 #'
 #' This is a helper function for datamgmt::clone_package
@@ -68,6 +40,7 @@ get_eml_pids <- function(eml) {
 #' @param pids (character) Object pids.
 #' @param from (MNode) Dataone Member Node to clone objects from.
 #' @param to (MNode) Dataone Member Node to clone objects to.
+#' @param formatType (character) One of RESOURCE MAP, METADATA, or DATA.
 #' @param public (logical) Optional.  Set public read access.  Defaults to \code{FALSE}.
 #' @param n_max (integer) Optional. Number of tries to download a DataOne object.
 #' Can fail due to internet connectivity, suggested n_max >= 3.
@@ -79,6 +52,7 @@ clone_objects <- function(resource_map_pid,
                           pids,
                           from,
                           to,
+                          formatType,
                           public = FALSE,
                           n_max = 3L) {
     stopifnot(is.character(resource_map_pid))
@@ -88,7 +62,7 @@ clone_objects <- function(resource_map_pid,
     stopifnot(methods::is(to, "MNode"))
     stopifnot(is.numeric(n_max))
 
-    metadata <- get_package_metadata(from, resource_map_pid, formatType = "DATA")
+    metadata <- get_package_metadata(from, resource_map_pid, formatType)
     format_ids <- metadata$formatId
     file_sizes <- as.numeric(metadata$size)
     file_paths <- file.path(tempdir(), metadata$fileName)
@@ -168,28 +142,22 @@ clone_one_package <- function(resource_map_pid, from, to, public = FALSE) {
     # Prepare the response object
     response <- list()
 
-    # Solr query data formatId, fileName, and identifier
-    meta_eml <- get_package_metadata(from, package$resource_map, formatType = "METADATA")
-
-    # Write metadata
-    meta_path <- file.path(tempdir(), meta_eml$fileName)
-    writeBin(dataone::getObject(from, package$metadata), meta_path)
-    new_eml_pid <- arcticdatautils::publish_object(to,
-                                                   meta_path,
-                                                   meta_eml$formatId)
+    ## Clone metadata:
+    new_eml_pid <- clone_objects(package$resource_map, package$metadata, from, to, "METADATA")
     response[["metadata"]] <- new_eml_pid
 
+    ## Clone data:
     n_data_pids <- length(package$data)
     if (n_data_pids > 0) {
         message(paste0("\nUploading data objects from package: ", package$metadata))
 
-        new_data_pids <- clone_objects(package$resource_map, package$data, from, to)
+        new_data_pids <- clone_objects(package$resource_map, package$data, from, to, "DATA")
         response[["data"]] <- new_data_pids
     } else {
         response[["data"]] <- character(0)
     }
 
-    # Create resource map
+    ## Create resource map
     if (n_data_pids > 0) {
         new_resource_map_pid <- arcticdatautils::create_resource_map(to,
                                                                      new_eml_pid,
