@@ -12,7 +12,7 @@ test_that("clone_package errors gracefully", {
                  mn_test))
 
     expect_error(clone_package("resource_map_doi:10.18739/A2RZ6X",
-                               mn_test))
+                                 mn_test))
 
     suppressWarnings(expect_error(clone_package("Dummy pid", mn_test, mn_test)))
 
@@ -27,43 +27,38 @@ test_that("clone_package copies a package with no data pids", {
         skip("No token set. Skipping test.")
     }
 
-    # Make a test package
-    package <- arcticdatautils::create_dummy_package(mn_test, size = 1)
-    expect_named(package, c("metadata", "resource_map", "data"))
-
     # Clone package
-    new_pids <- clone_package(package$resource_map, mn_test, mn_test)
+    pkg <- clone_package("resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
+                         mn_prod,
+                         mn_test,
+                         clone_child_packages = FALSE)
 
     # Package tests
-    expect_named(new_pids, c("metadata", "data", "resource_map"))
-    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(new_pids))))
-    expect_length(new_pids, 3)
+    expect_named(pkg, c("metadata", "data", "resource_map"))
+    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(pkg))))
+    expect_length(pkg, 3)
 
     # Check object lengths
-    lengths <- sapply(new_pids, length)
+    lengths <- sapply(pkg, length)
     expect_equivalent(lengths, c(1,0,1))
 })
 
-test_that("clone_package copies a package", {
+test_that("clone_package copies a package with data", {
     if (!arcticdatautils::is_token_set(mn_test)) {
         skip("No token set. Skipping test.")
     }
 
-    # Make a test package
-    package <- arcticdatautils::create_dummy_package(mn_test)
-    expect_named(package, c("metadata", "resource_map", "data"))
-
     # Clone package
-    new_pids <- clone_package(package$resource_map, mn_test, mn_test)
+    pkg <- clone_package("resource_map_doi:10.18739/A2RZ6X", mn_prod, mn_test)
 
     # Package tests
-    expect_named(new_pids, c("metadata", "data", "resource_map"))
-    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(new_pids))))
-    expect_length(new_pids, 3)
+    expect_named(pkg, c("metadata", "data", "resource_map"))
+    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(pkg))))
+    expect_length(pkg, 3)
 
     # Check object lengths
-    lengths <- sapply(new_pids, length)
-    expect_equivalent(lengths, c(1,1,1))
+    lengths <- sapply(pkg, length)
+    expect_equivalent(lengths, c(1,4,1))
 })
 
 test_that("clone_package copies a package with a child package", {
@@ -71,32 +66,17 @@ test_that("clone_package copies a package with a child package", {
         skip("No token set. Skipping test.")
     }
 
-    # Make a test parent package
-    parent <- arcticdatautils::create_dummy_package(mn_test)
-    expect_named(parent, c("metadata", "resource_map", "data"))
-
-    # Make a test child package
-    child <- arcticdatautils::create_dummy_package(mn_test)
-    expect_named(child, c("metadata", "resource_map", "data"))
-
-    # Nest packages
-    rm <- arcticdatautils::update_resource_map(mn_test,
-                                               parent$resource_map,
-                                               parent$metadata,
-                                               parent$data,
-                                               child$resource_map,
-                                               check_first = FALSE)
-
     # Clone package
-    new_pids <- clone_package(rm, mn_test, mn_test, clone_child_packages = TRUE)
+    pkg <- clone_package("resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
+                              mn_prod, mn_test, clone_child_packages = TRUE)
 
-    expect_named(new_pids, c("metadata", "data", "resource_map", "child_packages"))
-    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(new_pids))))
-    expect_length(new_pids, 4)
+    expect_named(pkg, c("metadata", "data", "resource_map", "child_packages"))
+    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(pkg))))
+    expect_length(pkg, 4)
 
-    child <- arcticdatautils::get_package(mn_test, new_pids$child_packages)
+    child <- arcticdatautils::get_package(mn_test, pkg$child_packages[1])
 
     # Check object lengths
     lengths <- sapply(child, length)
-    expect_equivalent(lengths, c(1,1,1, 0))
+    expect_equivalent(lengths, c(1,1,2,0))
 })

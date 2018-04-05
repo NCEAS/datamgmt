@@ -20,7 +20,7 @@ get_package_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
                                      "\"+AND+formatType:",
                                      formatType,
                                      "&fl=formatId+AND+fileName+AND+identifier+AND+size"),
-                              as = "list")
+                              as = "data.frame")
 
     if (nrow(results) == 0) {
         return(0)
@@ -72,54 +72,70 @@ get_eml_pids <- function(eml) {
 #' @param n_max (integer) Optional. Number of tries to download a DataOne object.
 #' Can fail due to internet connectivity, suggested n_max >= 3.
 #'
+#' @importFrom uuid UUIDgenerate
+#'
 #' @return (list) Vector of data object pids.
 clone_objects <- function(resource_map_pid,
                           pids,
                           from,
                           to,
-                          public,
+                          public = FALSE,
                           n_max = 3L) {
     stopifnot(is.character(resource_map_pid))
     stopifnot(is.character(pids))
-    stopifnot(length(data_pids) > 0)
+    stopifnot(length(pids) > 0)
     stopifnot(methods::is(from, "MNode"))
     stopifnot(methods::is(to, "MNode"))
     stopifnot(is.numeric(n_max))
 
     metadata <- get_package_metadata(from, resource_map_pid, formatType = "DATA")
     format_ids <- metadata$formatId
-    file_sizes <- metadata$size
+    file_sizes <- as.numeric(metadata$size)
     file_paths <- file.path(tempdir(), metadata$fileName)
 
-    me <- arcticdatautils:::get_token_subject()
-
+    cloner <- arcticdatautils:::get_token_subject()
     accessPolicy <- dataone::getSystemMetadata(from, resource_map_pid)@accessPolicy
+
+    # Initialize sysmeta
+    sysmeta <- new("SystemMetadata", submitter = cloner, rightsHolder = cloner,
+                   originMemberNode = to@identifier, authoritativeMemberNode = to@identifier,
+                   accessPolicy = accessPolicy)
+
+    # Add rights and access
+    sysmeta <- datapack::addAccessRule(sysmeta, cloner, "read") %>%
+        datapack::addAccessRule(cloner, "write") %>%
+        datapack::addAccessRule(cloner, "changePermission")
     if (public == TRUE) {
         sysmeta <- datapack::addAccessRule(sysmeta, "public", "read")
     }
 
     new_pids <- sapply(seq_along(pids), function(x) {paste0("urn:uuid:", UUIDgenerate())})
+    upload_pids <- vector("character", length = length(pids))  # If nothing errors then upload_pids will contain the same pids as new_pids
 
     for (i in seq_along(pids)) {
-
-        # Initialize sysmeta
-        sysmeta <- new("SystemMetadata", identifier = new_pids[i], size = file_sizes[i],
-                       formatId = format_id, submitter = me, rightsHolder = me,
-                       fileName = file_paths[i], originMemberNode = to@identifier,
-                       authoritativeMemberNode = to@identifier)
+        # File specific sysmeta
+        sysmeta@identifier = new_pids[i]
+        sysmeta@size = file_sizes[i]
+        sysmeta@formatId = format_ids[i]
+        sysmeta@fileName = basename(file_paths[i])
 
         n_tries <- 0
-        dataObj <- "error"
+        upload <- "error"
 
-        while (dataObj[1] == "error" & n_tries < n_max) {
-            dataObj <- tryCatch({
+        while (upload[1] == "error" & n_tries < n_max) {
+            upload <- tryCatch({
                 dataObj <- dataone::getObject(from, pids[i])
 
                 writeBin(dataObj, file_paths[i])
 
-                new_data_pids[i] <- arcticdatautils::publish_object(to,
-                                                                    file_paths[i],
-                                                                    format_ids[i])
+                sha1 <- digest::digest(file_paths[i], algo="sha1", serialize=FALSE, file=TRUE)
+                sysmeta@checksum <- sha1
+
+                dataone::createObject(to,
+                                      new_pids[i],
+                                      file_paths[i],
+                                      sysmeta)
+                "success"
             },
             error = function(e) {return("error")})
             n_tries <- n_tries + 1
@@ -136,14 +152,16 @@ clone_objects <- function(resource_map_pid,
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #' @param from (MNode) The Member Node to download from.
 #' @param to (MNode) The Member Node to upload to.
+#' @param public (logical) Optional.  Set public read access.  Defaults to \code{FALSE}.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (list) List of all the identifiers in the new Data Package.
-clone_one_package <- function(resource_map_pid, from, to) {
+clone_one_package <- function(resource_map_pid, from, to, public = FALSE) {
     stopifnot(is.character(resource_map_pid))
     stopifnot(methods::is(from, "MNode"))
     stopifnot(methods::is(to, "MNode"))
+    stopifnot(is.logical(public))
 
     package <- arcticdatautils::get_package(from, resource_map_pid)
 
@@ -161,13 +179,7 @@ clone_one_package <- function(resource_map_pid, from, to) {
                                                    meta_eml$formatId)
     response[["metadata"]] <- new_eml_pid
 
-    # Initialize data pids vector
-    data_pids <- vector("character")
     n_data_pids <- length(package$data)
-    if (length(n_data_pids) > 0) {
-        data_pids <- package$data
-    }
-
     if (n_data_pids > 0) {
         message(paste0("\nUploading data objects from package: ", package$metadata))
 
@@ -202,6 +214,7 @@ clone_one_package <- function(resource_map_pid, from, to) {
 #' @param resource_map_pid (chraracter) The PID of the Resource Map of the package to clone between nodes.
 #' @param from (MNode) The Member Node to download from.
 #' @param to (MNode) The Member Node to upload to.
+#' @param public (logical) Optional.  Set public read access.  Defaults to \code{FALSE}.
 #' @param clone_child_packages (logical) Whether or not to clone the child packages.  Defaults to \code{FALSE}
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
@@ -256,10 +269,15 @@ clone_one_package <- function(resource_map_pid, from, to) {
 clone_package <- function(resource_map_pid,
                           from,
                           to,
+                          public = FALSE,
                           clone_child_packages = FALSE) {
     #' TODO - create dynamic structure that allows for more than one level of
     #' children (3+ nesting levels)
     #' TODO - query all pids for unique rightsHolders and add to Sysmeta
+    stopifnot(is.character(resource_map_pid))
+    stopifnot(methods::is(from, "MNode"))
+    stopifnot(methods::is(to, "MNode"))
+    stopifnot(is.logical(public))
     stopifnot(is.logical(clone_child_packages))
 
     # Get package information
