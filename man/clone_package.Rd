@@ -7,7 +7,7 @@
 clone_package(resource_map_pid, from, to, clone_child_packages = FALSE)
 }
 \arguments{
-\item{resource_map_pid}{(chraracter) The PID of the Resource Map for the package to download.}
+\item{resource_map_pid}{(chraracter) The PID of the Resource Map of the package to clone between nodes.}
 
 \item{from}{(MNode) The Member Node to download from.}
 

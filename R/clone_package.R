@@ -12,24 +12,24 @@
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @return (character) The formatId, fileName, and identifier of each data object in a package.
+#' @return (character) The formatId, fileName, identifier, and size of each object in a package.
 get_package_metadata <- function(mn, resource_map_pid, formatType = "DATA") {
-    query <- dataone::query(mn,
-                            paste0("q=resourceMap:\"",
-                                   resource_map_pid,
-                                   "\"+AND+formatType:",
-                                   formatType,
-                                   "&fl=formatId+AND+fileName+AND+identifier"),
-                            as = "data.frame")
+    results <- dataone::query(mn,
+                              paste0("q=resourceMap:\"",
+                                     resource_map_pid,
+                                     "\"+AND+formatType:",
+                                     formatType,
+                                     "&fl=formatId+AND+fileName+AND+identifier+AND+size"),
+                              as = "list")
 
-    if (nrow(query) == 0) {
+    if (nrow(results) == 0) {
         return(0)
     }
 
     # Replace NA fields
-    query$fileName[which(is.na(query$fileName))] <- query$identifier
+    results$fileName[which(is.na(results$fileName))] <- results$identifier
 
-    return(query)
+    return(results)
 }
 
 #' Return data identifiers from within an EML
@@ -60,44 +60,60 @@ get_eml_pids <- function(eml) {
     return(pids)
 }
 
-#' Clone data pids between Dataone Member Nodes.
+#' Clones objects between Dataone Member Nodes.
 #'
 #' This is a helper function for datamgmt::clone_package
 #'
-#' @param resource_map_pid (character) Resource map for the data pids.
-#' @param data_pids (character) Data object pids.
-#' @param from (MNode) Dataone Member Node to clone data objects from
-#' @param to (MNode) Dataone Member Node to clone data objects to
+#' @param resource_map_pid (character) Resource map that the target object pids.
+#' @param pids (character) Object pids.
+#' @param from (MNode) Dataone Member Node to clone objects from.
+#' @param to (MNode) Dataone Member Node to clone objects to.
+#' @param public (logical) Optional.  Set public read access.  Defaults to \code{FALSE}.
 #' @param n_max (integer) Optional. Number of tries to download a DataOne object.
 #' Can fail due to internet connectivity, suggested n_max >= 3.
 #'
 #' @return (list) Vector of data object pids.
-clone_data_objects <- function(resource_map_pid,
-                               data_pids,
-                               from,
-                               to,
-                               n_max = 3L) {
+clone_objects <- function(resource_map_pid,
+                          pids,
+                          from,
+                          to,
+                          public,
+                          n_max = 3L) {
     stopifnot(is.character(resource_map_pid))
-    stopifnot(is.character(data_pids))
+    stopifnot(is.character(pids))
     stopifnot(length(data_pids) > 0)
     stopifnot(methods::is(from, "MNode"))
     stopifnot(methods::is(to, "MNode"))
     stopifnot(is.numeric(n_max))
 
-    query <- get_package_metadata(from, resource_map_pid, formatType = "DATA")
-    format_ids <- query$formatId
-    file_paths <- file.path(tempdir(), query$fileName)
+    metadata <- get_package_metadata(from, resource_map_pid, formatType = "DATA")
+    format_ids <- metadata$formatId
+    file_sizes <- metadata$size
+    file_paths <- file.path(tempdir(), metadata$fileName)
 
-    new_data_pids <- vector("character", length = length(data_pids))
+    me <- arcticdatautils:::get_token_subject()
 
-    for (i in seq_along(data_pids)) {
+    accessPolicy <- dataone::getSystemMetadata(from, resource_map_pid)@accessPolicy
+    if (public == TRUE) {
+        sysmeta <- datapack::addAccessRule(sysmeta, "public", "read")
+    }
+
+    new_pids <- sapply(seq_along(pids), function(x) {paste0("urn:uuid:", UUIDgenerate())})
+
+    for (i in seq_along(pids)) {
+
+        # Initialize sysmeta
+        sysmeta <- new("SystemMetadata", identifier = new_pids[i], size = file_sizes[i],
+                       formatId = format_id, submitter = me, rightsHolder = me,
+                       fileName = file_paths[i], originMemberNode = to@identifier,
+                       authoritativeMemberNode = to@identifier)
 
         n_tries <- 0
         dataObj <- "error"
 
         while (dataObj[1] == "error" & n_tries < n_max) {
             dataObj <- tryCatch({
-                dataone::getObject(from, data_pids[i])
+                dataObj <- dataone::getObject(from, pids[i])
 
                 writeBin(dataObj, file_paths[i])
 
@@ -110,7 +126,7 @@ clone_data_objects <- function(resource_map_pid,
         }
     }
 
-    return(new_data_pids)
+    return(new_pids)
 }
 
 #' Clone a Data Package between Member Nodes without its child packages.
@@ -155,7 +171,7 @@ clone_one_package <- function(resource_map_pid, from, to) {
     if (n_data_pids > 0) {
         message(paste0("\nUploading data objects from package: ", package$metadata))
 
-        new_data_pids <- clone_data_objects(package$resource_map, package$data, from, to)
+        new_data_pids <- clone_objects(package$resource_map, package$data, from, to)
         response[["data"]] <- new_data_pids
     } else {
         response[["data"]] <- character(0)
@@ -183,7 +199,7 @@ clone_one_package <- function(resource_map_pid, from, to) {
 #' to restore an older version of a Package to a member node, provided that the user subsequently
 #' obsoletes the version of the package that they used to create the clone.
 #'
-#' @param resource_map_pid (chraracter) The PID of the Resource Map for the package to download.
+#' @param resource_map_pid (chraracter) The PID of the Resource Map of the package to clone between nodes.
 #' @param from (MNode) The Member Node to download from.
 #' @param to (MNode) The Member Node to upload to.
 #' @param clone_child_packages (logical) Whether or not to clone the child packages.  Defaults to \code{FALSE}

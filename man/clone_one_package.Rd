@@ -15,8 +15,6 @@ clone_one_package(resource_map_pid, from, to)
 }
 \value{
 (list) List of all the identifiers in the new Data Package.
-TODO switch remaining for loops to applys
-TODO add more messages
 }
 \description{
 The datamgmt wrapper function `clone_package` should be used instead.
