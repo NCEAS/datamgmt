@@ -182,7 +182,7 @@ output_text_func <- function(df) {
         for (r in 1:length(df[, c])) {
 
             if (is.na(df[r, c])) {
-                values <- paste0(values, df[r, c], ",")
+                values <- paste0(values, "''", ",")
 
             } else {
                 values <- paste0(values, "'", df[r, c], "',")
