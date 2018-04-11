@@ -182,7 +182,7 @@ output_text_func <- function(df) {
         for (r in 1:length(df[, c])) {
 
             if (is.na(df[r, c])) {
-                values <- paste0(values, df[r, c], ",")
+                values <- paste0(values, "''", ",")
 
             } else {
                 values <- paste0(values, "'", df[r, c], "',")
@@ -464,7 +464,23 @@ shiny_attributes_table <- function(att_table, data) {
 
         #################### Quit ####################
         shiny::observeEvent(input$quit, {
-            shiny::stopApp()
+
+            attributes = out_att()
+
+            units <- tryCatch({
+                out_units()
+            }, error = function(err) {
+                NA
+            })
+
+            factors <- tryCatch({
+                out_factors()
+            }, error = function(err) {
+                NA
+            })
+
+            out <- list(attributes = attributes, units = units, factors = factors)
+            shiny::stopApp(out)
         })
 
         #################### Help ####################
@@ -488,14 +504,15 @@ shiny_attributes_table <- function(att_table, data) {
                         Factors are needed for attributes with enumeratedDomains.<br>
                         Factor codes will automatically generate for each enumeratedDomain when data is present.<br><br>
 
-                        Use the buttons above each table to export.<br>
-                        Either print the table to the R console or download the table to a csv file.")
+                        After quitting the app, the tables will be returned as a list.<br>
+                        Additionally, you can use the buttons above each table to export.<br>
+                        Either print the table to the R console or download the table to a csv file.<br>")
             ))
         })
 
     }
 
-    shiny::shinyApp(ui, server, options = list(launch.browser = T))
+    shiny::runApp(shiny::shinyApp(ui, server, options = list(launch.browser = T)))
 }
 
 #' Hot table to r
