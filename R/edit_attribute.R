@@ -17,7 +17,7 @@
 #' @param definition The new definition (for textDomain) to give to the attribute
 #' @param formatString The new formatString to give to the attribute
 #' @param missingValueCode The new missing value code to give to the attribute
-#' @param missingValueCodeExplanation The new missing value code explaination to give to the attribute
+#' @param missingValueCodeExplanation The new missing value code explanation to give to the attribute
 #'
 #' @export
 #'
@@ -38,7 +38,7 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
                            missingValueCode = NULL, missingValueCodeExplanation = NULL){
 
     data <- EML::get_attributes(eml@dataset@dataTable[[dataTableNumber]]@attributeList)
-    attributeTable <- data.frame(data$attributes) #this excludes the factor table from enumerated domain.
+    attributeTable <-data$attributes #this excludes the factor table from enumerated domain.
 
     if(!is.null(attributeName)) {
         attributeTable$attributeName[attributeNumber] <- attributeName
@@ -64,6 +64,12 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     if(!is.null(formatString)) {
         attributeTable$formatString[attributeNumber] <- formatString
     }
+
+    if((is.null(missingValueCode) & !is.null(missingValueCodeExplanation)) |
+    (!is.null(missingValueCode) & is.null(missingValueCodeExplanation))){
+        stop("Need both missingValueCode and missingValueCodeExplanation")
+    }
+
     if(!is.null(missingValueCode)) {
         attributeTable$missingValueCode[attributeNumber] <- missingValueCode
     }
@@ -73,7 +79,6 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
 
     attribute_list <- EML::set_attributes(attributeTable, factors = data$factors)
     eml@dataset@dataTable[[dataTableNumber]]@attributeList <- attribute_list
-    return(eml)
     EML:::check_and_complete_attributes(attributeTable, NULL)
-
+    return(eml)
 }
