@@ -21,6 +21,7 @@ Imports:
     crayon,
     dataone,
     datapack,
+    digest,
     EML,
     gsubfn,
     htmlwidgets,
