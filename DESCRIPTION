@@ -37,6 +37,7 @@ Imports:
     udunits2,
     units,
     utils,
+    uuid,
     XML,
     xml2
 License: Apache License (== 2.0)

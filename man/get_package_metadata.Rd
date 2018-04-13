@@ -15,7 +15,7 @@ get_package_metadata(mn, resource_map_pid, formatType = "DATA")
 formatType. One of METADATA, RESOURCE, or DATA or * for all types}
 }
 \value{
-(character) The formatId, fileName, and identifier of each data object in a package.
+(character) The formatId, fileName, identifier, and size of each object in a package.
 }
 \description{
 This function returns the formatId, fileName and identifier of each data

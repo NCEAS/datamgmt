@@ -4,19 +4,24 @@
 \alias{clone_objects}
 \title{Clones objects between Dataone Member Nodes.}
 \usage{
-clone_objects(resource_map_pid, pids, from, to, n_max = 3L)
+clone_objects(resource_map_pid, pids, from, to, formatType, public = FALSE,
+  n_max = 3L)
 }
 \arguments{
 \item{resource_map_pid}{(character) Resource map that the target object pids.}
+
+\item{pids}{(character) Object pids.}
 
 \item{from}{(MNode) Dataone Member Node to clone objects from.}
 
 \item{to}{(MNode) Dataone Member Node to clone objects to.}
 
+\item{formatType}{(character) One of RESOURCE MAP, METADATA, or DATA.}
+
+\item{public}{(logical) Optional.  Set public read access.  Defaults to \code{FALSE}.}
+
 \item{n_max}{(integer) Optional. Number of tries to download a DataOne object.
 Can fail due to internet connectivity, suggested n_max >= 3.}
-
-\item{data_pids}{(character) Object pids.}
 }
 \value{
 (list) Vector of data object pids.

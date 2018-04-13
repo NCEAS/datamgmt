@@ -4,7 +4,8 @@
 \alias{clone_package}
 \title{Clone a Data Package between Member Nodes.}
 \usage{
-clone_package(resource_map_pid, from, to, clone_child_packages = FALSE)
+clone_package(resource_map_pid, from, to, public = FALSE,
+  clone_child_packages = FALSE)
 }
 \arguments{
 \item{resource_map_pid}{(chraracter) The PID of the Resource Map of the package to clone between nodes.}
@@ -12,6 +13,8 @@ clone_package(resource_map_pid, from, to, clone_child_packages = FALSE)
 \item{from}{(MNode) The Member Node to download from.}
 
 \item{to}{(MNode) The Member Node to upload to.}
+
+\item{public}{(logical) Optional.  Set public read access.  Defaults to \code{FALSE}.}
 
 \item{clone_child_packages}{(logical) Whether or not to clone the child packages.  Defaults to \code{FALSE}}
 }

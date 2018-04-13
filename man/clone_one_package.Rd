@@ -4,7 +4,7 @@
 \alias{clone_one_package}
 \title{Clone a Data Package between Member Nodes without its child packages.}
 \usage{
-clone_one_package(resource_map_pid, from, to)
+clone_one_package(resource_map_pid, from, to, public = FALSE)
 }
 \arguments{
 \item{resource_map_pid}{(chraracter) The identifier of the Resource Map for the package to download.}
@@ -12,6 +12,8 @@ clone_one_package(resource_map_pid, from, to)
 \item{from}{(MNode) The Member Node to download from.}
 
 \item{to}{(MNode) The Member Node to upload to.}
+
+\item{public}{(logical) Optional.  Set public read access.  Defaults to \code{FALSE}.}
 }
 \value{
 (list) List of all the identifiers in the new Data Package.

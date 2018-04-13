@@ -71,9 +71,9 @@ clone_objects <- function(resource_map_pid,
     accessPolicy <- dataone::getSystemMetadata(from, resource_map_pid)@accessPolicy
 
     # Initialize sysmeta
-    sysmeta <- new("SystemMetadata", submitter = cloner, rightsHolder = cloner,
-                   originMemberNode = to@identifier, authoritativeMemberNode = to@identifier,
-                   accessPolicy = accessPolicy)
+    sysmeta <- methods::new("SystemMetadata", submitter = cloner, rightsHolder = cloner,
+                            originMemberNode = to@identifier, authoritativeMemberNode = to@identifier,
+                            accessPolicy = accessPolicy)
 
     # Add rights and access
     sysmeta <- datapack::addAccessRule(sysmeta, cloner, "read") %>%
@@ -241,7 +241,7 @@ clone_package <- function(resource_map_pid,
                           clone_child_packages = FALSE) {
     #' TODO - create dynamic structure that allows for more than one level of
     #' children (3+ nesting levels)
-    #' TODO - query all pids for unique rightsHolders and add to Sysmeta
+    #' TODO - update pids in EML
     stopifnot(is.character(resource_map_pid))
     stopifnot(methods::is(from, "MNode"))
     stopifnot(methods::is(to, "MNode"))
