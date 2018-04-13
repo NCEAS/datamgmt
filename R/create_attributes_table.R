@@ -111,7 +111,7 @@ create_attributes_table <- function(data = NULL, attributes_table = NULL) {
 
     # If both data and attributes_table are NULL, initiallize a blank table
     if (is.null(att_table)) {
-        att_table <- data.frame(matrix(nrow = 1, ncol = length(fields)), stringsAsFactors = FALSE)
+        att_table <- data.frame(matrix(nrow = 10, ncol = length(fields)), stringsAsFactors = FALSE)
         colnames(att_table) <- fields
     }
 
@@ -182,7 +182,7 @@ output_text_func <- function(df) {
         for (r in 1:length(df[, c])) {
 
             if (is.na(df[r, c])) {
-                values <- paste0(values, df[r, c], ",")
+                values <- paste0(values, "''", ",")
 
             } else {
                 values <- paste0(values, "'", df[r, c], "',")
@@ -464,7 +464,23 @@ shiny_attributes_table <- function(att_table, data) {
 
         #################### Quit ####################
         shiny::observeEvent(input$quit, {
-            shiny::stopApp()
+
+            attributes = out_att()
+
+            units <- tryCatch({
+                out_units()
+            }, error = function(err) {
+                NA
+            })
+
+            factors <- tryCatch({
+                out_factors()
+            }, error = function(err) {
+                NA
+            })
+
+            out <- list(attributes = attributes, units = units, factors = factors)
+            shiny::stopApp(out)
         })
 
         #################### Help ####################
@@ -488,14 +504,15 @@ shiny_attributes_table <- function(att_table, data) {
                         Factors are needed for attributes with enumeratedDomains.<br>
                         Factor codes will automatically generate for each enumeratedDomain when data is present.<br><br>
 
-                        Use the buttons above each table to export.<br>
-                        Either print the table to the R console or download the table to a csv file.")
+                        After quitting the app, the tables will be returned as a list.<br>
+                        Additionally, you can use the buttons above each table to export.<br>
+                        Either print the table to the R console or download the table to a csv file.<br>")
             ))
         })
 
     }
 
-    shiny::shinyApp(ui, server, options = list(launch.browser = T))
+    shiny::runApp(shiny::shinyApp(ui, server, options = list(launch.browser = T)))
 }
 
 #' Hot table to r
@@ -533,17 +550,10 @@ table_to_r <- function(table) {
 build_units_table <- function(units) {
 
     # Get custom units
-    units_table <- suppressWarnings(as.data.frame(get_custom_units(units, quiet = TRUE), stringsAsFactors = FALSE))
+    units_table <- suppressWarnings(as.data.frame(return_eml_units(units, quiet = TRUE), stringsAsFactors = FALSE))
 
     # Remove escape characters
     units <- gsub("\"|\'", "", units)
-
-    # If id is NA, set to original unit
-    units_table$id[is.na(units_table$id)] <- units[is.na(units_table$id)]
-
-    # Initialize definition
-    definition <- rep(NA, nrow(units_table))
-    units_table <- cbind(units_table, definition, stringsAsFactors = FALSE)
 
     # Clean
     units_table <- units_table[!is.na(units_table$id),]

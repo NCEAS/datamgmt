@@ -4,13 +4,13 @@
 \alias{guess_member_node}
 \title{Guess the Member Node}
 \usage{
-guess_member_node(cn = "PROD", pid)
+guess_member_node(pid, cn = "PROD")
 }
 \arguments{
+\item{pid}{(character) The Datone unique object identifier.  A Dataone package URL can also be used as input (although this method is less reliable).}
+
 \item{cn}{(character) A character vector of coordinate nodes to search.  Defaults to "PROD".
 Can be set to any combination of ("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2").}
-
-\item{pid}{(character) The Datone unique object identifier.}
 }
 \description{
 Guess the member node that stores a Dataone object based on its
@@ -24,8 +24,10 @@ nodes are identified a vector of nodes is printed.
 \dontrun{
 The following two calls are equivalent:
 mn <- guess_member_node("doi:10.18739/A2G287")
-mn <- guess_member_node("PROD", "doi:10.18739/A2G287")
+mn <- guess_member_node("doi:10.18739/A2G287", "PROD")
 
+Use a DataOne package URL
+mn <- guess_member_node("https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
 Search all coordinating nodes:
 cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")
 mn <- guess_member_node(cn, "doi:10.18739/A2G287")
