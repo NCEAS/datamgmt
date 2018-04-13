@@ -40,41 +40,16 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
     data <- EML::get_attributes(eml@dataset@dataTable[[dataTableNumber]]@attributeList)
     attributeTable <-data$attributes #this excludes the factor table from enumerated domain.
 
-    if(!is.null(attributeName)) {
-        attributeTable$attributeName[attributeNumber] <- attributeName
-    }
-    if(!is.null(attributeDefinition)) {
-        attributeTable$attributeDefinition[attributeNumber] <- attributeDefinition
-    }
-    if(!is.null(measurementScale)) {
-        attributeTable$measurementScale[attributeNumber] <- measurementScale
-    }
-    if(!is.null(domain)) {
-        attributeTable$domain[attributeNumber] <- domain
-    }
-    if(!is.null(unit)) {
-        attributeTable$unit[attributeNumber] <- unit
-    }
-    if(!is.null(numberType)) {
-        attributeTable$numberType[attributeNumber] <- numberType
-    }
-    if(!is.null(definition)) {
-        attributeTable$definition[attributeNumber] <- definition
-    }
-    if(!is.null(formatString)) {
-        attributeTable$formatString[attributeNumber] <- formatString
-    }
-
-    if((is.null(missingValueCode) & !is.null(missingValueCodeExplanation)) |
-    (!is.null(missingValueCode) & is.null(missingValueCodeExplanation))){
+    if(length(c(missingValueCode, missingValueCodeExplanation)) == 1){
         stop("Need both missingValueCode and missingValueCodeExplanation")
     }
 
-    if(!is.null(missingValueCode)) {
-        attributeTable$missingValueCode[attributeNumber] <- missingValueCode
-    }
-    if(!is.null(missingValueCodeExplanation)) {
-        attributeTable$missingValueCodeExplanation[attributeNumber] <- missingValueCodeExplanation
+    attribute_edits <- cbind(attributeName, attributeDefinition, domain,
+                        measurementScale, unit, numberType, definition, formatString,
+                        missingValueCode, missingValueCodeExplanation)
+
+    for(i in colnames(attribute_edits)){
+        attributeTable[,i][attributeNumber] <- attribute_edits[,i]
     }
 
     attribute_list <- EML::set_attributes(attributeTable, factors = data$factors)
