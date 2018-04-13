@@ -67,6 +67,15 @@ get_query_edges <- function(query_results) {
 #'                      as = "data.frame")
 #'
 #' plot_pkg_structure(result)
+#'
+#' #query all packages with "Tweedie" or "Vargas" or "Oberbauer" as an author
+#' result <- dataone::query(mn, list(q = 'origin:(*Tweedie*+OR+*Vargas*+OR+*Oberbauer*)',
+#'                      fl = '*',
+#'                      sort = 'dateUploaded+desc',
+#'                      rows='10000'),
+#'                      as = "data.frame")
+#'
+#' plot_pkg_structure(result)
 #' }
 
 plot_pkg_structure <- function(query_results) {
