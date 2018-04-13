@@ -35,9 +35,21 @@ list_depth <- function(input_list) {
 get_eml_attributes <- function(eml) {
     # TODO - make sure it works for otherEntities
     stopifnot(isS4(eml))
+    
+    indices <- vector("numeric")
+    indices <- which_in_eml(eml@dataset@dataTable,
+                            "attributeList",
+                            function(x) {length(x) > 0})
 
-    results <- EML::eml_get(eml, "attributeList")
-    names(results) <- EML::eml_get(eml, "entityName")
+    names <- vector("character", length = length(indices))
+    results <- vector("list", length = length(indices))
+
+    for (i in seq_along(indices)) {
+        results[[i]] <- EML::get_attributes(eml@dataset@dataTable[[i]]@attributeList)
+        names[i] <- eml@dataset@dataTable[[i]]@entityName
+    }
+
+    names(results) <- names
 
     # Unlist results if depth (levels) > 2
     if (list_depth(results) > 2) {
@@ -81,7 +93,7 @@ download_eml_attributes <- function(eml,
 
     prefix <- character(0)
     if (prefix_file_names == TRUE) {
-        prefix <- eml_get(eml, "packageId") %>%
+        prefix <- EML::eml_get(eml, "packageId") %>%
             as.character() %>%
             remove_special_characters() %>%
             paste0("_")
