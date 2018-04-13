@@ -17,28 +17,30 @@ Depends:
     magrittr
 Imports:
     arcticdatautils,
+    compare,
     crayon,
     dataone,
     datapack,
+    digest,
     EML,
+    gsubfn,
+    htmlwidgets,
+    jsonlite,
+    memoise,
     methods,
     RCurl,
     readxl,
     rhandsontable,
     shiny,
-    stringr,
-    utils,
-    XML,
-    xml2,
-    gsubfn,
-    udunits2,
-    compare,
-    memoise,
-    htmlwidgets,
-    jsonlite,
     shinyjs,
     stringi,
-    units
+    stringr,
+    udunits2,
+    units,
+    utils,
+    uuid,
+    XML,
+    xml2
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
