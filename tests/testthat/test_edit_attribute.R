@@ -41,3 +41,9 @@ testthat::test_that("error occurs if incorrect combinations occur between measur
     testthat::expect_error(edit_attribute(eml, 1, 2, attributeDefinition = "test definition", domain = "numericDomain",
                                             measurementScale = "dateTime", unit = "dimensionless", numberType = "whole", definition = 'NA'))
 })
+
+testthat::test_that("error occurs if you specify either missingValueCode or missing ValueCodeExplanation but not both", {
+
+    testthat::expect_error(edit_attribute(eml, 1, 2, missingValueCode = "testValueCode"))
+    testthat::expect_error(edit_attribute(eml, 1, 2, missingValueCode = "testExplanation"))
+})

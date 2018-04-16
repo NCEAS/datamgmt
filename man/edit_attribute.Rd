@@ -35,7 +35,7 @@ edit_attribute(eml, dataTableNumber, attributeNumber, attributeName = NULL,
 
 \item{missingValueCode}{The new missing value code to give to the attribute}
 
-\item{missingValueCodeExplanation}{The new missing value code explaination to give to the attribute}
+\item{missingValueCodeExplanation}{The new missing value code explanation to give to the attribute}
 }
 \description{
 This function edits the slots of a single attribute in an existing attribute table.

@@ -17,7 +17,7 @@
 #' @param definition The new definition (for textDomain) to give to the attribute
 #' @param formatString The new formatString to give to the attribute
 #' @param missingValueCode The new missing value code to give to the attribute
-#' @param missingValueCodeExplanation The new missing value code explaination to give to the attribute
+#' @param missingValueCodeExplanation The new missing value code explanation to give to the attribute
 #'
 #' @export
 #'
@@ -38,42 +38,22 @@ edit_attribute <- function(eml, dataTableNumber, attributeNumber, attributeName 
                            missingValueCode = NULL, missingValueCodeExplanation = NULL){
 
     data <- EML::get_attributes(eml@dataset@dataTable[[dataTableNumber]]@attributeList)
-    attributeTable <- data.frame(data$attributes) #this excludes the factor table from enumerated domain.
+    attributeTable <-data$attributes #this excludes the factor table from enumerated domain.
 
-    if(!is.null(attributeName)) {
-        attributeTable$attributeName[attributeNumber] <- attributeName
+    if(length(c(missingValueCode, missingValueCodeExplanation)) == 1){
+        stop("Need both missingValueCode and missingValueCodeExplanation")
     }
-    if(!is.null(attributeDefinition)) {
-        attributeTable$attributeDefinition[attributeNumber] <- attributeDefinition
-    }
-    if(!is.null(measurementScale)) {
-        attributeTable$measurementScale[attributeNumber] <- measurementScale
-    }
-    if(!is.null(domain)) {
-        attributeTable$domain[attributeNumber] <- domain
-    }
-    if(!is.null(unit)) {
-        attributeTable$unit[attributeNumber] <- unit
-    }
-    if(!is.null(numberType)) {
-        attributeTable$numberType[attributeNumber] <- numberType
-    }
-    if(!is.null(definition)) {
-        attributeTable$definition[attributeNumber] <- definition
-    }
-    if(!is.null(formatString)) {
-        attributeTable$formatString[attributeNumber] <- formatString
-    }
-    if(!is.null(missingValueCode)) {
-        attributeTable$missingValueCode[attributeNumber] <- missingValueCode
-    }
-    if(!is.null(missingValueCodeExplanation)) {
-        attributeTable$missingValueCodeExplanation[attributeNumber] <- missingValueCodeExplanation
+
+    attribute_edits <- cbind(attributeName, attributeDefinition, domain,
+                        measurementScale, unit, numberType, definition, formatString,
+                        missingValueCode, missingValueCodeExplanation)
+
+    for(i in colnames(attribute_edits)){
+        attributeTable[,i][attributeNumber] <- attribute_edits[,i]
     }
 
     attribute_list <- EML::set_attributes(attributeTable, factors = data$factors)
     eml@dataset@dataTable[[dataTableNumber]]@attributeList <- attribute_list
-    return(eml)
     EML:::check_and_complete_attributes(attributeTable, NULL)
-
+    return(eml)
 }
