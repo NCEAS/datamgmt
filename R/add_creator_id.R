@@ -1,6 +1,7 @@
 #' Add an ORCID or reference ID to a creator
 #'
 #' This function allows you to add an ORCID or reference ID to a creator in EML.
+#'
 #' @param eml EML script to modify
 #' @param orcid ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'
 #' @param id reference ID. Character string to set reference ID for creators with additional roles (i.e. metadataProvider, etc.)
