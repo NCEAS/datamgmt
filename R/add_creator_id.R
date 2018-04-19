@@ -38,7 +38,7 @@
 #' eml@dataset@contact[[1]] <- new('contact', reference = "henrietta")
 #' eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
 #' }
-#'
+
 add_creator_id <- function(eml,
                            orcid = NULL,
                            id = NULL,
