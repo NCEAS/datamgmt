@@ -759,19 +759,21 @@ unset_custom_UDUNITS <- function() {
 mem_load_all_units <- memoise::memoise(load_all_units)
 mem_load_EML_units <- memoise::memoise(load_EML_units)
 
-#' Get custom unit data frame
+#' Return EML units
+#'
+#' @description Uses the udunits2 unit library to format inputted unit into an EML unit form (see examples).
+#'
 #' @param units (character) unit or vector of units
 #' @param quiet (logical) if true will quiet console text
 #' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
-#' @description Uses the udunits2 unit library to format inputted unit into an EML unit form.
 #' @examples
 #' \dontrun{
 #' #The following all return the same data frame.
-#' get_custom_units('kilometersPerSquareSecond') #preferred input form
-#' get_custom_units('Kilometers per seconds squared')
-#' get_custom_units('km/s^2')
-#' get_custom_units('km s-2')
-#' get_custom_units('s-2 /     kilometers-1') #works but is not advised
+#' return_eml_units('kilometersPerSquareSecond')
+#' return_eml_units('Kilometers per seconds squared')
+#' return_eml_units('km/s^2')
+#' return_eml_units('km s-2')
+#' return_eml_units('s-2 /     kilometers-1') # this works but is not advised
 #' }
 #' @export
 return_eml_units <- function(units, quiet = FALSE) {

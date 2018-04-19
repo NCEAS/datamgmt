@@ -1,23 +1,33 @@
 #' Create/Edit EML attributes
 #'
-#' create/edit EML attributes, custom units, and factors in a dynamic setting
+#' create/edit EML attributes, custom units, and factors in a shiny environment
 #'
 #' @param data (data.frame) the data.frame of data that needs an attribute table
 #' @param attributes_table (data.frame) an existing attributes table for \code{data} that needs to be updated (if specified along with \code{data}, all non-empty fields will be used over any values automatically generated from \code{data})
 #'
 #' @importFrom shinyjs enable disable
 #' @import shiny
+#'
+#' @return Returns a list of three items (an attributes table, a custom units table, a factors table)
 #' @examples
 #' \dontrun{
-#' create_attributes_table(NULL, NULL)
+#' # Create a blank attributes table
+#' foo <- create_attributes_table(NULL, NULL)
 #'
-#' data <- read.csv('Test.csv')
-#' create_attributes_table(data, NULL)
+#' # Create an attributes table from a data file
+#' data <- read.csv('foo.csv')
+#' foo <- create_attributes_table(data, NULL)
 #'
-#'attributes_table <- EML::get_attributes(eml@@dataset@@dataTable[[i]]@@attributeList)$attributes
-#' create_attributes_table(NULL, attributes_table)
+#' # Edit an attributes table from a eml attributeList
+#' attributes_table <- EML::get_attributes(eml@@dataset@@dataTable[[i]]@@attributeList)$attributes
+#' foo <- create_attributes_table(NULL, attributes_table)
 #'
-#' create_attributes_table(data, attributes_table)
+#' # Edit an attributes table from a eml attributeList and data file
+#' foo <- create_attributes_table(data, attributes_table)
+#'
+#' # Once finished, use EML commands to transform tables into EML objects
+#' attributeList <- EML::set_attributes(attributes = foo$attributes, factors = foo$factors)
+#' unitlist <- EML::set_unitList(units = foo$units)
 #'}
 #' @export
 create_attributes_table <- function(data = NULL, attributes_table = NULL) {
