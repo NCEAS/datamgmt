@@ -19,6 +19,8 @@ clone_package(resource_map_pid, from, to, add_access_to, public = FALSE,
 
 \item{public}{(logical) Optional. Will set public read access.  Defaults to \code{FALSE}.}
 
+\item{clone_children}{(logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.}
+
 \item{new_pid}{(logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.}
 
 \item{new_submitter}{(character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.}

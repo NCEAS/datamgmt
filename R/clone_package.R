@@ -150,6 +150,7 @@ clone_object <- function(pid,
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
 #' @param new_submitter (character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.
+#' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.
 #' @param change_origin_node (logical) Optional. Will change the originMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #'

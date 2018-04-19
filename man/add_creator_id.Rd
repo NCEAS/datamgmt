@@ -45,7 +45,6 @@ eml <- eml \%>\%
 eml@dataset@contact[[1]] <- new('contact', reference = "henrietta")
 eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
 }
-
 }
 \keyword{creator}
 \keyword{eml}
