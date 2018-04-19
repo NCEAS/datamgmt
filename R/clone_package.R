@@ -229,6 +229,7 @@ clone_package <- function(resource_map_pid,
     package <- suppressMessages(tryCatch({
         arcticdatautils::get_package(from@mn, resource_map_pid)
     }, warning = function(w) {
+        # ideally the query to get pakcage pids would include datasource:from@mn@identifier but not sure it is worth rewriting the code.
         arcticdatautils::get_package(from@cn, resource_map_pid)
     }, error = function(e) {
         stop("\nNo results were found when searching for a package with resource map:\n",
