@@ -19,6 +19,7 @@ Imports:
     arcticdatautils,
     compare,
     crayon,
+    curl (== 2.7),
     dataone,
     datapack,
     digest,
