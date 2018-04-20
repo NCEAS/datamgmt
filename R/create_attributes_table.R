@@ -18,11 +18,11 @@
 #' data <- read.csv('foo.csv')
 #' foo <- create_attributes_table(data, NULL)
 #'
-#' # Edit an attributes table from a eml attributeList
+#' # Edit an attributes table from an eml attributeList
 #' attributes_table <- EML::get_attributes(eml@@dataset@@dataTable[[i]]@@attributeList)$attributes
 #' foo <- create_attributes_table(NULL, attributes_table)
 #'
-#' # Edit an attributes table from a eml attributeList and data file
+#' # Edit an attributes table from an eml attributeList and data file
 #' foo <- create_attributes_table(data, attributes_table)
 #'
 #' # Once finished, use EML commands to transform tables into EML objects
