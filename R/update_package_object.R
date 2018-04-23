@@ -62,6 +62,7 @@ update_physical <- function(eml,
 #' This applies to the new metadata PID and its resource map and data object.
 #' Access policies are not affected.
 #' @param use_doi (logical) Optional. If TRUE, a new doi will be minted.
+#' @param ... other parameters to pass into \link[arcticdatautils]{publish_update}
 #'
 #' @keywords update_object update_resource_map
 #'
@@ -96,7 +97,8 @@ update_package_object <- function(mn,
                                   # data_pids,
                                   format_id = NULL,
                                   public = FALSE,
-                                  use_doi = FALSE) {
+                                  use_doi = FALSE,
+                                  ...) {
 
     #argument checks:
     stopifnot(is(mn, "MNode"))
@@ -148,7 +150,8 @@ update_package_object <- function(mn,
         data_pids = new_data_pids,
         child_pids = pkg$child_packages,
         use_doi = use_doi,
-        public = public)
+        public = public,
+        ...)
 
     file.remove(eml_path)
 
