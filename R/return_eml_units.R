@@ -1,6 +1,7 @@
 #' Copies udunits2 xml files to datamgmt/UDUNITS
 #' Updates uduntis2-accepted.xml with units from EML-units.xml
 .onLoad <- function(libname, pkgname) {
+
     # Get directory for udunits files
     pkg_dir <- system.file(package = "datamgmt")
     ud_dir <- paste0(pkg_dir, "/UDUNITS")
@@ -11,15 +12,11 @@
 
     # Get udunits2 files
     udunits2_dir <- system.file("share/", package = "udunits2")
-    udunits_xmls <- dir(udunits2_dir, full.names = FALSE)
-    if (!all(udunits_xmls %in% c("udunits2-accepted.xml", "udunits2-base.xml",
-                                 "udunits2-common.xml", "udunits2-derived.xml", "udunits2-prefixes.xml",
-                                 "udunits2.xml"))) {
-        stop("The library for the udunits2 package was not loaded. ", "Please ensure the package udunits2 is installed.")
-    }
+    udunits_xmls <- dir(udunits2_dir, full.names = FALSE, recursive = TRUE)
+    udunits_xmls_names <- sub("^.*\\/", "", udunits_xmls)
 
     # Read-in xml files
-    n_accepted <- which(udunits_xmls == "udunits2-accepted.xml")
+    n_accepted <- which(udunits_xmls_names == "udunits2-accepted.xml")
     accepted <- xml2::read_xml(paste0(udunits2_dir, "/", udunits_xmls[n_accepted]))
 
     # Load custom udunits.xml
@@ -39,18 +36,14 @@
                      encoding = "US-ASCII")
     copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
                         ud_dir, overwrite = T)
-    if (!all(copied)) {
-        stop("Could not copy udunits2 package files. ",
-             "Please ensure package is installed.")
-    }
 }
 
 #' Will return TRUE if properly loaded or FALSE if not
 #' @return (logical)
-#' @import units
 #' @import gsubfn
 #' @import udunits2
 #' @import xml2
+#' @import units
 #' @importFrom stringi stri_reverse
 #' @importFrom compare compare
 #' @importFrom memoise memoise
@@ -62,7 +55,7 @@ set_custom_UDUNITS <- function() {
     # Load custom udunits2.xml
     p0 <- paste0(ud_dir, "/", "udunits2.xml")
     Sys.setenv(UDUNITS2_XML_PATH = p0)
-    udunits2:::.onLoad()
+    udunits2:::.onLoad(dirname(system.file(package = "udunits2")), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
     Sys.getenv("UDUNITS2_XML_PATH") == p0
 }
 
@@ -86,6 +79,7 @@ load_udunits <- function() {
                                    ", ", udunits_unit_system[i, ]$name_plural_aliases)
         name_plural_test <- unlist(strsplit(name_plural_test, ", "))
 
+        # See if there is a plural version for each singular version
         if (length(name_plural_test) == length(name_singular)) {
             name_plural <- name_plural_test
         } else {
@@ -251,7 +245,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     unit <- gsub("\\(|\\)", " ", unit) # remove parenthesis
     unit <- gsub("\\*", " ", unit) # remove "*"
 
-    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
+    unit <- gsub("([[:blank:]]*\\/{1}[[:blank:]]*)([[:alpha:]_]+)(-{0,1}[[:digit:]]+|[[:blank:]]*)",
                  " \\2-\\3 ", unit)  # remove / and add - to exponent
     unit <- gsub("(-{2})([[:digit:]])", "\\2", unit)  # change -- to -
     unit <- gsub("-{1}[[:blank:]]{1}", "-1 ", unit)  # change -[[:blank:]] to -1
@@ -267,11 +261,11 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
         unit <- units::deparse_unit(units::as.units(sub("^[[:blank:]]*\\/","",unit)))
         unit <- paste0("per ", unit)
     } else {
-    unit <- units::deparse_unit(units::as.units(unit))
+        unit <- units::deparse_unit(units::as.units(unit))
     }
 
     # Change exponent form
-    unit <- gsub("([[:alpha:]]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ", unit)
+    unit <- gsub("([^[:blank:]-]+)(-{0,1}[[:digit:]]+)([[:blank:]]|$)", " \\2 \\1 ", unit)
     unit <- gsub("(-)([[:digit:]]+)", "per \\2", unit)
     for (i in seq_along(exponents_numeric)) {
         unit <- gsub(paste0("[[:blank:]]", exponents_numeric[i], "[[:blank:]]"),
@@ -512,7 +506,7 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
 
 #' Formats unit_split
 #' @param unit_split (character) result of function get_unit_split
-#' @param form ('id', 'symbol', 'udunit'). 'id' is an EML id form. 'symbol' is an EML abbreviation form. 'udunit' is a udunits2 form.
+#' @param form ('id', 'symbol', 'udunit', 'description'). 'id' is an EML id form. 'symbol' is an EML abbreviation form. 'udunit' is a udunits2 form.
 #' @param all_units (data.frame)
 #' @return (character) formated unit_split
 format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_units()) {
@@ -537,6 +531,9 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
 
         if (form == "id") {
             unit_split <- paste(unit_split, collapse = "")
+        } else if (form == "description") {
+            unit_split <- paste(tolower(unit_split), collapse = " ")
+            unit_split <- gsub("celsius", "Celsius", unit_split)
         } else {
 
             for (i in rev(seq_along(unit_split))) {
@@ -551,6 +548,10 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
 
                     if (length(n) == 1) {
                         unit_split[i] <- all_units$symbol[n]
+
+                        if (unit_split[i] == "") {
+                            unit_split[i] <- all_units$unit_single[n]
+                        }
                     }
                 }
 
@@ -559,14 +560,13 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
                     unit_split[i] <- unit_split[i + 1]
                     unit_split[i + 1] <- exponent_symbols[n_exp]
 
-                    unit_split[i + 1] <- paste0(unit_split[i], unit_split[i +
-                                                                              1], collapse = "")
+                    unit_split[i + 1] <- paste0(unit_split[i], unit_split[i + 1], collapse = "")
                     unit_split <- unit_split[-i]
 
                 } else if (form == "symbol" && tolower(unit_split[i]) == "per" && i <= length(unit_split)) {
                     unit_split[i] <- "/"
 
-                } else if (form == "symbol" && i < n_per && i > 1 && !(unit_split[i - 1] %in% exponents)) {
+                } else if (form == "symbol" && (i < n_per || n_per == 0) && i > 1 && !(unit_split[i - 1] %in% exponents)) {
                     unit_split[i] <- paste0("*", unit_split[i])
                 }
             }
@@ -598,7 +598,7 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
 
     # Get EML Non Standard units
     unitList_nS <- EML::get_unitList(x = EML::read_eml(system.file("share/EML-nS-unitDictionary.xml",
-                                               package = "datamgmt")))
+                                                                   package = "datamgmt")))
     units_nS <- unitList_nS$units
     unitTypes_nS <- unitList_nS$unitTypes
 
@@ -614,7 +614,7 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
     EML_SI_units <- rbind(EML_SI_units, units[units$id == "dimensionless",])
 
     # Exceptions
-    EML_SI_units$name[EML_SI_units$name == "waveNumber"] <- "dimensionlessPerMeter" # This is a cheat to get udunits to recognize unit as dimensionless / meter
+    EML_SI_units$name[EML_SI_units$name == "waveNumber"] <- "radianPerMeter" # This is a cheat to get udunits to recognize unit as dimensionless / meter
     EML_SI_units$name[EML_SI_units$name == "siemen"] <- "siemens"
     EML_SI_units$name[EML_SI_units$name == "milliGramsPerMilliLiter"] <- "milligramsPerMilliliter"
     EML_SI_units$name[EML_SI_units$name == "molality"] <- "molesPerKilogram"
@@ -643,18 +643,18 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
 
     if (has_denominator) {
         numerator <- gsub(" *[p|P]er .*", "", udunit)
-        num_dimensionless <- udunits2::ud.are.convertible(numerator, "dimensionless")
+        num_dimensionless <- udunits2::ud.are.convertible(numerator, "radian")
     } else {
         num_dimensionless <- FALSE
     }
 
-    # Easy check
+    # Easy check. Checks to see if unit is convertible with only one EML unit
     n_EML <- unique(unlist(lapply(EML_units$EML_SI_units$ud, function(x) {
         # Careful with reciprocals here, e.g. "seconds-1" and "seconds" return TRUE here
         # but "meter seconds-1" and " meter seconds" return FALSE
         if (num_dimensionless) {
             if (grepl("^per ", udunit)) {
-                udunit <-  paste0("dimensionless ", udunit)
+                udunit <-  paste0("radian ", udunit)
             }
             is_ud <- udunits2::ud.are.convertible(udunit, ifelse(grepl(" *[p|P]er .*", x), x, ""))
         } else {
@@ -710,7 +710,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
         # Compare dimension and power of unitTypes in EML
         n_unitType <- unlist(lapply(p_unitTypes, function(p) {
             test <- compare::compare(EML_units$unitTypes[EML_units$unitTypes$id %in% p,
-                                                         c("dimension", "power")],
+                                     c("dimension", "power")],
                                      unitType_df,
                                      allowAll = T)$result
             return(test)
@@ -733,10 +733,10 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
         parent_ud <- EML_units$EML_SI_units$ud[n_EML]
 
         if (grepl("^per ", udunit)) {
-            udunit <-  paste0("dimensionless ", udunit)
+            udunit <-  paste0("radian ", udunit)
         }
 
-        multiplierToSI <- udunits2::ud.convert(1, udunit, parent_ud)
+        multiplierToSI <- ifelse(parentSI == "dimensionless", NA, udunits2::ud.convert(1, udunit, parent_ud))
 
     } else {
         unitType <- NA
@@ -753,7 +753,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
 unset_custom_UDUNITS <- function() {
     Sys.unsetenv("UDUNITS2_XML_PATH")
     Sys.getenv("UDUNITS2_XML_PATH") == ""
-    udunits2:::.onLoad()
+    udunits2:::.onLoad(dirname(system.file(package = "udunits2")), "udunits2") #This is known to fail on Windows https://github.com/pacificclimate/Rudunits2/issues/21
 }
 
 mem_load_all_units <- memoise::memoise(load_all_units)
@@ -765,19 +765,21 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
 #' @description Uses the udunits2 unit library to format inputted unit into an EML unit form.
 #' @examples
+#' \dontrun{
 #' #The following all return the same data frame.
 #' get_custom_units('kilometersPerSquareSecond') #preferred input form
 #' get_custom_units('Kilometers per seconds squared')
 #' get_custom_units('km/s^2')
 #' get_custom_units('km s-2')
 #' get_custom_units('s-2 /     kilometers-1') #works but is not advised
+#' }
 #' @export
-get_custom_units <- function(units, quiet = FALSE) {
+return_eml_units <- function(units, quiet = FALSE) {
 
     # Load custom .xml files
     loaded <- suppressPackageStartupMessages(set_custom_UDUNITS())
     if (!loaded) {
-        stop("EML-units.xml file could not be loaded. ", "Ensure the file is formatted correctly.")
+        warning("There was an error loading custom udunits files. ", "Not all custom units will be available.")
     }
 
     stopifnot(is.character(units))
@@ -785,48 +787,46 @@ get_custom_units <- function(units, quiet = FALSE) {
     # Load units
     all_units = mem_load_all_units()
     EML_units = mem_load_EML_units(all_units)
+    columns <- c("id", "unitType", "parentSI", "multiplierToSI", "abbreviation", "description")
 
     # Initillize progress bar
     if (quiet == FALSE) {
-    progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)}
+        progressBar <- utils::txtProgressBar(min = 0, max = length(units), style = 3)}
 
     # Get custom units
     custom_units <- lapply(seq_along(units), function(i) {
 
         if (quiet == FALSE) {
-        utils::setTxtProgressBar(progressBar, i)}
+            utils::setTxtProgressBar(progressBar, i)}
 
         unit_split <- get_unit_split(units[i], all_units)
         id <- format_unit_split(unit_split, form = "id", all_units)
 
-        if (!is.na(id)) {
-        udunit <- format_unit_split(unit_split, form = "udunit", all_units)
-        abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
-        parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
-        } else {
-            n_id <- which(EML_units$units$id == units[i])
+        # First check if unit is standard
+        n_id <- which(EML_units$units$id == units[i])
 
-            if (length(n_id) == 0) {
-                n_id <- which(EML_units$units$abbreviation == units[i])
-            }
-
-            if (length(n_id) == 1) {
-                id <- EML_units$units$id[n_id]
-                abbreviation <- EML_units$units$abbreviation[n_id]
-                unitType <- EML_units$units$unitType[n_id]
-                parentSI <- EML_units$units$parentSI[n_id]
-                multiplierToSI <- EML_units$units$multiplierToSI[n_id]
-            } else {
-                warning("Unknown unit ", units[i], ". NA returned")
-                id <- NA
-                abbreviation <- NA
-                unitType <- NA
-                parentSI <- NA
-                multiplierToSI <- NA
-            }
-            parentSI_df <- data.frame(unitType, parentSI, multiplierToSI, stringsAsFactors = F)
+        if (length(n_id) == 0) {
+            n_id <- which(EML_units$units$abbreviation == units[i])
         }
-        custom_unit <- data.frame(id, parentSI_df, abbreviation, stringsAsFactors = F)
+
+        if (length(n_id) == 1) {
+            custom_unit <- EML_units$units[n_id, columns]
+
+        } else if (!is.na(id)) {
+            udunit <- format_unit_split(unit_split, form = "udunit", all_units)
+            abbreviation <- format_unit_split(unit_split, form = "symbol", all_units)
+            description <-  format_unit_split(unit_split, form = "description", all_units)
+            parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
+
+            custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = F)
+        } else {
+            warning("Unknown unit ", units[i])
+            custom_unit <- data.frame(matrix(ncol = length(columns), nrow = 1), stringsAsFactors = F)
+            colnames(custom_unit) <- columns
+            custom_unit$id <- units[i]
+        }
+        rownames(custom_unit) <- c()
+        custom_unit
     })
 
     custom_unit_df <- do.call(rbind, custom_units)

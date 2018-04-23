@@ -17,8 +17,9 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 ```
-
-First install the `datamgmt` package.  This will also load `dataone`.    
+**Mac Users:**
+  
+First install the following packages:    
 ```{r}
 install.packages("devtools")
 devtools::install_github("ropensci/EML")
@@ -26,7 +27,23 @@ devtools::install_github("NCEAS/datamgmt")
 library(datamgmt)
 library(dataone)
 ```
+
+**PC Users:**  
   
+We currently have issues installing 'datamgmt' on PCs.  Instead of installing the package, we can load the functions directly into your global environment by copy-pasting.  
+First install the following packages:    
+```{r}
+install.packages("devtools")
+devtools::install_github("ropensci/EML")
+devtools::install_github("NCEAS/arcticdatautils")
+install.packages("dataone")
+install.packages("magrittr")
+library(dataone)
+library(magrittr)
+```
+Source (copy-paste into your R console) the file (https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R)
+*Note:* This concludes the differences between Mac and PC installs
+
 Next, we need to specify which DataOne Member Node we want to interact with.  The following code specifies the Arctic Data Center.  Most of the functions that we use specificy the `mn` as the first argument.  First, we specify the coordinating node and then its corresponding member node.   
 ```{r}
 cn <- CNode("PROD")
@@ -92,4 +109,25 @@ download_packages(mn,
                   "/home/dmullen/downloads",
                   prefix_file_names = TRUE,
                   download_column_metadata = TRUE)
+```
+
+### Switching between DataOne/LTER Member Nodes 
+
+Suppose we want to download this package from LTER: https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13
+  
+We first need to tell R that we're changing member nodes.  The fastest way of doing this is to reset your `mn` with the `guess_member_node` function.
+*Note:* This function accepts metadata and resource map pids, or DataOne package URLs as inputs
+  
+```{r}
+# The following three calls return the same member node (mn)
+# Metadata pid input: 
+mn <- guess_member_node("https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
+# Resource map pid input: 
+mn <- guess_member_node("doi:10.6073/pasta/97c6d83a5f6a0a065ef3209fcb491b6e")
+# Package URL input: 
+mn <- guess_member_node("https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
+
+
+# We can now use any of the above functions:
+get_eml_attributes_url(mn, "https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13")
 ```
