@@ -4,6 +4,7 @@
 #' that allows you to start with a (grand)parent PID and recursively
 #' run Solr queries. The function outputs a tibble with
 #'
+#' @param mn The member node
 #' @param parent_pid The top-level PID to use for the query
 #'
 #' @import magrittr
@@ -15,12 +16,12 @@
 #' cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 #'
-#' parent_pid <- "urn:uuid:b3dc11f5-95e8-4f30-bef9-82464398bc5f"
+#' parent_rm_pid <- "urn:uuid:b3dc11f5-95e8-4f30-bef9-82464398bc5f"
 #'
-#' query_edges(parent_pid)
+#' query_tree(mn, parent_rm_pid)
 #' }
 
-query_tree <- function(parent_rm_pid){
+query_tree <- function(mn, parent_rm_pid){
     # Initialize structure
     if(!exists("rm_all")){
         rm_all <- NULL
@@ -38,7 +39,7 @@ query_tree <- function(parent_rm_pid){
         rm_all <- dplyr::bind_rows(rm_all, result)
 
         for (rm_pid in result$identifier) {
-            result2 <- query_tree(rm_pid)
+            result2 <- query_tree(mn, rm_pid)
             rm_all <- dplyr::bind_rows(rm_all, result2)
         }
     }
@@ -50,40 +51,38 @@ query_tree <- function(parent_rm_pid){
 #' This function allows you to quickly visualize how data packages
 #' are related to each other.
 #'
-#' @param query_results Results of a Solr query. Requires at minimum
-#' the obsoletedBy, resourceMap, and documents fields.
+#' @param mn The member node
+#' @param parent_pid The top-level PID in a data package family
 #'
 #' @export
 #'
 #' @importFrom visNetwork visIgraph
 #' @importFrom igraph graph_from_data_frame
+#' @import dplyr
+#' @importFrom tidyr unnest
+#' @importFrom purr map
 #'
 #' @examples
 #' \dontrun{
 #' cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 #'
-#' #query all packages with "Orcutt" as an author
-#' result <- dataone::query(mn, list(q = 'origin:*Orcutt*',
-#'                      fl = '*',
-#'                      sort = 'dateUploaded+desc',
-#'                      rows='10000'),
-#'                      as = "data.frame")
-#'
-#' plot_pkg_structure(result)
-#'
-#' #query all packages with "Tweedie" or "Vargas" or "Oberbauer" as an author
-#' result <- dataone::query(mn, list(q = 'origin:(*Tweedie*+OR+*Vargas*+OR+*Oberbauer*)',
-#'                      fl = '*',
-#'                      sort = 'dateUploaded+desc',
-#'                      rows='10000'),
-#'                      as = "data.frame")
-#'
-#' plot_pkg_structure(result)
+#' plot_pkg_structure(mn, parent_rm_pid)
 #' }
 
-plot_pkg_structure <- function(query_results) {
-    edges <- get_query_edges(query_results)
+plot_pkg_structure <- function(mn, parent_rm_pid) {
+    query_results <- query_tree(mn, parent_rm_pid)
+
+    edges <- query_results %>%
+        # as_tibble() %>%
+        dplyr::mutate(resourceMap = str_split(resourceMap, " ")) %>%
+        dplyr::mutate(resourceMap = purrr::map(resourceMap, function(vector){vector[length(vector)]})) %>% #get last element
+        tidyr::unnest(resourceMap) %>%
+        dplyr::rename(from = resourceMap,
+                      to = identifier) %>%
+        dplyr::mutate_all(funs(stringr::str_replace(., "resource_map_", ""))) %>%
+        dplyr::distinct() %>%
+        dplyr::select(from, to)
 
     rm_igraph <- igraph::graph_from_data_frame(d = edges, directed = TRUE)
 
