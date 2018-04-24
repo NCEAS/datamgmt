@@ -20,38 +20,28 @@
 #' query_edges(parent_pid)
 #' }
 
-query_tree <- function(parent_pid){
-    # print(parent_pid)
-
+query_tree <- function(parent_rm_pid){
     # Initialize structure
     if(!exists("rm_all")){
         rm_all <- NULL
     }
 
-    parent_pid <- stringr::str_replace(parent_pid, "resource_map_", "")
-
     # Run query & clean results
-    result <- dataone::query(mn, list(q = paste0('resourceMap:*"', parent_pid, '"*+AND+formatType:METADATA'),
-                                      fl = 'identifier, resourceMap, documents, obsoletedBy',
+    result <- dataone::query(mn, list(q = paste0('resourceMap:"', parent_rm_pid, '"+AND+formatType:RESOURCE'),
+                                      fl = 'identifier, resourceMap',
                                       sort = 'dateUploaded+desc',
                                       rows='10000'),
-                             as = "data.frame") %>%
-        dplyr::mutate(documents = stringr::str_split(documents, " ")) %>%
-        tidyr::unnest(documents) %>%
-        dplyr::filter(stringr::str_detect(documents, "resource"))
+                             as = "data.frame")
 
     # Run recursion
     if(nrow(result) > 0){
         rm_all <- dplyr::bind_rows(rm_all, result)
 
-        for (pid in result$documents) {
-            if(!is.na(pid) && !is.null(pid)){
-                result2 <- query_tree(pid)
-                rm_all <- dplyr::bind_rows(rm_all, result2)
-            }
+        for (rm_pid in result$identifier) {
+            result2 <- query_tree(rm_pid)
+            rm_all <- dplyr::bind_rows(rm_all, result2)
         }
     }
-
     return(rm_all)
 }
 
