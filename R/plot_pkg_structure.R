@@ -5,7 +5,7 @@
 #' run Solr queries. The function outputs a tibble with
 #'
 #' @param mn The member node
-#' @param parent_pid (character) The top-level PID to use for the query
+#' @param parent_rm_pid (character) The top-level PID to use for the query
 #'
 #' @import magrittr
 #' @import stringr
@@ -52,7 +52,7 @@ query_tree <- function(mn, parent_rm_pid){
 #' are related to each other.
 #'
 #' @param mn The member node
-#' @param parent_pid (character) The top-level PID in a data package family
+#' @param parent_rm_pid (character) The top-level PID in a data package family
 #'
 #' @export
 #'
@@ -60,7 +60,7 @@ query_tree <- function(mn, parent_rm_pid){
 #' @importFrom igraph graph_from_data_frame
 #' @import dplyr
 #' @importFrom tidyr unnest
-#' @importFrom purr map
+#' @importFrom purrr map
 #'
 #' @examples
 #' \dontrun{
@@ -79,6 +79,9 @@ plot_pkg_structure <- function(mn, parent_rm_pid) {
     }
 
     query_results <- query_tree(mn, parent_rm_pid)
+    if(!nrow(query_results) > 0){
+        stop("The query did not return any results. Check the member node and parent resource map.")
+    }
 
     edges <- query_results %>%
         # as_tibble() %>%

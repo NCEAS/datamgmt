@@ -30,6 +30,7 @@ Imports:
     jsonlite,
     memoise,
     methods,
+    purrr,
     RCurl,
     readxl,
     rhandsontable,
@@ -44,8 +45,7 @@ Imports:
     uuid,
     visNetwork,
     XML,
-    xml2,
-
+    xml2
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
