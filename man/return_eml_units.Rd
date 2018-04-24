@@ -2,7 +2,7 @@
 % Please edit documentation in R/return_eml_units.R
 \name{return_eml_units}
 \alias{return_eml_units}
-\title{Get custom unit data frame}
+\title{Return EML units}
 \usage{
 return_eml_units(units, quiet = FALSE)
 }
@@ -15,15 +15,15 @@ return_eml_units(units, quiet = FALSE)
 (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
 }
 \description{
-Uses the udunits2 unit library to format inputted unit into an EML unit form.
+Uses the udunits2 unit library to format inputted unit into an EML unit form (see examples).
 }
 \examples{
 \dontrun{
 #The following all return the same data frame.
-get_custom_units('kilometersPerSquareSecond') #preferred input form
-get_custom_units('Kilometers per seconds squared')
-get_custom_units('km/s^2')
-get_custom_units('km s-2')
-get_custom_units('s-2 /     kilometers-1') #works but is not advised
+return_eml_units('kilometersPerSquareSecond')
+return_eml_units('Kilometers per seconds squared')
+return_eml_units('km/s^2')
+return_eml_units('km s-2')
+return_eml_units('s-2 /     kilometers-1') # this works but is not advised
 }
 }

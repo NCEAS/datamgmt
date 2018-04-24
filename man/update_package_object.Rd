@@ -5,7 +5,7 @@
 \title{Update a data object and accompanying resource map & EML}
 \usage{
 update_package_object(mn, data_pid, new_data_path, resource_map_pid,
-  format_id = NULL, public = FALSE, use_doi = FALSE)
+  format_id = NULL, public = FALSE, use_doi = FALSE, ...)
 }
 \arguments{
 \item{mn}{(MNode) Member node}
@@ -26,6 +26,8 @@ This applies to the new metadata PID and its resource map and data object.
 Access policies are not affected.}
 
 \item{use_doi}{(logical) Optional. If TRUE, a new doi will be minted.}
+
+\item{...}{other parameters to pass into \link[arcticdatautils]{publish_update}}
 }
 \description{
 This function updates a data object, and then automatically
