@@ -5,7 +5,7 @@
 #' run Solr queries. The function outputs a tibble with
 #'
 #' @param mn The member node
-#' @param parent_pid The top-level PID to use for the query
+#' @param parent_pid (character) The top-level PID to use for the query
 #'
 #' @import magrittr
 #' @import stringr
@@ -52,7 +52,7 @@ query_tree <- function(mn, parent_rm_pid){
 #' are related to each other.
 #'
 #' @param mn The member node
-#' @param parent_pid The top-level PID in a data package family
+#' @param parent_pid (character) The top-level PID in a data package family
 #'
 #' @export
 #'
@@ -67,10 +67,17 @@ query_tree <- function(mn, parent_rm_pid){
 #' cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 #'
+#' parent_rm_pid <- "resource_map_urn:uuid:2b5f44fc-810e-4c30-a63f-5bd2f3ff00a7"
+#'
 #' plot_pkg_structure(mn, parent_rm_pid)
 #' }
 
 plot_pkg_structure <- function(mn, parent_rm_pid) {
+    # Check that the pid is a resource map
+    if(!str_detect(parent_rm_pid, "resource")){
+        warning(cat("Is", parent_rm_pid, "a resource map PID? Please double check.\n"))
+    }
+
     query_results <- query_tree(mn, parent_rm_pid)
 
     edges <- query_results %>%
