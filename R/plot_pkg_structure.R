@@ -1,13 +1,12 @@
-#' Get edges
+#' Query tree
 #'
 #' This is a helper function for \code{\link{plot_pkg_structure}}
-#' that allows you to get edges for visualizing
-#' the structure of nested packages.
+#' that allows you to start with a (grand)parent PID and recursively
+#' run Solr queries. The function outputs a tibble with
 #'
-#' @param query_results Results of a Solr query. Requires at minimum
-#' the obsoletedBy, resourceMap, and documents fields.
+#' @param parent_pid The top-level PID to use for the query
 #'
-#' @import dplyr
+#' @import magrittr
 #' @import stringr
 #' @importFrom tidyr unnest
 #'
@@ -16,29 +15,44 @@
 #' cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 #'
-#' #query all packages with "Orcutt" as an author
-#' result <- dataone::query(mn, list(q = 'origin:*Orcutt*',
-#'                      fl = '*',
-#'                      sort = 'dateUploaded+desc',
-#'                      rows='10000'),
-#'                      as = "data.frame")
+#' parent_pid <- "urn:uuid:b3dc11f5-95e8-4f30-bef9-82464398bc5f"
 #'
-#' get_query_edges(result)
+#' query_edges(parent_pid)
 #' }
 
-get_query_edges <- function(query_results) {
-    # resource maps (from) and their children (to)
+query_tree <- function(parent_pid){
+    # print(parent_pid)
 
-    query_results %>%
-        # tibble::as_tibble() %>%
-        dplyr::filter(is.na(obsoletedBy)) %>% #remove any obsoleted resource maps from the mix
-        dplyr::select(resourceMap, documents) %>%
-        dplyr::mutate(documents = stringr::str_split(documents, " ")) %>% #alternative to spread + gather
+    # Initialize structure
+    if(!exists("rm_all")){
+        rm_all <- NULL
+    }
+
+    parent_pid <- stringr::str_replace(parent_pid, "resource_map_", "")
+
+    # Run query & clean results
+    result <- dataone::query(mn, list(q = paste0('resourceMap:*"', parent_pid, '"*+AND+formatType:METADATA'),
+                                      fl = 'identifier, resourceMap, documents, obsoletedBy',
+                                      sort = 'dateUploaded+desc',
+                                      rows='10000'),
+                             as = "data.frame") %>%
+        dplyr::mutate(documents = stringr::str_split(documents, " ")) %>%
         tidyr::unnest(documents) %>%
-        dplyr::filter(stringr::str_detect(documents, "resource")) %>% #grab only resource maps (ignores data and metadata objects)
-        dplyr::rename(from = resourceMap,
-               to = documents) %>%
-        dplyr::mutate_all(funs(stringr::str_replace(., "resource_map_", ""))) #remove "resource_map_" to reduce identifier lengths when plotting
+        dplyr::filter(stringr::str_detect(documents, "resource"))
+
+    # Run recursion
+    if(nrow(result) > 0){
+        rm_all <- dplyr::bind_rows(rm_all, result)
+
+        for (pid in result$documents) {
+            if(!is.na(pid) && !is.null(pid)){
+                result2 <- query_tree(pid)
+                rm_all <- dplyr::bind_rows(rm_all, result2)
+            }
+        }
+    }
+
+    return(rm_all)
 }
 
 #' Plot package structure
