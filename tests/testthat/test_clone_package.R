@@ -1,82 +1,74 @@
 context("test_clone_package")
 
 # Set test node
-cn <- dataone::CNode('STAGING')
-mn_test <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+d1c_test <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 
 test_that("clone_package errors gracefully", {
-    expect_error(clone_package(5, mn_test, mn_test))
+    expect_error(clone_package(5, d1c_test, d1c_test))
 
-    expect_error(clone_package("resource_map_doi:10.18739/A2RZ6X",
+    expect_error(clone_package("Dummy pid",
                  "Dummy Node",
-                 mn_test))
+                 d1c_test))
 
-    expect_error(clone_package("resource_map_doi:10.18739/A2RZ6X",
-                                 mn_test))
+    expect_error(clone_package("Dummy pid",
+                               d1c_test))
 
-    suppressWarnings(expect_error(clone_package("Dummy pid", mn_test, mn_test)))
-
-    expect_error(clone_package("resource_map_doi:10.18739/A2RZ6X",
-                               mn_test,
-                               mn_test,
-                               "Dummy Value"))
+    suppressWarnings(expect_error(clone_package("Dummy pid", d1c_test, d1c_test)))
 })
 
-test_that("clone_package copies a package with no data pids", {
-    if (!arcticdatautils::is_token_set(mn_test)) {
+test_that("clone_package copies a package w - w/o data and children", {
+    if (!arcticdatautils::is_token_set(d1c_test@mn)) {
         skip("No token set. Skipping test.")
     }
 
-    # Clone package
-    pkg <- clone_package("resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
-                         mn_prod,
-                         mn_test,
-                         clone_child_packages = FALSE)
+    # Create a child
+    child <- arcticdatautils::create_dummy_package(d1c_test@mn, size = 2)
 
-    # Package tests
-    expect_named(pkg, c("metadata", "data", "resource_map"))
-    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(pkg))))
-    expect_length(pkg, 3)
+    # Create a parent
+    parent1 <- arcticdatautils::create_dummy_parent_package(d1c_test@mn, child$resource_map)
 
-    # Check object lengths
-    lengths <- sapply(pkg, length)
-    expect_equivalent(lengths, c(1,0,1))
-})
-
-test_that("clone_package copies a package with data", {
-    if (!arcticdatautils::is_token_set(mn_test)) {
-        skip("No token set. Skipping test.")
-    }
+    # Create a parent
+    parent2 <- arcticdatautils::create_dummy_parent_package(d1c_test@mn, parent1$parent)
 
     # Clone package
-    pkg <- clone_package("resource_map_doi:10.18739/A2RZ6X", mn_prod, mn_test)
+    clone <- clone_package(resource_map_pid = parent2$parent,
+                         from = d1c_test,
+                         to = d1c_test,
+                         add_access_to = arcticdatautils:::get_token_subject(),
+                         public = TRUE,
+                         clone_children = TRUE,
+                         new_pid = TRUE,
+                         new_submitter = NULL,
+                         change_origin_node = FALSE,
+                         change_auth_node = FALSE)
 
-    # Package tests
-    expect_named(pkg, c("metadata", "data", "resource_map"))
-    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(pkg))))
-    expect_length(pkg, 3)
+    # Parent2 Test
+    expect_named(clone, c("metadata", "data", "child_packages", "resource_map"))
+    expect_true(all(arcticdatautils::object_exists(d1c_test@mn, unlist(clone))))
+    expect_length(clone$data, 0) # 0 Data
+    expect_length(clone$metadata, 1) # 1 Metadata file
+    expect_length(clone$child_packages, 1) # 1 Child
+    expect_length(clone$resource_map, 1) # 1 Resource Map
 
-    # Check object lengths
-    lengths <- sapply(pkg, length)
-    expect_equivalent(lengths, c(1,4,1))
+    # Parent1 Test
+    clone_parent1 <- arcticdatautils::get_package(d1c_test@mn, clone$child_packages)
+    expect_true(all(arcticdatautils::object_exists(d1c_test@mn, unlist(clone_parent1))))
+    expect_length(clone_parent1$data, 0) # No Data
+    expect_length(clone_parent1$metadata, 1) # 1 Metadata file
+    expect_length(clone_parent1$child_packages, 1) # 1 Child
+    expect_length(clone_parent1$resource_map, 1) # 1 Resource Map
+
+    # Child Test
+    clone_child <- arcticdatautils::get_package(d1c_test@mn, clone_parent1$child_packages)
+    expect_true(all(arcticdatautils::object_exists(d1c_test@mn, unlist(clone_child))))
+    expect_length(clone_child$data, 1) # 1 Data
+    expect_length(clone_child$metadata, 1) # 1 Metadata file
+    expect_length(clone_child$child_packages, 0) # 0 Child
+    expect_length(clone_child$resource_map, 1) # 1 Resource Map
+
+    # Child Data Test
+    dataobj1 <- dataone::getObject(d1c_test@mn, child$data)
+    cloneobj1 <- dataone::getObject(d1c_test@mn, clone_child$data)
+    expect_equal(dataobj1, cloneobj1) #cloned data is the same
 })
 
-test_that("clone_package copies a package with a child package", {
-    if (!arcticdatautils::is_token_set(mn_test)) {
-        skip("No token set. Skipping test.")
-    }
-
-    # Clone package
-    pkg <- clone_package("resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
-                              mn_prod, mn_test, clone_child_packages = TRUE)
-
-    expect_named(pkg, c("metadata", "data", "resource_map", "child_packages"))
-    expect_true(all(arcticdatautils::object_exists(mn_test, unlist(pkg))))
-    expect_length(pkg, 4)
-
-    child <- arcticdatautils::get_package(mn_test, pkg$child_packages[1])
-
-    # Check object lengths
-    lengths <- sapply(child, length)
-    expect_equivalent(lengths, c(1,1,2,0))
-})
