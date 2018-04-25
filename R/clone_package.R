@@ -10,7 +10,6 @@
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
 #' @param new_submitter (character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.
-#' @param change_origin_node (logical) Optional. Will change the originMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #'
 #' @importFrom uuid UUIDgenerate
@@ -42,7 +41,6 @@ clone_object <- function(pid,
                          public = FALSE,
                          new_pid = TRUE,
                          new_submitter = NULL,
-                         change_origin_node = FALSE,
                          change_auth_node = FALSE) {
 
     if (!(is.character(pid) & nchar(pid) > 0)) {
@@ -73,10 +71,6 @@ clone_object <- function(pid,
         stop("new_submitter must be either NULL or a string with a non-zero number of characters")
     }
 
-    if (!is.logical(change_origin_node)) {
-        stop("change_origin_node must be either TRUE or FALSE")
-    }
-
     if (!is.logical(change_auth_node)) {
         stop("change_auth_node must be either TRUE or FALSE")
     }
@@ -91,10 +85,6 @@ clone_object <- function(pid,
 
     if (!is.null(new_submitter)) {
         data_obj@sysmeta@submitter <- new_submitter
-    }
-
-    if (change_origin_node) {
-        data_obj@sysmeta@originMemberNode <- to@mn@identifier
     }
 
     if (change_auth_node) {
@@ -151,7 +141,6 @@ clone_object <- function(pid,
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
 #' @param new_submitter (character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.
 #' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.
-#' @param change_origin_node (logical) Optional. Will change the originMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
@@ -182,7 +171,6 @@ clone_package <- function(resource_map_pid,
                           clone_children = FALSE,
                           new_pid = TRUE,
                           new_submitter = NULL,
-                          change_origin_node = FALSE,
                           change_auth_node = FALSE) {
 
     if (!(is.character(resource_map_pid) & nchar(resource_map_pid) > 0)) {
@@ -211,10 +199,6 @@ clone_package <- function(resource_map_pid,
 
     if (!(is.null(new_submitter) || (is.character(new_submitter) & nchar(new_submitter)>0))) {
         stop("new_submitter must be either NULL or a string with a non-zero number of characters")
-    }
-
-    if (!is.logical(change_origin_node)) {
-        stop("change_origin_node must be either TRUE or FALSE")
     }
 
     if (!is.logical(change_auth_node)) {
@@ -250,7 +234,6 @@ clone_package <- function(resource_map_pid,
                                 public = public,
                                 new_pid = new_pid,
                                 new_submitter = new_submitter,
-                                change_origin_node = change_origin_node,
                                 change_auth_node = change_auth_node)
 
     if (is.null(new_eml_pid)) {
@@ -268,7 +251,6 @@ clone_package <- function(resource_map_pid,
                      public = public,
                      new_pid = new_pid,
                      new_submitter = new_submitter,
-                     change_origin_node = change_origin_node,
                      change_auth_node = change_auth_node)
     }))
 
@@ -290,7 +272,6 @@ clone_package <- function(resource_map_pid,
                                           clone_children = clone_children,
                                           new_pid = new_pid,
                                           new_submitter = new_submitter,
-                                          change_origin_node = change_origin_node,
                                           change_auth_node = change_auth_node)
             cloned_child$resource_map
         }))
@@ -316,7 +297,6 @@ clone_package <- function(resource_map_pid,
                                              public = public,
                                              new_pid = new_pid,
                                              new_submitter = new_submitter,
-                                             change_origin_node = change_origin_node,
                                              change_auth_node = change_auth_node)
     }
     response[["resource_map"]] <- new_resource_map_pid

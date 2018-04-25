@@ -5,8 +5,7 @@
 \title{Clones objects between DataONE Member Nodes.}
 \usage{
 clone_object(pid, from, to, add_access_to, public = FALSE, new_pid = TRUE,
-  new_submitter = NULL, change_origin_node = FALSE,
-  change_auth_node = FALSE)
+  new_submitter = NULL, change_auth_node = FALSE)
 }
 \arguments{
 \item{pid}{(character) Object pid}
@@ -22,8 +21,6 @@ clone_object(pid, from, to, add_access_to, public = FALSE, new_pid = TRUE,
 \item{new_pid}{(logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.}
 
 \item{new_submitter}{(character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.}
-
-\item{change_origin_node}{(logical) Optional. Will change the originMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.}
 
 \item{change_auth_node}{(logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.}
 }
