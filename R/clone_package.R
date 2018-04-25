@@ -4,8 +4,8 @@
 #' Note, the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
 #'
 #' @param pid (character) Object pid
-#' @param from (D1Client) D1Client to clone objects from.
-#' @param to (D1Client) D1Client to clone objects to.
+#' @param from (D1Client) D1Client to clone objects from. (Objects must be public)
+#' @param to (D1Client) D1Client to clone objects to. (Token must be set for this node)
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
@@ -78,7 +78,7 @@ clone_object <- function(pid,
     # Get DataObject
     data_obj <- dataone::getDataObject(from, pid)
 
-    # Adujst sysmeta
+    # Adjust sysmeta
     if (new_pid) {
         data_obj@sysmeta@identifier <- paste0("urn:uuid:", uuid::UUIDgenerate())
     }
@@ -134,8 +134,8 @@ clone_object <- function(pid,
 #' obsoletes the version of the package that they used to create the clone.
 #'
 #' @param resource_map_pid (character) Object pid
-#' @param from (D1Client) D1Client to clone objects from.
-#' @param to (D1Client) D1Client to clone objects to.
+#' @param from (D1Client) D1Client to clone pacakge from. (Package must be public)
+#' @param to (D1Client) D1Client to clone package to. (Token must be set for this node)
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
