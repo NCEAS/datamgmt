@@ -5,15 +5,14 @@
 \title{Clones packages between Dataone Member Nodes.}
 \usage{
 clone_package(resource_map_pid, from, to, add_access_to, public = FALSE,
-  clone_children = FALSE, new_pid = TRUE, new_submitter = NULL,
-  change_auth_node = FALSE)
+  clone_children = FALSE, new_pid = TRUE, change_auth_node = FALSE)
 }
 \arguments{
 \item{resource_map_pid}{(character) Object pid}
 
-\item{from}{(D1Client) D1Client to clone objects from.}
+\item{from}{(D1Client) D1Client to clone pacakge from. (Package must be public)}
 
-\item{to}{(D1Client) D1Client to clone objects to.}
+\item{to}{(D1Client) D1Client to clone package to. (Token must be set for this node)}
 
 \item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.}
 
@@ -22,8 +21,6 @@ clone_package(resource_map_pid, from, to, add_access_to, public = FALSE,
 \item{clone_children}{(logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.}
 
 \item{new_pid}{(logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.}
-
-\item{new_submitter}{(character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.}
 
 \item{change_auth_node}{(logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.}
 }
