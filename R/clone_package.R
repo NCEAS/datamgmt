@@ -9,7 +9,6 @@
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
-#' @param new_submitter (character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.
 #' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #'
 #' @importFrom uuid UUIDgenerate
@@ -40,7 +39,6 @@ clone_object <- function(pid,
                          add_access_to,
                          public = FALSE,
                          new_pid = TRUE,
-                         new_submitter = NULL,
                          change_auth_node = FALSE) {
 
     if (!(is.character(pid) & nchar(pid) > 0)) {
@@ -56,7 +54,7 @@ clone_object <- function(pid,
     }
 
     if (!(is.null(add_access_to) || (is.character(add_access_to) & all(nchar(add_access_to)>0)))) {
-        stop("new_submitter must be either NULL or a string with non-zero number of characters")
+        stop("add_access_to must be either NULL or a string with non-zero number of characters")
     }
 
     if (!is.logical(public)) {
@@ -65,10 +63,6 @@ clone_object <- function(pid,
 
     if (!is.logical(new_pid)) {
         stop("new_pid must be either TRUE or FALSE")
-    }
-
-    if (!(is.null(new_submitter) || (is.character(new_submitter) & nchar(new_submitter)>0))) {
-        stop("new_submitter must be either NULL or a string with a non-zero number of characters")
     }
 
     if (!is.logical(change_auth_node)) {
@@ -81,10 +75,6 @@ clone_object <- function(pid,
     # Adjust sysmeta
     if (new_pid) {
         data_obj@sysmeta@identifier <- paste0("urn:uuid:", uuid::UUIDgenerate())
-    }
-
-    if (!is.null(new_submitter)) {
-        data_obj@sysmeta@submitter <- new_submitter
     }
 
     if (change_auth_node) {
@@ -139,7 +129,6 @@ clone_object <- function(pid,
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
-#' @param new_submitter (character) Optional. Will change the submitter in the system metadata to given string if present.  Defaults to \code{NULL}.
 #' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.
 #' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #'
@@ -170,7 +159,6 @@ clone_package <- function(resource_map_pid,
                           public = FALSE,
                           clone_children = FALSE,
                           new_pid = TRUE,
-                          new_submitter = NULL,
                           change_auth_node = FALSE) {
 
     if (!(is.character(resource_map_pid) & nchar(resource_map_pid) > 0)) {
@@ -186,7 +174,7 @@ clone_package <- function(resource_map_pid,
     }
 
     if (!(is.null(add_access_to) || (is.character(add_access_to) & all(nchar(add_access_to)>0)))) {
-        stop("new_submitter must be either NULL or a string with non-zero number of characters")
+        stop("add_access_to must be either NULL or a string with non-zero number of characters")
     }
 
     if (!is.logical(public)) {
@@ -195,10 +183,6 @@ clone_package <- function(resource_map_pid,
 
     if (!is.logical(new_pid)) {
         stop("new_pid must be either TRUE or FALSE")
-    }
-
-    if (!(is.null(new_submitter) || (is.character(new_submitter) & nchar(new_submitter)>0))) {
-        stop("new_submitter must be either NULL or a string with a non-zero number of characters")
     }
 
     if (!is.logical(change_auth_node)) {
@@ -233,7 +217,6 @@ clone_package <- function(resource_map_pid,
                                 add_access_to = add_access_to,
                                 public = public,
                                 new_pid = new_pid,
-                                new_submitter = new_submitter,
                                 change_auth_node = change_auth_node)
 
     if (is.null(new_eml_pid)) {
@@ -250,7 +233,6 @@ clone_package <- function(resource_map_pid,
                      add_access_to = add_access_to,
                      public = public,
                      new_pid = new_pid,
-                     new_submitter = new_submitter,
                      change_auth_node = change_auth_node)
     }))
 
@@ -271,7 +253,6 @@ clone_package <- function(resource_map_pid,
                                           public = public,
                                           clone_children = clone_children,
                                           new_pid = new_pid,
-                                          new_submitter = new_submitter,
                                           change_auth_node = change_auth_node)
             cloned_child$resource_map
         }))
@@ -296,7 +277,6 @@ clone_package <- function(resource_map_pid,
                                              add_access_to = add_access_to,
                                              public = public,
                                              new_pid = new_pid,
-                                             new_submitter = new_submitter,
                                              change_auth_node = change_auth_node)
     }
     response[["resource_map"]] <- new_resource_map_pid
