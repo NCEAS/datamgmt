@@ -38,7 +38,6 @@ test_that("clone_package copies a package w - w/o data and children", {
                          public = TRUE,
                          clone_children = TRUE,
                          new_pid = TRUE,
-                         new_submitter = NULL,
                          change_auth_node = FALSE)
 
     # Parent2 Test
