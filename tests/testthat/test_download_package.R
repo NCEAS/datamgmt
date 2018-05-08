@@ -2,9 +2,20 @@ context("Download package")
 
 cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
-package <- arcticdatautils::get_package(mn,
-                                        "resource_map_doi:10.18739/A23W02",
-                                        file_names = TRUE)
+
+# package <- arcticdatautils::get_package(mn,
+#                                         "resource_map_doi:10.18739/A23W02",
+#                                         file_names = TRUE)
+
+#faster alternative:
+package <- list()
+package$metadata <- c(N2_2014metadata.xml = "doi:10.18739/A23W02")
+package$resource_map <- "resource_map_doi:10.18739/A23W02"
+package$data <- c(`2013_2014_winter_N2_dissoxy.csv` = "urn:uuid:0e648447-b685-4a8d-b2d1-9143c799509f",
+                  `2014_summer_N2_spconductance.csv` = "urn:uuid:76770fec-8b7e-43b9-8b50-821bd042af95",
+                  `2014_summer_N2_temperature.csv` = "urn:uuid:bdd04c25-73f9-4d17-bc91-3c38bf05d561",
+                  `2013_2014_winter_N2_spconductance.csv` = "urn:uuid:6c2d697e-bd0f-4449-9bf4-c76f191bc417",
+                  `2013_2014_winter_N2_temperature.csv` = "urn:uuid:62451306-55f6-4392-a548-5e57edff2ccc")
 
 test_that("download_data_objects works", {
     if (!arcticdatautils::is_token_set(mn)) {
