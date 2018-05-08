@@ -1,6 +1,6 @@
-testthat::context("which in eml")
+context("which in eml")
 
-testthat::test_that("Returns correct locations", {
+test_that("Returns correct locations", {
 
     attributes <-
         data.frame(
@@ -73,7 +73,7 @@ testthat::test_that("Returns correct locations", {
     eml <- new("eml",
                dataset = dataset)
 
-    testthat::expect_equal(c(2,3), which_in_eml(eml@dataset@creator, "givenName", "FIRST_2"))
-    testthat::expect_error(which_in_eml(eml@dataset@dataTable, "attributeName", "length_3"))
-    testthat::expect_equal(c(1,3), which_in_eml(eml@dataset@dataTable[[1]]@attributeList@attribute, "attributeName", function(x) {grepl("^length", x)}))
+    expect_equal(c(2,3), which_in_eml(eml@dataset@creator, "givenName", "FIRST_2"))
+    expect_error(which_in_eml(eml@dataset@dataTable, "attributeName", "length_3"))
+    expect_equal(c(1,3), which_in_eml(eml@dataset@dataTable[[1]]@attributeList@attribute, "attributeName", function(x) {grepl("^length", x)}))
 })
