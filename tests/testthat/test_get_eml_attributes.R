@@ -5,7 +5,7 @@ mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
 
 # loads the correct output .rdata object for get_eml_attributes unit tests
-path <- file.path(system.file(package = "datamgmt"), "get_eml_attributes_output.Rdata")
+path <- system.file("get_eml_attributes_output.Rdata", package = "datamgmt")
 load(path)
 
 test_that("error checks function correctly", {

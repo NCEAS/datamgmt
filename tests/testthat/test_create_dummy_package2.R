@@ -1,8 +1,3 @@
-library(testthat)
-library(dataone)
-library(arcticdatautils)
-library(EML)
-
 context("Test create_dummy_package2 errors")
 #best check is to view package online
 

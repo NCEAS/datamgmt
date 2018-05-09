@@ -1,6 +1,3 @@
-library(arcticdatautils)
-library(dataone)
-
 context("Add creator id")
 
 #for add_creator_id
