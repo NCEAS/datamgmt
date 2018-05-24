@@ -49,7 +49,7 @@ guess_member_node <- function(pid, cn = "PROD") {
     results <- unlist(sapply(cn, query_datasource, pid = pid))
 
     if (length(results) == 0) {
-        stop(paste0("Identifier not found in nodes: ", cn))
+        stop(paste0("Identifier not found in node: ", cn, "\n"))
     }
 
     if (length(results) > 1) {
