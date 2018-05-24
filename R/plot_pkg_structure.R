@@ -56,11 +56,8 @@ query_tree <- function(mn, parent_rm_pid){
 #'
 #' @export
 #'
-#' @importFrom visNetwork visIgraph
-#' @importFrom igraph graph_from_data_frame
 #' @import dplyr
 #' @importFrom tidyr unnest
-#' @importFrom purrr map
 #'
 #' @examples
 #' \dontrun{
@@ -73,6 +70,19 @@ query_tree <- function(mn, parent_rm_pid){
 #' }
 
 plot_pkg_structure <- function(mn, parent_rm_pid) {
+
+    if (!requireNamespace("visNetwork", quietly = TRUE) | !requireNamespace("igraph", quietly = TRUE) | !requireNamespace("purrr", quietly = TRUE)) {
+        stop(call. = FALSE,
+             "plot_pkg_structure requires the
+         'visNetwork', 'igraph', and 'purrr' packages to be installed. Install these packages for this functionality.")
+
+        #removed importFroms:
+
+        # @importFrom visNetwork visIgraph
+        # @importFrom igraph graph_from_data_frame
+        # @importFrom purrr map
+    }
+
     # Check that the pid is a resource map
     if(!str_detect(parent_rm_pid, "resource")){
         warning(cat("Is", parent_rm_pid, "a resource map PID? Please double check.\n"))
