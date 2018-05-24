@@ -26,11 +26,9 @@ Imports:
     EML,
     gsubfn,
     htmlwidgets,
-    igraph,
     jsonlite,
     memoise,
     methods,
-    purrr,
     RCurl,
     readxl,
     rhandsontable,
@@ -43,7 +41,6 @@ Imports:
     units,
     utils,
     uuid,
-    visNetwork,
     XML,
     xml2
 License: Apache License (== 2.0)
@@ -51,7 +48,10 @@ Encoding: UTF-8
 LazyData: true
 Suggests: testthat,
     knitr,
-    rmarkdown
+    igraph,
+    purrr,
+    rmarkdown,
+    visNetwork
 Remotes: NCEAS/arcticdatautils,
          ropensci/EML
 RoxygenNote: 6.0.1
