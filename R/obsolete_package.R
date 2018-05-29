@@ -10,16 +10,14 @@
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @return (character)
-#'
 #' @examples
 #' \dontrun{
-#' package_to_obsolete <- "doi:10.18739/A2FJ29C23"
+#' cn <- dataone::CNode('STAGING')
+#' mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+#' pkg_old <- arcticdatautils::create_dummy_package(mn)
+#' pkg_new <- arcticdatautils::create_dummy_package(mn)
 #'
-#' pkg_old <- arcticdatautils::create_dummy_package(mn_test)
-#' pkg_new <- arcticdatautils::create_dummy_package(mn_test)
-#'
-#' obsolete_package(mn_test, pkg_old$metadata, pkg_new$metadata)
+#' obsolete_package(mn, pkg_old$metadata, pkg_new$metadata)
 #'}
 obsolete_package <- function(mn, metadata_old, metadata_new) {
     # Argument checks
@@ -29,23 +27,27 @@ obsolete_package <- function(mn, metadata_old, metadata_new) {
     stopifnot(arcticdatautils::object_exists(mn, metadata_old))
     stopifnot(arcticdatautils::object_exists(mn, metadata_new))
 
-    # Update version chain of metadata_old
-    sys1 <- dataone::getSystemMetadata(mn, metadata_old)
-    if (!is.na(sys1@obsoletedBy)) {
-        stop(message("pid: ", metadata_old, " already obsoleted by: ",
-                     sys1@obsoletedBy, ". If you still wish to obsolete this version
-                     chain please use the newest version."))
-    }
-    sys1@obsoletedBy <- metadata_new
-    dataone::updateSystemMetadata(mn, metadata_old, sys1)
-
-    # Set to first version of metadata_new in obsolescence chain
+    # Pull system metadata
+    message("Getting system metadata from member node\n")
+    sys_old <- dataone::getSystemMetadata(mn, metadata_old)
     versions <- arcticdatautils::get_all_versions(mn, metadata_new)
     metadata_new <- versions[1]
+    sys_new <- dataone::getSystemMetadata(mn, metadata_new)
 
-    # Update sysmeta
-    sys2 <- dataone::getSystemMetadata(mn, metadata_new)
-    stopifnot(is.na(sys2@obsoletes))
-    sys2@obsoletes <- metadata_old
-    dataone::updateSystemMetadata(mn, metadata_new, sys2)
+    # Check that fields to update are NA
+    if (!is.na(sys_old@obsoletedBy)) {
+        stop(message("pid: ", metadata_old, " already obsoleted by: ",
+                     sys_old@obsoletedBy, ". If you still wish to obsolete this version chain please use the last pid in the version chain."))
+    }
+    if (!is.na(sys_new@obsoletes)) {
+        stop(message("pid: ", metadata_new, " already obsoletes: ",
+                     sys_new@obsoletes, "."))
+    }
+
+    # Update system metadata
+    message("Updating obsolescence chain in system metadata\n")
+    sys_old@obsoletedBy <- metadata_new
+    sys_new@obsoletes   <- metadata_old
+    dataone::updateSystemMetadata(mn, metadata_old, sys_old)
+    dataone::updateSystemMetadata(mn, metadata_new, sys_new)
 }
