@@ -7,10 +7,12 @@
 #' \code{NCEAS/arcticdatautils::publish_update} should be used.
 #'
 #' @param mn (MNode) The DataOne member node
-#' @param metadata_obsolete (character) The metadata pid of the old version.
+#' @param metadata_obsolete (character) The metadata pid of the old, or broken, version. Any
+#' metadata pid from the obsolete version chain can be used - sets the pid to the
+#' end of the version chain
 #' @param metadata_new (character) The metadata pid of the new version. Any metadata
-#' pid from the new version chain can be used - defaults to the beginning of
-#' a version chain.
+#' pid from the new version chain can be used - sets the pid to the beginning of
+#' the version chain.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
