@@ -132,7 +132,7 @@ query_all_versions<- function(node, object_pid, fields = "all"){
     return(df_query)
 }
 
-#Example
+
 #' @examples
 #' \dontrun{
 #' cn <- dataone::CNode("PROD")
