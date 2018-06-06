@@ -5,6 +5,7 @@
 #' @return (character) List of Solr fields
 #'
 #' Written by Irene in the reference guide
+#' @references https://github.com/NCEAS/datateam-training/blob/master/workflows/solr_queries/construct_a_query.Rmd
 
 get_solr_fields <- function(){
     adc_solr <- httr::GET("https://arcticdata.io/metacat/d1/mn/v2/query/solr")
@@ -21,60 +22,34 @@ get_solr_fields <- function(){
 #' This is a helper function for 'query_all_versions' function. It simplifies solr queries
 #' and creates a one row data frame with the specified Solr fields as the columns.
 #'
-#' @author Sharis Ochs
+#' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param node (character) Specify the node where the object should be searched for.
+#' @param node (MNode) Specify the node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
-#' @param fields (list) List of fields that you want returned in the data frame. Default
+#' @param fields (character) List of fields that you want returned in the data frame. Default of "*"
 #' returns all non NULL fields.
 #'
 #' @return (dataframe)
 #'
 
-query_solr_metadata<- function(node, object_pid, fields = "all"){
-
-    # Case 1 ========================
-    # Case: if no fields are specified
-    suppressWarnings(if (fields == "all"){
-        # Query all fields
-        q <- paste0("documents:\"", object_pid, "\"")
-        df_query <- dataone::query(node, list(q=q,
-                                              fl= "*",
-                                              rows="5"),
-                                   as = "data.frame")
-    })
-
-    # Case 2 ========================
-    # Else: Fields are specified
-    suppressWarnings(if (fields != "all"){
-        q <- paste0("documents:\"", object_pid, "\"")
-        fl <- paste(fields, collapse=", ")
-        df_query <- dataone::query(node, list(q=q,
-                                              fl= fl,
-                                              rows="5"),
-                                   as = "data.frame")
-    })
-    return(df_query)
-}
-
-#' Solr query all versions of a PID
-#'
-#' This function uses a combination of get_all_versions and solr query to return the query fields
-#' for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
-#' and the columns are the query fields.
-#'
-#' @author Sharis Ochs
-#'
-#' @param node (character) Specify the node where the object should be searched for.
-#' @param object_pid (character) PID for the object that you want to return information about.
-#' @param fields (list) List of fields that you want returned in the data frame. Default
-#' returns all non NULL fields.
-#'
-#' @return (dataframe)
-#'
-query_all_versions<- function(node, object_pid, fields = "all"){
+query_solr_metadata<- function(node, object_pid, fields = "*"){
 
     ## Checks =========================
+    # Check that node exist
+    if (!(methods::is(node, "MNode"))) {
+        stop('Please enter a valid node ')
+    }
+
+    # Check that object_pid is character
+    if (!(is.character(object_pid))) {
+        stop('object_pid should be of class "character" ')
+    }
+
+    # Check that fields input is character
+    if (!(is.character(fields))) {
+        stop('fields should be of class "character" ')
+    }
+
     # Check that object exist
     if (!(arcticdatautils::object_exists(node, object_pid))) {
         stop('Object does not exist on specified node ')
@@ -84,13 +59,61 @@ query_all_versions<- function(node, object_pid, fields = "all"){
     adc_solr<- get_solr_fields()
 
     # Check that all specified fields are valid
-    suppressWarnings(if (fields != "all"){
-        for (j in 1:length(fields)){
-            if (!(fields[j] %in% adc_solr)){
-                stop(paste0(fields[j], " is not a valid field"))
+    suppressWarnings(if (fields != "*"){
+        indices <- which(!(fields %in% adc_solr))
+        if (length(indices)>0){
+            if(length(indices) == 1){
+                stop(fields[indices], " is not a valid field")
+            }
+            else {
+                stop(paste(fields[indices], collapse=" and "), " are not valid fields")
             }
         }
     })
+
+    fl <- paste(fields, collapse=", ")
+    q <- paste0("documents:\"", object_pid, "\"")
+    df_query <- dataone::query(node, list(q=q,
+                                        fl= fl,
+                                        rows="5"),
+                                   as = "data.frame")
+
+    return(df_query)
+}
+
+#' Solr query all versions of a PID
+#'
+#' This function uses a combination of get_all_versions and solr query to return the query fields
+#' for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
+#' and the columns are the query fields.
+#'
+#' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
+#'
+#' @param node (character) Specify the node where the object should be searched for.
+#' @param object_pid (character) PID for the object that you want to return information about.
+#' @param fields (list) List of fields that you want returned in the data frame. Default
+#' returns all non NULL fields.
+#'
+#' @return (data.frame)
+#'
+#'
+query_all_versions<- function(node, object_pid, fields = "all"){
+
+    ## Checks =========================
+    # Check that node exist
+    if (!(methods::is(node, "MNode"))) {
+        stop('Please enter a valid node ')
+    }
+
+    # Check that object_pid is character
+    if (!(is.character(object_pid))) {
+        stop('object_pid should be of class "character" ')
+    }
+
+    # Check that fields input is character
+    if (!(is.character(fields))) {
+        stop('fields should be of class "character" ')
+    }
 
     # Get all versions
     versions<- arcticdatautils::get_all_versions(node, object_pid)
@@ -110,5 +133,11 @@ query_all_versions<- function(node, object_pid, fields = "all"){
 }
 
 #Example
-#df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
+#' @examples
+#' \dontrun{
+#' cn <- dataone::CNode("PROD")
+#' mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
+#' df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
+#' View(df)
+#' }
 
