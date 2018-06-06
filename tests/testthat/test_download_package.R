@@ -3,11 +3,6 @@ context("Download package")
 cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 
-# package <- arcticdatautils::get_package(mn,
-#                                         "resource_map_doi:10.18739/A23W02",
-#                                         file_names = TRUE)
-
-#faster alternative:
 package <- list()
 package$metadata <- c(N2_2014metadata.xml = "doi:10.18739/A23W02")
 package$resource_map <- "resource_map_doi:10.18739/A23W02"
