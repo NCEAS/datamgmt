@@ -35,7 +35,7 @@ get_solr_fields <- function(){
 query_solr_metadata<- function(node, object_pid, fields = "*"){
 
     ## Checks =========================
-    # Check that node exist
+    # Check that node exists
     if (!(methods::is(node, "MNode"))) {
         stop('Please enter a valid node ')
     }
@@ -96,8 +96,15 @@ query_solr_metadata<- function(node, object_pid, fields = "*"){
 #'
 #' @return (data.frame)
 #'
-#'
-query_all_versions<- function(node, object_pid, fields = "all"){
+#' @examples
+#' \dontrun{
+#' cn <- dataone::CNode("PROD")
+#' mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
+#' df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
+#' View(df)
+#' }
+
+query_all_versions<- function(node, object_pid, fields = "*"){
 
     ## Checks =========================
     # Check that node exist
@@ -113,6 +120,11 @@ query_all_versions<- function(node, object_pid, fields = "all"){
     # Check that fields input is character
     if (!(is.character(fields))) {
         stop('fields should be of class "character" ')
+    }
+
+    # Check that object exist
+    if (!(arcticdatautils::object_exists(node, object_pid))) {
+        stop('Object does not exist on specified node ')
     }
 
     # Get all versions
@@ -131,13 +143,4 @@ query_all_versions<- function(node, object_pid, fields = "all"){
 
     return(df_query)
 }
-
-
-#' @examples
-#' \dontrun{
-#' cn <- dataone::CNode("PROD")
-#' mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
-#' df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
-#' View(df)
-#' }
 
