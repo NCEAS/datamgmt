@@ -14,6 +14,8 @@
 #' pid from the new version chain can be used - sets the pid to the beginning of
 #' the version chain.
 #'
+#' @importFrom utils tail
+#'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @return (TRUE)
@@ -49,10 +51,10 @@ obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
     }
 
     # Check that pids are at the end and beginning of respective chains, if not then update them.
-    if (metadata_obs != tail(versions_obs, 1)) {
+    if (metadata_obs != utils::tail(versions_obs, 1)) {
         message(warning("'metadata_obsolete' argument is not at the end of the version chain. Setting the 'metadata_obsolete' argument from: ",
-                metadata_obs, " to: ", tail(versions_obs, 1)))
-        metadata_obs <- tail(versions_obs, 1)
+                metadata_obs, " to: ", utils::tail(versions_obs, 1)))
+        metadata_obs <- utils::tail(versions_obs, 1)
     }
     if (metadata_new != versions_new[1]) {
         message(warning("'metadata_new' arguement is not at the start of the version chain. Setting the 'metadata_new' argument from: ",
