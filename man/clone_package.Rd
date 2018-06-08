@@ -33,7 +33,8 @@ obsoletes the version of the package that they used to create the clone.
 }
 \examples{
 \dontrun{
-# First set up the member nodes we're cloning between (in this example they are the same but could be different)
+# First set up the member nodes we're cloning between
+# (in this example they are the same but could be different)
 to <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 from <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 
