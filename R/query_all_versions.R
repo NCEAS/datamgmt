@@ -102,6 +102,7 @@ query_solr_metadata<- function(node, object_pid, fields = "*"){
 #' df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
 #' View(df)
 #' }
+#' @export
 
 query_all_versions<- function(node, object_pid, fields = "*"){
 
