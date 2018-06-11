@@ -4,8 +4,7 @@
 #'
 #' @return (character) List of Solr fields
 #'
-#' Written by Irene in the reference guide
-#' @references https://github.com/NCEAS/datateam-training/blob/master/workflows/solr_queries/construct_a_query.Rmd
+#' @references Written by Irene in the reference guide at https://github.com/NCEAS/datateam-training/blob/master/workflows/solr_queries/construct_a_query.Rmd
 
 get_solr_fields <- function(){
     adc_solr <- httr::GET("https://arcticdata.io/metacat/d1/mn/v2/query/solr")
@@ -29,7 +28,7 @@ get_solr_fields <- function(){
 #' @param fields (character) List of fields that you want returned in the data frame. Default of "*"
 #' returns all non NULL fields.
 #'
-#' @return (dataframe)
+#' @return (data.frame) One row data frame with query fields as columns.
 #'
 
 query_solr_metadata<- function(node, object_pid, fields = "*"){
@@ -89,12 +88,12 @@ query_solr_metadata<- function(node, object_pid, fields = "*"){
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param node (character) Specify the node where the object should be searched for.
+#' @param node (MNode) Specify the node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
-#' @param fields (list) List of fields that you want returned in the data frame. Default
+#' @param fields (character) List of fields that you want returned in the data frame. Default
 #' returns all non NULL fields.
 #'
-#' @return (data.frame)
+#' @return (data.frame) Data frame with rows for each version of the PID and columns with each query field
 #'
 #' @examples
 #' \dontrun{
