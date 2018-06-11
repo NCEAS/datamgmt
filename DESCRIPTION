@@ -26,6 +26,7 @@ Imports:
     EML,
     gsubfn,
     htmlwidgets,
+    httr,
     jsonlite,
     memoise,
     methods,
