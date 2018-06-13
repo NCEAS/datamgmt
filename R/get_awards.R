@@ -68,7 +68,7 @@ get_awards <- function(from_date = NULL,
         if(!stringr::str_detect(from_date, "\\d\\d/\\d\\d/\\d\\d\\d\\d")) {
             stop("The from_date is not in the format 'mm/dd/yyyy'.")
         } else {
-            query_url <- paste0(query_url, "&startDateStart=", from_date)
+            query_url <- paste0(query_url, "&dateStart=", from_date)
         }
     }
 
@@ -76,7 +76,7 @@ get_awards <- function(from_date = NULL,
         if(!stringr::str_detect(to_date, "\\d\\d/\\d\\d/\\d\\d\\d\\d")) {
             stop("The to_date is not in the format 'mm/dd/yyyy'.")
         } else {
-            query_url <- paste0(query_url, "&startDateEnd=", to_date)
+            query_url <- paste0(query_url, "&dateEnd=", to_date)
         }
     }
 
