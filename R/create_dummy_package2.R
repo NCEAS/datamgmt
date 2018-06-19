@@ -23,6 +23,11 @@ create_dummy_package2 <- function(mn,
     stopifnot(is(mn, "MNode"))
     stopifnot(is.character(title))
 
+    # Make sure the node is not a production node
+    if (mn@env == "prod") {
+        stop('Can not create dummy package on production node.')
+    }
+
     #upload objects
     file.create(c("dummy1.csv", "dummy2.csv", "dummy1.jpg", "dummy2.jpg"))
     #TODO: add actual data to dummy files
