@@ -20,6 +20,8 @@
 #'
 #' @return (TRUE)
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' cn <- dataone::CNode('STAGING')

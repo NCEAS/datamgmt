@@ -5,16 +5,14 @@
 #' @return (character) List of Solr fields
 #'
 #' @references Written by Irene in the reference guide at https://github.com/NCEAS/datateam-training/blob/master/workflows/solr_queries/construct_a_query.Rmd
-
-get_solr_fields <- function(){
+get_solr_fields <- function() {
     adc_solr <- httr::GET("https://arcticdata.io/metacat/d1/mn/v2/query/solr")
-    suppressMessages(suppressWarnings(adc_solr<- adc_solr %>%
+    suppressMessages(suppressWarnings(adc_solr <- adc_solr %>%
                                           stringr::str_extract_all("name>.*<") %>%
                                           unlist() %>%
                                           stringr::str_replace_all("name>|<", "")))
     return(adc_solr)
 }
-
 
 #' Create data frame with Solr fields
 #'
@@ -30,52 +28,42 @@ get_solr_fields <- function(){
 #'
 #' @return (data.frame) One row data frame with query fields as columns.
 #'
-
-query_solr_metadata<- function(node, object_pid, fields = "*"){
+query_solr_metadata <- function(node, object_pid, fields = "*") {
 
     ## Checks =========================
     # Check that node exists
     if (!(methods::is(node, "MNode"))) {
-        stop('Please enter a valid node ')
+        stop('Please enter a valid node')
     }
-
     # Check that object_pid is character
     if (!(is.character(object_pid))) {
-        stop('object_pid should be of class "character" ')
+        stop('object_pid should be of class "character"')
     }
-
     # Check that fields input is character
     if (!(is.character(fields))) {
-        stop('fields should be of class "character" ')
+        stop('fields should be of class "character"')
     }
-
-    # Check that object exist
+    # Check that object exista
     if (!(arcticdatautils::object_exists(node, object_pid))) {
-        stop('Object does not exist on specified node ')
+        stop('Object does not exist on specified node')
     }
 
     # Get all solr fields
-    adc_solr<- get_solr_fields()
+    adc_solr <- get_solr_fields()
 
     # Check that all specified fields are valid
-    suppressWarnings(if (fields != "*"){
-        indices <- which(!(fields %in% adc_solr))
-        if (length(indices)>0){
-            if(length(indices) == 1){
-                stop(fields[indices], " is not a valid field")
+    suppressWarnings(
+        if (fields != "*") {
+            indices <- which(!(fields %in% adc_solr))
+            if (length(indices) > 0) {
+                stop("Invalid solr fields: ", paste(fields[indices], collapse = ", "), call. = FALSE)
             }
-            else {
-                stop(paste(fields[indices], collapse=" and "), " are not valid fields")
-            }
-        }
-    })
+        })
 
     fl <- paste(fields, collapse=", ")
     q <- paste0("documents:\"", object_pid, "\"")
-    df_query <- dataone::query(node, list(q=q,
-                                        fl= fl,
-                                        rows="5"),
-                                   as = "data.frame")
+    df_query <- dataone::query(node, list(q = q, fl = fl, rows = "5"),
+                               as = "data.frame")
 
     return(df_query)
 }
@@ -99,48 +87,41 @@ query_solr_metadata<- function(node, object_pid, fields = "*"){
 #' \dontrun{
 #' cn <- dataone::CNode("PROD")
 #' mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
-#' df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
+#' df <- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
 #' View(df)
 #' }
 #' @export
-
-query_all_versions<- function(node, object_pid, fields = "*"){
+query_all_versions <- function(node, object_pid, fields = "*") {
 
     ## Checks =========================
     # Check that node exist
     if (!(methods::is(node, "MNode"))) {
         stop('Please enter a valid node ')
     }
-
     # Check that object_pid is character
     if (!(is.character(object_pid))) {
-        stop('object_pid should be of class "character" ')
+        stop('object_pid should be of class "character"')
     }
-
     # Check that fields input is character
     if (!(is.character(fields))) {
-        stop('fields should be of class "character" ')
+        stop('fields should be of class "character"')
     }
-
     # Check that object exist
     if (!(arcticdatautils::object_exists(node, object_pid))) {
-        stop('Object does not exist on specified node ')
+        stop('Object does not exist on specified node')
     }
 
-    # Get all versions
-    versions<- arcticdatautils::get_all_versions(node, object_pid)
-    n<- length(versions)
+    # Get all versions and initialize results list
+    versions <- arcticdatautils::get_all_versions(node, object_pid)
+    results <- vector("list", length(versions))
 
-    # Initialize list to hold query results
-    datalist = list()
-    for (i in 1:length(versions)){
+    for (i in seq_along(versions)) {
         current <- query_solr_metadata(node = node, object_pid = versions[i], fields = fields)
         datalist[[i]] <- current # Add query result to list
         }
 
     # Combine list into data frame
-    df_query <- dplyr::bind_rows(datalist)
+    df_query <- dplyr::bind_rows(results)
 
     return(df_query)
 }
-

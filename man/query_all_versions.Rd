@@ -26,7 +26,7 @@ and the columns are the query fields.
 \dontrun{
 cn <- dataone::CNode("PROD")
 mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
-df<- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
+df <- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
 View(df)
 }
 }
