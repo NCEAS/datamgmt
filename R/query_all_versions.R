@@ -52,17 +52,13 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
     adc_solr <- get_solr_fields()
 
     # Check that all specified fields are valid
-    suppressWarnings(if (fields != "*"){
-        indices <- which(!(fields %in% adc_solr))
-        if (length(indices)>0){
-            if(length(indices) == 1){
-                stop(fields[indices], " is not a valid field")
+    suppressWarnings(
+        if (fields != "*") {
+            indices <- which(!(fields %in% adc_solr))
+            if (length(indices) > 0) {
+                stop("Invalid solr fields: ", paste(fields[indices], collapse = ", "), call. = FALSE)
             }
-            else {
-                stop(paste(fields[indices], collapse=" and "), " are not valid fields")
-            }
-        }
-    })
+        })
 
     fl <- paste(fields, collapse=", ")
     q <- paste0("documents:\"", object_pid, "\"")
@@ -115,19 +111,17 @@ query_all_versions <- function(node, object_pid, fields = "*") {
         stop('Object does not exist on specified node')
     }
 
-    # Get all versions
+    # Get all versions and initialize results list
     versions <- arcticdatautils::get_all_versions(node, object_pid)
-    n <- length(versions)
+    results <- vector("list", length(versions))
 
-    # Initialize list to hold query results
-    datalist = list()
-    for (i in 1:length(versions)) {
+    for (i in seq_along(versions)) {
         current <- query_solr_metadata(node = node, object_pid = versions[i], fields = fields)
         datalist[[i]] <- current # Add query result to list
         }
 
     # Combine list into data frame
-    df_query <- dplyr::bind_rows(datalist)
+    df_query <- dplyr::bind_rows(results)
 
     return(df_query)
 }
