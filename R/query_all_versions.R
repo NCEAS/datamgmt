@@ -117,7 +117,7 @@ query_all_versions <- function(node, object_pid, fields = "*") {
 
     for (i in seq_along(versions)) {
         current <- query_solr_metadata(node = node, object_pid = versions[i], fields = fields)
-        datalist[[i]] <- current # Add query result to list
+        results[[i]] <- current # Add query result to list
         }
 
     # Combine list into data frame
