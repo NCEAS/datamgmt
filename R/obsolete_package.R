@@ -32,6 +32,11 @@
 #' obsolete_package(mn, pkg_old$metadata, pkg_new$metadata)
 #'}
 obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
+    # Check that token is set 
+    if (!arcticdatautils::is_token_set(mn)) {
+        stop("Token is not set")
+    }
+    
     # shorten for readability
     metadata_obs <- metadata_obsolete
 
