@@ -4,10 +4,10 @@
 \alias{query_all_versions}
 \title{Solr query all versions of a PID}
 \usage{
-query_all_versions(node, object_pid, fields = "*")
+query_all_versions(mn, object_pid, fields = "*")
 }
 \arguments{
-\item{node}{(MNode) Specify the node where the object should be searched for.}
+\item{mn}{(MNode) Specify the DataOne Member Node where the object should be searched for.}
 
 \item{object_pid}{(character) PID for the object that you want to return information about.}
 
