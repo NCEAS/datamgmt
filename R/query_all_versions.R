@@ -92,9 +92,8 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
 #' }
 #' @export
 query_all_versions <- function(node, object_pid, fields = "*") {
-
     ## Checks =========================
-    if (!arcticdatautils::is_token_set(mn)) {
+    if (!arcticdatautils::is_token_set(node)) {
         stop("Token is not set. Please set a token to query private versions of pids.")
     }
     # Check that node exist
