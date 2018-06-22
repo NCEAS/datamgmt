@@ -45,7 +45,7 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
     }
     # Check that object exista
     if (!(arcticdatautils::object_exists(node, object_pid))) {
-        stop('Object does not exist on specified node')
+        stop("Object does not exist on specified node")
     }
 
     # Get all solr fields
@@ -94,9 +94,12 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
 query_all_versions <- function(node, object_pid, fields = "*") {
 
     ## Checks =========================
+    if (!arcticdatautils::is_token_set(mn)) {
+        stop("Token is not set. Please set a token to query private versions of pids.")
+    }
     # Check that node exist
     if (!(methods::is(node, "MNode"))) {
-        stop('Please enter a valid node ')
+        stop("Please enter a valid node")
     }
     # Check that object_pid is character
     if (!(is.character(object_pid))) {
@@ -108,7 +111,7 @@ query_all_versions <- function(node, object_pid, fields = "*") {
     }
     # Check that object exist
     if (!(arcticdatautils::object_exists(node, object_pid))) {
-        stop('Object does not exist on specified node')
+        stop("Object does not exist on specified node")
     }
 
     # Get all versions and initialize results list
