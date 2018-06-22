@@ -21,19 +21,19 @@ get_solr_fields <- function() {
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param node (MNode) Specify the node where the object should be searched for.
+#' @param mn (MNode) Specify the DataOne Member Node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
 #' @param fields (character) List of fields that you want returned in the data frame. Default of "*"
 #' returns all non NULL fields.
 #'
 #' @return (data.frame) One row data frame with query fields as columns.
 #'
-query_solr_metadata <- function(node, object_pid, fields = "*") {
+query_solr_metadata <- function(mn, object_pid, fields = "*") {
 
     ## Checks =========================
-    # Check that node exists
-    if (!(methods::is(node, "MNode"))) {
-        stop('Please enter a valid node')
+    # Check that mn exists
+    if (!(methods::is(mn, "MNode"))) {
+        stop('Please enter a valid member node')
     }
     # Check that object_pid is character
     if (!(is.character(object_pid))) {
@@ -44,8 +44,8 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
         stop('fields should be of class "character"')
     }
     # Check that object exista
-    if (!(arcticdatautils::object_exists(node, object_pid))) {
-        stop('Object does not exist on specified node')
+    if (!(arcticdatautils::object_exists(mn, object_pid))) {
+        stop("Object does not exist on specified member node")
     }
 
     # Get all solr fields
@@ -62,7 +62,7 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
 
     fl <- paste(fields, collapse=", ")
     q <- paste0("documents:\"", object_pid, "\"")
-    df_query <- dataone::query(node, list(q = q, fl = fl, rows = "5"),
+    df_query <- dataone::query(mn, list(q = q, fl = fl, rows = "5"),
                                as = "data.frame")
 
     return(df_query)
@@ -76,7 +76,7 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param node (MNode) Specify the node where the object should be searched for.
+#' @param mn (MNode) Specify the DataOne Member Node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
 #' @param fields (character) List of fields that you want returned in the data frame. Default
 #' returns all non NULL fields.
@@ -91,12 +91,14 @@ query_solr_metadata <- function(node, object_pid, fields = "*") {
 #' View(df)
 #' }
 #' @export
-query_all_versions <- function(node, object_pid, fields = "*") {
-
+query_all_versions <- function(mn, object_pid, fields = "*") {
     ## Checks =========================
-    # Check that node exist
-    if (!(methods::is(node, "MNode"))) {
-        stop('Please enter a valid node ')
+    if (!arcticdatautils::is_token_set(mn)) {
+        stop("Token is not set. Please set a token to query private versions of pids.")
+    }
+    # Check that mn exists
+    if (!(methods::is(mn, "MNode"))) {
+        stop("Please enter a valid member node")
     }
     # Check that object_pid is character
     if (!(is.character(object_pid))) {
@@ -107,16 +109,16 @@ query_all_versions <- function(node, object_pid, fields = "*") {
         stop('fields should be of class "character"')
     }
     # Check that object exist
-    if (!(arcticdatautils::object_exists(node, object_pid))) {
-        stop('Object does not exist on specified node')
+    if (!(arcticdatautils::object_exists(mn, object_pid))) {
+        stop("Object does not exist on specified member node")
     }
 
     # Get all versions and initialize results list
-    versions <- arcticdatautils::get_all_versions(node, object_pid)
+    versions <- arcticdatautils::get_all_versions(mn, object_pid)
     results <- vector("list", length(versions))
 
     for (i in seq_along(versions)) {
-        current <- query_solr_metadata(node = node, object_pid = versions[i], fields = fields)
+        current <- query_solr_metadata(mn, versions[i], fields)
         results[[i]] <- current # Add query result to list
         }
 

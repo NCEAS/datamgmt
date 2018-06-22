@@ -4,10 +4,10 @@
 \alias{query_solr_metadata}
 \title{Create data frame with Solr fields}
 \usage{
-query_solr_metadata(node, object_pid, fields = "*")
+query_solr_metadata(mn, object_pid, fields = "*")
 }
 \arguments{
-\item{node}{(MNode) Specify the node where the object should be searched for.}
+\item{mn}{(MNode) Specify the DataOne Member Node where the object should be searched for.}
 
 \item{object_pid}{(character) PID for the object that you want to return information about.}
 

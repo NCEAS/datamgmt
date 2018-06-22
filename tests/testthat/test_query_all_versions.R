@@ -30,3 +30,24 @@ test_that("query_solr_metadata returns correct output", {
 
     expect_equivalent(df_fun_all, df_query_all)
 })
+
+test_that("query_all_versions returns correct output", {
+    # Note: This test could fail if pid: urn:uuid:ed600b2a-76a8-4974-91cc-0e86a68c47e2 is updated
+    # The test doesn't check for the exact correct output, but relatively correct output
+
+    cnTest <- dataone::CNode('STAGING')
+    mn_test <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
+
+    if (!arcticdatautils::is_token_set(mn_test)) {
+        skip("No token set. Skipping test.")
+    }
+
+    results <- query_all_versions(mn_test,
+                                  "urn:uuid:ed600b2a-76a8-4974-91cc-0e86a68c47e2",
+                                  fields = "submitter")
+    submitters <- c("http://orcid.org/0000-0002-5511-9717",
+                    "http://orcid.org/0000-0002-2561-5840")
+
+    expect_equivalent(unique(results$submitter), submitters)
+
+})
