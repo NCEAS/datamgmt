@@ -136,9 +136,13 @@ qa_package <- function(node, pid, readAllData = TRUE,
                 } else if (format == "text/plain") {
                     utils::read.table(urls[i], nrows = rowsToRead)
                 } else if (format == "application/vnd.ms-excel") {
-                    readxl::read_xls(urls[i], n_max = rowsToRead)
+                    tmp = tempfile()
+                    utils::download.file(url = urls[i], destfile = tmp, mode='wb')
+                    readxl::read_xls(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
                 } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                    readxl::read_xlsx(urls[i], n_max = rowsToRead)
+                    tmp = tempfile()
+                    utils::download.file(url = urls[i], destfile = tmp, mode='wb')
+                    readxl::read_xlsx(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
                 }
             } else {
                 utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
