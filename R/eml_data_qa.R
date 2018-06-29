@@ -112,16 +112,16 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         if (!check_attributes) next
 
-        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes)) {
-            cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
-            next
-        }
-
         # If object is not tabular data, continue
         format <- sysmeta@formatId
         if (!format %in% supported_file_formats) next
 
         cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+
+        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes)) {
+            cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
+            next
+        }
 
         # If package is public, we can read directly from the csv, otherwise we use data one to get all the data
         isPublic <- datapack::hasAccessRule(sysmeta, "public", "read")
