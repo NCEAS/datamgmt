@@ -112,6 +112,11 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         if (!check_attributes) next
 
+        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes)) {
+            cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
+            next
+        }
+
         # If object is not tabular data, continue
         format <- sysmeta@formatId
         if (!format %in% supported_file_formats) next
@@ -135,15 +140,10 @@ qa_package <- function(node, pid, readAllData = TRUE,
                     utils::read.delim(urls[i], nrows = rowsToRead)
                 } else if (format == "text/plain") {
                     utils::read.table(urls[i], nrows = rowsToRead)
-                } else if (format == "application/vnd.ms-excel") {
+                } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | format == "application/vnd.ms-excel") {
                     tmp = tempfile()
                     utils::download.file(url = urls[i], destfile = tmp, mode='wb')
-                    readxl::read_xls(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
-                    unlink(tmp)
-                } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                    tmp = tempfile()
-                    utils::download.file(url = urls[i], destfile = tmp, mode='wb')
-                    readxl::read_xlsx(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
+                    readxl::read_excel(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
                     unlink(tmp)
                 }
             } else {
