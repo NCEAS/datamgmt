@@ -139,13 +139,22 @@ qa_package <- function(node, pid, readAllData = TRUE,
                     tmp = tempfile()
                     utils::download.file(url = urls[i], destfile = tmp, mode='wb')
                     readxl::read_xls(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
+                    unlink(tmp)
                 } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
                     tmp = tempfile()
                     utils::download.file(url = urls[i], destfile = tmp, mode='wb')
                     readxl::read_xlsx(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
+                    unlink(tmp)
                 }
             } else {
-                utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
+
+                if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" |
+                    format == "application/vnd.ms-excel") {
+                    cat(paste0("This function uses the DataOne API to get objects, and currently can't read .xls or .xlsx. Check attributes manually."))
+                    next
+                } else {
+                    utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
+                }
             }
         },
         error = function(e) {
@@ -253,6 +262,13 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
     if (is.null(attributeNames)) {
         cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
         return(0)
+    }
+
+    header <- as.numeric(dataTable@physical[[1]]@dataFormat@textFormat@numHeaderLines)
+
+    if(length(header) > 0 && !is.na(header) && header > 1) {
+        names(data) <- NULL
+        names(data) <- data[(header-1),]
     }
 
     dataCols <- colnames(data)
