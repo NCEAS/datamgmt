@@ -131,7 +131,7 @@ clone_object <- function(pid,
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
 #' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.
-#' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
+#' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{TRUE}.  It is recommended to set this to \code{TRUE} if you would like to edit the package after cloning.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
@@ -161,7 +161,7 @@ clone_package <- function(resource_map_pid,
                           public = FALSE,
                           clone_children = FALSE,
                           new_pid = TRUE,
-                          change_auth_node = FALSE) {
+                          change_auth_node = TRUE) {
 
     if (!(is.character(resource_map_pid) & nchar(resource_map_pid) > 0)) {
         stop("resource_map_pid must be a string with a non-zero number of characters")
