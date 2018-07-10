@@ -7,9 +7,9 @@
 #' @param from (D1Client) D1Client to clone objects from. (Objects must be public)
 #' @param to (D1Client) D1Client to clone objects to. (Token must be set for this node)
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
+#' @param change_auth_node (logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit the package system metadata.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
-#' @param change_auth_node (logical) Optional. Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE.  Defaults to \code{FALSE}.
 #'
 #' @importFrom uuid UUIDgenerate
 #'
@@ -30,6 +30,7 @@
 #'                           from = from,
 #'                            to = to,
 #'                            add_access_to = arcticdatautils:::get_token_subject(),
+#'                            change_auth_node = TRUE,
 #'                            public = TRUE,
 #'                            new_pid = TRUE)
 #'}
@@ -38,9 +39,9 @@ clone_object <- function(pid,
                          from,
                          to,
                          add_access_to,
+                         change_auth_node,
                          public = FALSE,
-                         new_pid = TRUE,
-                         change_auth_node = FALSE) {
+                         new_pid = TRUE) {
 
     if (!(is.character(pid) & nchar(pid) > 0)) {
         stop("pid must be a string with a non-zero number of characters")
@@ -128,10 +129,10 @@ clone_object <- function(pid,
 #' @param from (D1Client) D1Client to clone pacakge from. (Package must be public)
 #' @param to (D1Client) D1Client to clone package to. (Token must be set for this node)
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
+#' @param change_auth_node (logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit package system metadata.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
 #' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.
-#' @param change_auth_node (logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} will only allow DataONE admins with special privileges to edit the package. 
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
@@ -150,6 +151,7 @@ clone_object <- function(pid,
 #'                           from = from,
 #'                            to = to,
 #'                            add_access_to = arcticdatautils:::get_token_subject(),
+#'                            change_auth_node = TRUE,
 #'                            public = TRUE,
 #'                            new_pid = TRUE)
 #' }
@@ -158,10 +160,10 @@ clone_package <- function(resource_map_pid,
                           from,
                           to,
                           add_access_to,
+                          change_auth_node,
                           public = FALSE,
                           clone_children = FALSE,
-                          new_pid = TRUE,
-                          change_auth_node) {
+                          new_pid = TRUE) {
 
     if (!(is.character(resource_map_pid) & nchar(resource_map_pid) > 0)) {
         stop("resource_map_pid must be a string with a non-zero number of characters")
