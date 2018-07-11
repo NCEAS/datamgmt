@@ -118,6 +118,11 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
 
+        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes)) {
+            cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
+            next
+        }
+
         # If package is public, we can read directly from the csv, otherwise we use data one to get all the data
         isPublic <- datapack::hasAccessRule(sysmeta, "public", "read")
 
@@ -135,13 +140,21 @@ qa_package <- function(node, pid, readAllData = TRUE,
                     utils::read.delim(urls[i], nrows = rowsToRead)
                 } else if (format == "text/plain") {
                     utils::read.table(urls[i], nrows = rowsToRead)
-                } else if (format == "application/vnd.ms-excel") {
-                    readxl::read_xls(urls[i], n_max = rowsToRead)
-                } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                    readxl::read_xlsx(urls[i], n_max = rowsToRead)
+                } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | format == "application/vnd.ms-excel") {
+                    tmp = tempfile()
+                    utils::download.file(url = urls[i], destfile = tmp, mode='wb')
+                    readxl::read_excel(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
+                    unlink(tmp)
                 }
             } else {
-                utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
+
+                if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" |
+                    format == "application/vnd.ms-excel") {
+                    cat(paste0("This function uses the DataOne API to get objects, and currently can't read .xls or .xlsx. Check attributes manually."))
+                    next
+                } else {
+                    utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))), nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
+                }
             }
         },
         error = function(e) {
@@ -249,6 +262,13 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
     if (is.null(attributeNames)) {
         cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
         return(0)
+    }
+
+    header <- as.numeric(dataTable@physical[[1]]@dataFormat@textFormat@numHeaderLines)
+
+    if(length(header) > 0 && !is.na(header) && header > 1) {
+        names(data) <- NULL
+        names(data) <- data[(header-1),]
     }
 
     dataCols <- colnames(data)
