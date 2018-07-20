@@ -34,7 +34,7 @@ Warning: Error in safeFromJSON: Argument 'txt' is not a valid JSON string.
 Error in safeFromJSON(charData, simplifyVector = FALSE) : 
   Argument 'txt' is not a valid JSON string.
   ```  
-It's probably because your version of `httpuv` is incompatible.  Run `devtools::install_version("httpuv", "1.4.3")` and restart your R session and try running the code again.  It's also possible that this is a browser issue - try switching your browser if this doesn't work
+It's probably because your version of `httpuv` is incompatible.  Run `devtools::install_version("httpuv", "1.4.3")` and restart your R session and try running the code again.  Downgrading to version `1.4.3` usually solves the issue, however you can also try upgrading to the latest release of `httpuv`.  It's also possible that this is a browser issue - try switching your browser if this doesn't work
 
 ## Acknowledgements
 Work on this package was supported by:
