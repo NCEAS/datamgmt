@@ -26,6 +26,16 @@ We generally follow the [tidyverse style conventions](http://style.tidyverse.org
 - underscore for all variable names unless referring to an EML object (i.e. otherEntity, publicationDate, etc.)
 - all functions should include argument checks in the form of `stopifnot` statements
 
+## Errors
+The `datamgmt::create_attributes_table` function sometimes returns the following error:
+```
+Warning: Error in safeFromJSON: Argument 'txt' is not a valid JSON string.
+  [No stack trace available]
+Error in safeFromJSON(charData, simplifyVector = FALSE) : 
+  Argument 'txt' is not a valid JSON string.
+  ```  
+It's probably because your version of `httpuv` is incompatible.  Run `devtools::install_version("httpuv", "1.4.3")` and restart your R session and try running the code again.  It's also possible that this is a browser issue - try switching your browser if this doesn't work
+
 ## Acknowledgements
 Work on this package was supported by:
 
