@@ -287,3 +287,66 @@ clone_package <- function(resource_map_pid,
 
     return(response)
 }
+
+
+#' Copies packages between Dataone Member Nodes with new identifiers.
+#'
+#' @description This function is a convenience wrapper around 'clone_package' that
+#' copies a package rather than cloning it.  The distinction is that new pids will
+#' always be generated, and the system metadata will reflect a stand-alone package
+#' rather than a clone. This function copies a Data Package from one DataOne member node to another,
+#' with new identifiers This can also be used to restore an older version of a Package
+#' to a member node, provided that the user subsequently obsoletes the version of
+#' the package that they used to create the copy (`datamgmt::obsolete_package`).
+#'
+#' @param resource_map_pid (character) Object pid
+#' @param from (D1Client) D1Client to clone pacakge from. (Token must be set for this node)
+#' @param to (D1Client) D1Client to clone package to. (Token must be set for this node)
+#' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
+#' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
+#'
+#' @examples
+#' \dontrun{
+#' # First set up the member nodes we're copying between
+#' # (in this example they are the same but could be different)
+#' to <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
+#' from <- to
+#'
+#' # Choose a package to copy (here a new one is created)
+#' package <- arcticdatautils::create_dummy_package(to@@mn)
+#'
+# copied_package <- clone_package(resource_map_pid = package$resource_map,
+#                                 from = from,
+#                                 to = to)
+#' }
+#' @export
+copy_package <- function(resource_map_pid,
+                         from,
+                         to,
+                         public = FALSE,
+                         clone_children = FALSE) {
+    if (!arcticdatautils::is_token_set(from)) {
+        stop("No token is set for member node: ", from@mn@identifier)
+    }
+    if (!arcticdatautils::is_token_set(to)) {
+        stop("No token is set for member node: ", to@mn@identifier)
+    }
+
+    # Set hard-coded arguments (distinctions between copying and cloning)
+    add_access_to <- arcticdatautils:::get_token_subject()
+    change_auth_node <- TRUE
+    new_pid <- TRUE
+
+    response <- clone_package(resource_map_pid,
+                              from,
+                              to,
+                              add_access_to,
+                              change_auth_node,
+                              public,
+                              new_pid,
+                              clone_children)
+
+    return(response)
+}
