@@ -16,6 +16,32 @@ test_that("clone_package errors gracefully", {
     suppressWarnings(expect_error(clone_package("Dummy pid", d1c_test, d1c_test)))
 })
 
+test_that("we can clone a package", {
+    if (!arcticdatautils::is_token_set(d1c_test@mn)) {
+        skip("No token set. Skipping test.")
+    }
+
+    pkg <- arcticdatautils::create_dummy_package(d1c_test@mn)
+    pkg2 <- clone_package(pkg$resource_map, d1c_test, d1c_test,
+                          add_access_to = arcticdatautils:::get_token_subject(),
+                          change_auth_node = TRUE,
+                          public = TRUE,
+                          new_pid = TRUE)
+
+    expect_length(pkg2, 3)
+})
+
+test_that("we can copy a package", {
+    if (!arcticdatautils::is_token_set(d1c_test@mn)) {
+        skip("No token set. Skipping test.")
+    }
+
+    pkg <- arcticdatautils::create_dummy_package(d1c_test@mn)
+    pkg2 <- copy_package(pkg$resource_map, d1c_test, d1c_test)
+
+    expect_length(pkg2, 3)
+})
+
 test_that("clone_package copies a package w - w/o data and children", {
     if (!arcticdatautils::is_token_set(d1c_test@mn)) {
         skip("No token set. Skipping test.")
@@ -69,4 +95,3 @@ test_that("clone_package copies a package w - w/o data and children", {
     cloneobj1 <- dataone::getObject(d1c_test@mn, clone_child$data)
     expect_equal(dataobj1, cloneobj1) #cloned data is the same
 })
-
