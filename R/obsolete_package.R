@@ -64,8 +64,8 @@ obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
         metadata_obs <- utils::tail(versions_obs, 1)
     }
     if (metadata_new != versions_new[1]) {
-        message(warning("'metadata_new' arguement is not at the start of the version chain. Setting the 'metadata_new' argument from: ",
-                metadata_new, "to: ", versions_new[1]))
+        message(warning("'metadata_new' argument is not at the start of the version chain. Setting the 'metadata_new' argument from: ",
+                metadata_new, " to: ", versions_new[1]))
         metadata_new <- versions_new[1]
     }
 
