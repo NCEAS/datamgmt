@@ -174,7 +174,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         qa_attributes(node, dataTable, data, readAllData)
 
-        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, " (", dataTable@physical[[1]]@objectName, ").................")))
     }
 }
 
