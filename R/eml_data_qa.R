@@ -380,7 +380,7 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
 ## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
 netcdf_to_dataframe <- function(nc) {
     var_names <- names(nc$var)
-    data <- sapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
+    data <- lapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
     max_length <- max(unlist(lapply(data, function(x) length(x))))
 
     results <- data.frame(matrix(ncol = length(data), nrow = max_length))
