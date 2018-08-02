@@ -37,7 +37,10 @@ qa_package <- function(node, pid, readAllData = TRUE,
                                 "text/tsv",
                                 "text/plain",
                                 "application/vnd.ms-excel",
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                "netCDF-4",
+                                "netCDF-3",
+                                "CF-1.4", "CF-1.3", "CF-1.2", "CF-1.1", "CF-1.0")
 
     package <- tryCatch({
         suppressWarnings(arcticdatautils::get_package(node, pid, file_names = TRUE))
@@ -116,7 +119,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
         format <- sysmeta@formatId
         if (!format %in% supported_file_formats) next
 
-        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid, " (", dataTable@physical[[1]]@objectName, ").................")))
 
         if (is.null(EML::get_attributes(dataTable@attributeList)$attributes)) {
             cat(crayon::red(paste0("\nEmpty attribute table for ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
@@ -145,7 +148,15 @@ qa_package <- function(node, pid, readAllData = TRUE,
                     utils::download.file(url = urls[i], destfile = tmp, mode='wb')
                     readxl::read_excel(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
                     unlink(tmp)
-                }
+                } else if (format == "netCDF-4" | format == "netCDF-3" | format == "CF-1.4" | format ==  "CF-1.3" | format ==  "CF-1.2" | format ==  "CF-1.1"| format ==  "CF-1.0") {
+                    tmp = tempfile()
+                    utils::download.file(url = urls[i], destfile = tmp, mode='wb')
+                    nc <- ncdf4::nc_open(tmp)
+                    data <- netcdf_to_dataframe(nc)
+                    rm(tmp)
+                    rm(nc)  # clean up now because many net-cdfs are large
+                    data
+                    }
             } else {
 
                 if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" |
@@ -163,7 +174,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         qa_attributes(node, dataTable, data, readAllData)
 
-        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, ", ", dataTable@physical[[1]]@objectName, "..................")))
+        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, " (", dataTable@physical[[1]]@objectName, ").................")))
     }
 }
 
@@ -366,3 +377,17 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
     }
 }
 
+## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
+netcdf_to_dataframe <- function(nc) {
+    var_names <- names(nc$var)
+    data <- sapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
+    max_length <- max(unlist(lapply(data, function(x) length(x))))
+
+    results <- data.frame(matrix(ncol = length(data), nrow = max_length))
+    names(results) <- var_names
+    for (i in seq_along(results)) {
+        results[,i] <- rep_len(data[[i]], length.out = max_length)
+    }
+
+    return(results)
+}
