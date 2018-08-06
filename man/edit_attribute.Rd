@@ -4,10 +4,10 @@
 \alias{edit_attribute}
 \title{Edit a single attribute.}
 \usage{
-edit_attribute(eml, dataTableNumber, attributeNumber, attributeName = NULL,
-  attributeDefinition = NULL, domain = NULL, measurementScale = NULL,
-  unit = NULL, numberType = NULL, definition = NULL,
-  formatString = NULL, missingValueCode = NULL,
+edit_attribute(eml, dataTableNumber, attributeNumber,
+  attributeName = NULL, attributeDefinition = NULL, domain = NULL,
+  measurementScale = NULL, unit = NULL, numberType = NULL,
+  definition = NULL, formatString = NULL, missingValueCode = NULL,
   missingValueCodeExplanation = NULL)
 }
 \arguments{
