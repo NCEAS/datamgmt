@@ -377,6 +377,28 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
     }
 }
 
+
+qa_rightsHolder <- function(eml, system_metadata) {
+    rightsHolder <- system_metadata@rightsHolder
+    creators <- paste0(eml@dataset@creator, collapse = "")
+    creator_orcids <- stringr::str_extract_all(creator, "http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}")
+
+    # Check rightsHolder
+    if (!(rightsHolder %in% creator_orcids)) {
+        status <- "FAILURE"
+        message <- sprintf("rightsHolder: %s is present in the metadata creators", rightsHolder)
+    } else {
+        status <- "SUCCESS"
+        message <- sprintf("rightsHolder: %s is not present in the metadata creators", rightsHolder)
+    }
+
+    result <- list(status = status,
+                   output = list(list(value = message)))
+
+    return(result)
+}
+
+
 ## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
 netcdf_to_dataframe <- function(nc) {
     att_names <- names(nc$var)
