@@ -4,7 +4,8 @@
 \alias{format_unit_split}
 \title{Formats unit_split}
 \usage{
-format_unit_split(unit_split, form = "id", all_units = mem_load_all_units())
+format_unit_split(unit_split, form = "id",
+  all_units = mem_load_all_units())
 }
 \arguments{
 \item{unit_split}{(character) result of function get_unit_split}
