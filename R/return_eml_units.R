@@ -1,5 +1,5 @@
-#' Copies udunits2 xml files to datamgmt/UDUNITS
-#' Updates uduntis2-accepted.xml with units from EML-units.xml
+# Copies udunits2 xml files to datamgmt/UDUNITS
+# Updates uduntis2-accepted.xml with units from EML-units.xml
 .onLoad <- function(libname, pkgname) {
 
     # Get directory for udunits files

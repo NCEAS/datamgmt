@@ -15,7 +15,7 @@
 #' @param check_attributes (logical). Default TRUE. Calls \code{\link{qa_attributes}}.
 #' @param check_creators (logigal) Default FALSE. If True, will test if each creator has been assigned an ORCID. Will also run if \code{check_access = TRUE}.
 #' @param check_access (logigal) Default FALSE. If True, will test if each creator has full access to the metadata, resource_map, and data objects. Will not run if the tests associated with \code{check_creators} fails.
-#' @return
+#' @return invisible
 #' @export
 #'
 #' @author Emily O'Dean \email{eodean10@@gmail.com}
@@ -176,6 +176,8 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
         cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid, " (", dataTable@physical[[1]]@objectName, ").................")))
     }
+
+    return(invisible())
 }
 
 #' Test the ORCIDs of creators in a given EML
