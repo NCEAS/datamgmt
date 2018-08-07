@@ -424,3 +424,19 @@ netcdf_to_dataframe <- function(nc) {
 
     return(results)
 }
+
+# Check if creator is present
+qa_creator_present <- function(metadata_hash) {
+    library(metadig)
+
+    creator <- metadata["creator"]
+    if (length(creator) <= 0) {
+        metadig::failure("No creators are present.")
+    } else {
+        if (length(creator) == 1) {
+            metadig::success("One creator is present.")
+        } else {
+            metadig::success(sprintf("%d creators are present.", length(creator)))
+        }
+    }
+}
