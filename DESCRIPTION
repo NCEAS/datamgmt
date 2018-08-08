@@ -12,7 +12,7 @@ Authors@R: c(
   person("Sharis", "Ochs", email = "sharisnochs@gmail.com", role = c("aut")),
   person("Derek", "Strong", email = "dstrong@nceas.ucsb.edu", role = c("aut"))
   )
-Maintainer: The package maintainer <yourself@somewhere.net>
+Maintainer: The package maintainer <dmullen17@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 Depends:
@@ -31,6 +31,7 @@ Imports:
     httr,
     jsonlite,
     memoise,
+    metadig,
     methods,
     ncdf4,
     RCurl,
@@ -57,6 +58,7 @@ Suggests: testthat,
     rmarkdown,
     visNetwork
 Remotes: NCEAS/arcticdatautils,
+         NCEAS/metadig-r,
          ropensci/EML
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr

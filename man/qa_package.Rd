@@ -20,6 +20,9 @@ qa_package(node, pid, readAllData = TRUE, check_attributes = TRUE,
 
 \item{check_access}{(logigal) Default FALSE. If True, will test if each creator has full access to the metadata, resource_map, and data objects. Will not run if the tests associated with \code{check_creators} fails.}
 }
+\value{
+invisible
+}
 \description{
 This script assumes correctness in the resource map and data
 Purpose: QA script to check a DataONE EML package. Will check that attributes match values in the data.
