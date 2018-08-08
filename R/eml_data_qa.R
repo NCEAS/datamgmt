@@ -378,10 +378,35 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
 }
 
 
+## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
+netcdf_to_dataframe <- function(nc) {
+    att_names <- names(nc$var)
+    dims <- nc$dim
+    dim_names <- c()
+    for (i in 1:length(dims)) {
+        dim_names[i] <- dims[[i]]$name
+    }
+
+    var_names <- c(att_names, dim_names)
+    var_names <- var_names[-which(duplicated(tolower(var_names)))]
+
+    data <- lapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
+    max_length <- max(unlist(lapply(data, function(x) length(x))))
+
+    results <- data.frame(matrix(ncol = length(data), nrow = max_length))
+    names(results) <- var_names
+    for (i in seq_along(results)) {
+        results[,i] <- rep_len(data[[i]], length.out = max_length)
+    }
+
+    return(results)
+}
+
+
 qa_rightsHolder <- function(eml, system_metadata) {
     rightsHolder <- system_metadata@rightsHolder
     creators <- paste0(eml@dataset@creator, collapse = "")
-    creator_orcids <- stringr::str_extract_all(creator, "http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}")
+    creator_orcids <- stringr::str_extract_all(creators, "http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}")
 
     # Check rightsHolder
     if (!(rightsHolder %in% creator_orcids)) {
@@ -448,7 +473,7 @@ qa_creator_orcid <- function(eml) {
         messages[[length(messages) + 1]] <- "A user identifier for any creator is not present, so checking for an ORCID is not possible."
     } else {
         creator_ORCIDs <- unlist(EML::eml_get(creators, "userId"))
-        has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}", creator_ORCIDs)
+        has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", creator_ORCIDs)
         if (suppressWarnings(any(has_ORCID))) {
             messages[[length(messages) + 1]] <- "The user identifier for a creator is an ORCID."
         } else {
@@ -523,26 +548,125 @@ qa_creator_info <- function(eml) {
 }
 
 
-## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
-netcdf_to_dataframe <- function(nc) {
-    att_names <- names(nc$var)
-    dims <- nc$dim
-    dim_names <- c()
-    for (i in 1:length(dims)) {
-        dim_names[i] <- dims[[i]]$name
+# Check if contact is present
+qa_contact <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    contacts <- eml@dataset@contact
+
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a list
+    messages <- list()
+
+    if (length(contacts) <= 0) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "No contacts are present."
+    } else {
+        if (length(contacts) == 1) {
+            messages[[length(messages) + 1]] <- "One contact is present."
+        } else {
+            messages[[length(messages) + 1]] <- sprintf("%d contacts are present.", length(contacts))
+        }
     }
 
-    var_names <- c(att_names, dim_names)
-    var_names <- var_names[-which(duplicated(tolower(var_names)))]
+    return(list(status = status,
+                output = messages))
+}
 
-    data <- lapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
-    max_length <- max(unlist(lapply(data, function(x) length(x))))
 
-    results <- data.frame(matrix(ncol = length(data), nrow = max_length))
-    names(results) <- var_names
-    for (i in seq_along(results)) {
-        results[,i] <- rep_len(data[[i]], length.out = max_length)
+# Check if contact ORCIDs, emails, and addresses are present
+qa_contact_orcid <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    contacts <- eml@dataset@contact
+
+    if (length(contacts) <= 0) {
+        return(list(status = "SKIP", output = "A contact entry is not present. Unable to check for an ORCID, email, or address."))
     }
 
-    return(results)
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a list
+    messages <- list()
+
+    # There could be multiple contacts, but just one contact with a "userId" will satisfy this check
+    userId <- lapply(c(1:length(contacts)), function(i) {length(eml@dataset@contact[[i]]@userId@.Data)})
+    if (all(userId == 0)) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "A user identifier for any contact is not present, so checking for an ORCID is not possible."
+    } else {
+        contact_ORCIDs <- unlist(EML::eml_get(contacts, "userId"))
+        has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", contact_ORCIDs)
+        if (suppressWarnings(any(has_ORCID))) {
+            messages[[length(messages) + 1]] <- "The user identifier for a contact is an ORCID."
+        } else {
+            status <- "FAILURE"
+            messages[[length(messages) + 1]] <- "The user identifier for any contact is not an ORCID."
+        }
+    }
+
+    # There could be multiple contacts, but just one contact with an "email" will satisfy this check
+    email <- lapply(c(1:length(contacts)), function(i) {length(eml@dataset@contact[[i]]@electronicMailAddress@.Data)})
+    if (all(email == 0)) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "An email address for any contact is not present."
+    } else {
+        contact_emails <- unlist(EML::eml_get(contacts, "electronicMailAddress"))
+        has_email <-  grepl("@", contact_emails)
+        if (suppressWarnings(any(has_email))) {
+            messages[[length(messages) + 1]] <- "An email address for a contact is present."
+        } else {
+            status <- "FAILURE"
+            messages[[length(messages) + 1]] <- "An email address for any contact is not present."
+        }
+    }
+
+    # There could be multiple contacts, but just one contact with an "address" will satisfy this check
+    address <- lapply(c(1:length(contacts)), function(i) {length(eml@dataset@contact[[i]]@address@.Data)})
+    if (all(address == 0)) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "An address for any contact is not present."
+    } else {
+        messages[[length(messages) + 1]] <- "An address for a contact is present."
+    }
+
+    return(list(status = status,
+                output = messages))
+}
+
+
+# Check if all contacts have email and address
+qa_contact_info <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    contacts <- eml@dataset@contact
+
+    if (length(contacts) <= 0) {
+        return(list(status = "SKIP", output = "A contact entry is not present. Unable to check for email or address."))
+    }
+
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a list
+    messages <- list()
+
+    # Check number of contacts that have email addresses
+    contact_emails <- unlist(EML::eml_get(contacts, "electronicMailAddress"))
+    if (length(contact_emails) == length(contacts)) {
+        messages[[length(messages) + 1]] <- "All contacts have email addresses."
+    } else {
+        messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have email addresses.", length(contact_emails), length(contacts))
+    }
+
+    # Check number of contacts that have addresses
+    contact_addresses <- unlist(EML::eml_get(contacts, "deliveryPoint"))
+    if (length(contact_addresses) == length(contacts)) {
+        messages[[length(messages) + 1]] <- "All contacts have addresses."
+    } else {
+        messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have addresses.", length(contact_addresses), length(contacts))
+    }
+
+    return(list(status = status,
+                output = messages))
 }
