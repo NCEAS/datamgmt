@@ -9,7 +9,8 @@ Authors@R: c(
   person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = c("aut")),
   person("Emily", "O'Dean", email = "eodean10@gmail.com", role = c("aut")),
   person("Stephanie", "Freund", email = "smfreu@gmail.com", role = c("aut")),
-  person("Sharis", "Ochs", email = "sharisnochs@gmail.com", role = c("aut"))
+  person("Sharis", "Ochs", email = "sharisnochs@gmail.com", role = c("aut")),
+  person("Derek", "Strong", email = "dstrong@nceas.ucsb.edu", role = c("aut"))
   )
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)

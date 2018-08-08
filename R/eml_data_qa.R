@@ -399,6 +399,130 @@ qa_rightsHolder <- function(eml, system_metadata) {
 }
 
 
+# Check if creator is present
+qa_creator <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    creators <- eml@dataset@creator
+
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a list
+    messages <- list()
+
+    if (length(creators) <= 0) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "No creators are present."
+    } else {
+        if (length(creators) == 1) {
+            messages[[length(messages) + 1]] <- "One creator is present."
+        } else {
+            messages[[length(messages) + 1]] <- sprintf("%d creators are present.", length(creators))
+        }
+    }
+
+    return(list(status = status,
+                output = messages))
+}
+
+
+# Check if creator ORCIDs, emails, and addresses are present
+qa_creator_orcid <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    creators <- eml@dataset@creator
+
+    if (length(creators) <= 0) {
+        return(list(status = "SKIP", output = "A creator entry is not present. Unable to check for an ORCID, email, or address."))
+    }
+
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a list
+    messages <- list()
+
+    # There could be multiple creators, but just one creator with a "userId" will satisfy this check
+    userId <- lapply(c(1:length(creators)), function(i) {length(eml@dataset@creator[[i]]@userId@.Data)})
+    if (all(userId == 0)) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "A user identifier for any creator is not present, so checking for an ORCID is not possible."
+    } else {
+        creator_ORCIDs <- unlist(EML::eml_get(creators, "userId"))
+        has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}", creator_ORCIDs)
+        if (suppressWarnings(any(has_ORCID))) {
+            messages[[length(messages) + 1]] <- "The user identifier for a creator is an ORCID."
+        } else {
+            status <- "FAILURE"
+            messages[[length(messages) + 1]] <- "The user identifier for any creator is not an ORCID."
+        }
+    }
+
+    # There could be multiple creators, but just one creator with an "email" will satisfy this check
+    email <- lapply(c(1:length(creators)), function(i) {length(eml@dataset@creator[[i]]@electronicMailAddress@.Data)})
+    if (all(email == 0)) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "An email address for any creator is not present."
+    } else {
+        creator_emails <- unlist(EML::eml_get(creators, "electronicMailAddress"))
+        has_email <-  grepl("@", creator_emails)
+        if (suppressWarnings(any(has_email))) {
+            messages[[length(messages) + 1]] <- "An email address for a creator is present."
+        } else {
+            status <- "FAILURE"
+            messages[[length(messages) + 1]] <- "An email address for any creator is not present."
+        }
+    }
+
+    # There could be multiple creators, but just one creator with an "address" will satisfy this check
+    address <- lapply(c(1:length(creators)), function(i) {length(eml@dataset@creator[[i]]@address@.Data)})
+    if (all(address == 0)) {
+        status <- "FAILURE"
+        messages[[length(messages) + 1]] <- "An address for any creator is not present."
+    } else {
+        messages[[length(messages) + 1]] <- "An address for a creator is present."
+    }
+
+    return(list(status = status,
+                output = messages))
+}
+
+
+# Check if all creators have email and address
+qa_creator_info <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    creators <- eml@dataset@creator
+
+    if (length(creators) <= 0) {
+        return(list(status = "SKIP", output = "A creator entry is not present. Unable to check for email or address."))
+    }
+
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a list
+    messages <- list()
+
+    # Check number of creators that have email addresses
+    creator_emails <- unlist(EML::eml_get(creators, "electronicMailAddress"))
+    if (length(creator_emails) == length(creators)) {
+        messages[[length(messages) + 1]] <- "All creators have email addresses."
+    } else {
+        messages[[length(messages) + 1]] <- sprintf("%d of %d creators have email addresses.", length(creator_emails), length(creators))
+    }
+
+    # Check number of creators that have addresses
+    creator_addresses <- unlist(EML::eml_get(creators, "deliveryPoint"))
+    if (length(creator_addresses) == length(creators)) {
+        messages[[length(messages) + 1]] <- "All creators have addresses."
+    } else {
+        messages[[length(messages) + 1]] <- sprintf("%d of %d creators have addresses.", length(creator_addresses), length(creators))
+    }
+
+    return(list(status = status,
+                output = messages))
+}
+
+
 ## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
 netcdf_to_dataframe <- function(nc) {
     att_names <- names(nc$var)
@@ -421,20 +545,4 @@ netcdf_to_dataframe <- function(nc) {
     }
 
     return(results)
-}
-
-# Check if creator is present
-qa_creator_present <- function(metadata_hash) {
-    library(metadig)
-
-    creator <- metadata["creator"]
-    if (length(creator) <= 0) {
-        metadig::failure("No creators are present.")
-    } else {
-        if (length(creator) == 1) {
-            metadig::success("One creator is present.")
-        } else {
-            metadig::success(sprintf("%d creators are present.", length(creator)))
-        }
-    }
 }
