@@ -31,3 +31,14 @@ test_that("we can check for a creative commons license", {
     out <- qa_creative_commons(cc_fail)
     expect_equal(out$status, "FAILURE")
 })
+
+test_that("we can check for the prescence of a title", {
+    out <- qa_title(eml_test)
+    expect_equal(out$status, "SUCCESS")
+
+    out <- qa_title("Random input title")
+    expect_equal(out$status, "SUCCESS")
+
+    out <- qa_title(character(0))
+    expect_equal(out$status, "FAILURE")
+})

@@ -706,6 +706,27 @@ qa_abstract <- function(input) {
 }
 
 
+qa_title <- function(input) {
+    if (methods::is(input, "eml")) {
+        title <- EML::eml_get(input, "title") %>%
+            utils::capture.output() %>%
+            paste(collapse = " ")
+    } else {
+        title <- input
+    }
+    if (length(title) <= 0) {
+        status <- "FAILURE"
+        message <- "No title(s) were found."
+    } else {
+        status <- "SUCCESS"
+        message <- "One or more titles were found."
+    }
+    mdq_result <- list(status = status,
+                       output = list(list(value = message)))
+    return(mdq_result)
+}
+
+
 qa_creative_commons <- function(input) {
     # CC-BY: This work is licensed under the Creative Commons Attribution 4.0 International License.\nTo view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/."
     # CC-0:"This work is dedicated to the public domain under the Creative Commons Universal 1.0 Public Domain Dedication.\nTo view a copy of this dedication, visit https://creativecommons.org/publicdomain/zero/1.0/."
