@@ -704,3 +704,38 @@ qa_abstract <- function(input) {
                        output = list(list(value = message)))
     return(mdq_result)
 }
+
+
+qa_creative_commons <- function(input) {
+    # CC-BY: This work is licensed under the Creative Commons Attribution 4.0 International License.\nTo view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/."
+    # CC-0:"This work is dedicated to the public domain under the Creative Commons Universal 1.0 Public Domain Dedication.\nTo view a copy of this dedication, visit https://creativecommons.org/publicdomain/zero/1.0/."
+    if (methods::is(input, "eml")) {
+        rights <- EML::eml_get(input, "intellectualRights") %>%
+            utils::capture.output() %>%
+            paste(collapse = " ")
+    } else {
+        rights <- input
+    }
+    phrases <- c("http[s]*://creativecommons.org/licenses/by/4.0", "http[s]*://creativecommons.org/publicdomain/zero/1.0")
+    if (length(rights) == 0) {
+        status <- "FAILURE"
+        message <- "The document is not licensed with a Creative Commons CC-0 or CC-BY license."
+    } else if (length(rights) > 1) {
+        status <- "FAILURE"
+        message <- "More than one license was found which was an unexpected state."
+    } else {
+        if (stringr::str_detect(rights[[1]], phrases[[1]])) {
+            status <- "SUCCESS"
+            message <- "The document is licensed with a Creative Commons CC-BY license."
+        } else if (stringr::str_detect(rights[[1]], phrases[[2]])) {
+            status <- "SUCCESS"
+            message <- "The document is licensed with a Creative Commons CC-0 license."
+        } else {
+            status <- "FAILURE"
+            message <- "The document is not licensed with a Creative Commons CC-0 or CC-BY license."
+        }
+    }
+    mdq_result <- list(status = status,
+                       output = list(list(value = message)))
+    return(mdq_result)
+}
