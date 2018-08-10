@@ -672,3 +672,88 @@ qa_contact_info <- function(eml) {
     return(list(status = status,
                 output = messages))
 }
+
+
+# Check if geographic coverage description is present
+qa_geographic_desc <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    geo <- eml@dataset@coverage@geographicCoverage
+
+    if (length(geo) == 0) {
+        return(list(status = "FAILURE",
+                    output = "Geographic coverage is not present. Unable to check for description."))
+    }
+
+    desc <- EML::eml_get(eml, "geographicDescription")
+
+    if (length(desc) != length(geo)) {
+        return(list(status = "FAILURE",
+                    output = "A textual description is not present for one or more geographic coverages."))
+    } else {
+        return(list(status = "SUCCESS",
+                    output = "A textual description of the geographic coverage is present."))
+    }
+}
+
+
+# Check if geographic coverage bounding coordinates are present
+qa_geographic_coord <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    geo <- eml@dataset@coverage@geographicCoverage
+
+    if (length(geo) == 0) {
+        return(list(status = "FAILURE",
+                    output = "Geographic coverage is not present. Unable to check for bounding coordinates."))
+    }
+
+    # Both bounding boxes and single points should have four coordinates
+    # Single points have duplicates for north/south and east/west
+
+    four_coords <- function(x) {
+        coord <- EML::eml_get(x, "westBoundingCoordinate")
+        coord <- append(coord, EML::eml_get(x, "eastBoundingCoordinate"))
+        coord <- append(coord, EML::eml_get(x, "northBoundingCoordinate"))
+        coord <- append(coord, EML::eml_get(x, "southBoundingCoordinate"))
+        length(coord) == 4
+    }
+
+    logicals <- lapply(geo, four_coords)
+
+    if (any(logicals == FALSE)) {
+        return(list(status = "FAILURE",
+                    output = "A complete set of bounding coordinates is not present for one or more geographic coverages."))
+    } else {
+        return(list(status = "SUCCESS",
+                    output = "A complete set of bounding coordinates describing the geographic coverage is present."))
+    }
+}
+
+
+# Check if geographic coverage intersects with Arctic
+qa_geographic_arctic <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    geo <- eml@dataset@coverage@geographicCoverage
+
+    if (length(geo) == 0) {
+        return(list(status = "FAILURE",
+                    output = "Geographic coverage is not present. Unable to check for bounding coordinates."))
+    }
+
+    ncoord <- EML::eml_get(eml, "northBoundingCoordinate")
+
+    if (any(is.na(suppressWarnings(as.numeric(ncoord))))) {
+        return(list(status = "FAILURE",
+                    output = "A northern bounding coordinate is not numeric."))
+    } else {
+        if (any(as.numeric(ncoord) >= 45)) {
+        return(list(status = "SUCCESS",
+                    output = "Geographic coverage is in the Arctic."))
+        } else {
+        return(list(status = "FAILURE",
+                    output = "No geographic coverage is in the Arctic."))
+        }
+    }
+}
