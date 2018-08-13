@@ -191,7 +191,7 @@ qa_creators <- function(eml) {
     # Check creators
     creators <- eml@dataset@creator
     creator_ORCIDs <- unlist(eml_get(creators, "userId"))
-    isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}-[[:digit:]]{4}", creator_ORCIDs)
+    isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", creator_ORCIDs)
     creator_ORCIDs <- sub("^https://", "http://", creator_ORCIDs)
 
     if (length(isORCID) != length(creators) || !all(isORCID)) {
@@ -755,5 +755,21 @@ qa_geographic_arctic <- function(eml) {
         return(list(status = "FAILURE",
                     output = "No geographic coverage is in the Arctic."))
         }
+    }
+}
+
+
+# Check that at least one keyword is present
+qa_keywords <- function(eml) {
+    stopifnot(is(eml, "eml"))
+
+    key <- eml@dataset@keywordSet
+
+    if (length(key) == 0) {
+        return(list(status = "FAILURE",
+                    output = "No keywords are present. At least one keyword is required."))
+    } else {
+        return(list(status = "SUCCESS",
+                    output = "At least one keyword is present"))
     }
 }
