@@ -18,6 +18,8 @@
 #' @return invisible
 #' @export
 #'
+#' @importFrom methods "is"
+#'
 #' @author Emily O'Dean \email{eodean10@@gmail.com}
 #'
 #' @examples
@@ -379,7 +381,6 @@ qa_attributes <- function(node, dataTable, data, checkEnumeratedDomains = TRUE) 
     }
 }
 
-
 ## Helper function for converting 2-D data from a netCDF to a data.frame object for QA
 netcdf_to_dataframe <- function(nc) {
     att_names <- names(nc$var)
@@ -671,4 +672,91 @@ qa_contact_info <- function(eml) {
 
     return(list(status = status,
                 output = messages))
+}
+
+
+qa_abstract <- function(input) {
+    if (methods::is(input, "eml")) {
+        abstract <- input@dataset@abstract
+    } else {
+        abstract <- input
+    }
+    if (length(abstract) == 0) {
+        status <- "FAILURE"
+        message <- "No abstract sections were found."
+    } else if (length(abstract) > 1) {
+        status <- "FAILURE"
+        message <- "More than one abstract section is present, only one is allowed."
+    } else {
+        # Trim whitespace, split abstract on whitespace
+        tokens <- trimws(stringr::str_split(abstract, "\\s+")[[1]], which="both")
+        # Remove blank elements (subtly and irritatingly different than whitespace)
+        tokens <- tokens[tokens != ""]
+        if (length(tokens) >= 100) {
+            status <- "SUCCESS"
+            message <- paste0("The abstract is ", length(tokens), " word(s) long which is sufficient.")
+        } else {
+            status <- "FAILURE"
+            message <- paste0("The abstract is only ", length(tokens), " word(s) long but 100 or more is requried.")
+        }
+    }
+    mdq_result <- list(status = status,
+                       output = list(list(value = message)))
+    return(mdq_result)
+}
+
+
+qa_title <- function(input) {
+    if (methods::is(input, "eml")) {
+        title <- EML::eml_get(input, "title") %>%
+            utils::capture.output() %>%
+            paste(collapse = " ")
+    } else {
+        title <- input
+    }
+    if (length(title) <= 0) {
+        status <- "FAILURE"
+        message <- "No title(s) were found."
+    } else {
+        status <- "SUCCESS"
+        message <- "One or more titles were found."
+    }
+    mdq_result <- list(status = status,
+                       output = list(list(value = message)))
+    return(mdq_result)
+}
+
+
+qa_creative_commons <- function(input) {
+    # CC-BY: This work is licensed under the Creative Commons Attribution 4.0 International License.\nTo view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/."
+    # CC-0:"This work is dedicated to the public domain under the Creative Commons Universal 1.0 Public Domain Dedication.\nTo view a copy of this dedication, visit https://creativecommons.org/publicdomain/zero/1.0/."
+    if (methods::is(input, "eml")) {
+        rights <- EML::eml_get(input, "intellectualRights") %>%
+            utils::capture.output() %>%
+            paste(collapse = " ")
+    } else {
+        rights <- input
+    }
+    phrases <- c("http[s]*://creativecommons.org/licenses/by/4.0", "http[s]*://creativecommons.org/publicdomain/zero/1.0")
+    if (length(rights) == 0) {
+        status <- "FAILURE"
+        message <- "The document is not licensed with a Creative Commons CC-0 or CC-BY license."
+    } else if (length(rights) > 1) {
+        status <- "FAILURE"
+        message <- "More than one license was found which was an unexpected state."
+    } else {
+        if (stringr::str_detect(rights[[1]], phrases[[1]])) {
+            status <- "SUCCESS"
+            message <- "The document is licensed with a Creative Commons CC-BY license."
+        } else if (stringr::str_detect(rights[[1]], phrases[[2]])) {
+            status <- "SUCCESS"
+            message <- "The document is licensed with a Creative Commons CC-0 license."
+        } else {
+            status <- "FAILURE"
+            message <- "The document is not licensed with a Creative Commons CC-0 or CC-BY license."
+        }
+    }
+    mdq_result <- list(status = status,
+                       output = list(list(value = message)))
+    return(mdq_result)
 }
