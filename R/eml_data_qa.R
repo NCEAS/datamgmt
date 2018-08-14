@@ -428,7 +428,7 @@ qa_rightsHolder <- function(eml, system_metadata) {
 
 
 # Check if creator is present
-qa_creator <- function(eml) {
+qa_creators <- function(eml) {
     stopifnot(is(eml, "eml"))
 
     creators <- eml@dataset@creator
@@ -454,8 +454,8 @@ qa_creator <- function(eml) {
 }
 
 
-# Check if creator ORCIDs, emails, and addresses are present
-qa_creator_orcid <- function(eml) {
+# Check if creator info is present
+qa_creators_info <- function(eml) {
     stopifnot(is(eml, "eml"))
 
     creators <- eml@dataset@creator
@@ -478,7 +478,7 @@ qa_creator_orcid <- function(eml) {
         creator_ORCIDs <- unlist(EML::eml_get(creators, "userId"))
         has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", creator_ORCIDs)
         if (suppressWarnings(any(has_ORCID))) {
-            messages[[length(messages) + 1]] <- "The user identifier for a creator is an ORCID."
+            messages[[length(messages) + 1]] <- sprintf("%d of %d creators have an ORCID.", length(creator_ORCIDs), length(creators))
         } else {
             status <- "FAILURE"
             messages[[length(messages) + 1]] <- "The user identifier for any creator is not an ORCID."
@@ -494,7 +494,7 @@ qa_creator_orcid <- function(eml) {
         creator_emails <- unlist(EML::eml_get(creators, "electronicMailAddress"))
         has_email <-  grepl("@", creator_emails)
         if (suppressWarnings(any(has_email))) {
-            messages[[length(messages) + 1]] <- "An email address for a creator is present."
+            messages[[length(messages) + 1]] <- sprintf("%d of %d creators have email addresses.", length(creator_emails), length(creators))
         } else {
             status <- "FAILURE"
             messages[[length(messages) + 1]] <- "An email address for any creator is not present."
@@ -507,42 +507,7 @@ qa_creator_orcid <- function(eml) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An address for any creator is not present."
     } else {
-        messages[[length(messages) + 1]] <- "An address for a creator is present."
-    }
-
-    return(list(status = status,
-                output = messages))
-}
-
-
-# Check if all creators have email and address
-qa_creator_info <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    creators <- eml@dataset@creator
-
-    if (length(creators) <= 0) {
-        return(list(status = "SKIP", output = "A creator entry is not present. Unable to check for email or address."))
-    }
-
-    # Assume that the check will succeed, until proven otherwise
-    status <- "SUCCESS"
-    # Output messages will be stored in a list
-    messages <- list()
-
-    # Check number of creators that have email addresses
-    creator_emails <- unlist(EML::eml_get(creators, "electronicMailAddress"))
-    if (length(creator_emails) == length(creators)) {
-        messages[[length(messages) + 1]] <- "All creators have email addresses."
-    } else {
-        messages[[length(messages) + 1]] <- sprintf("%d of %d creators have email addresses.", length(creator_emails), length(creators))
-    }
-
-    # Check number of creators that have addresses
-    creator_addresses <- unlist(EML::eml_get(creators, "deliveryPoint"))
-    if (length(creator_addresses) == length(creators)) {
-        messages[[length(messages) + 1]] <- "All creators have addresses."
-    } else {
+        creator_addresses <- unlist(EML::eml_get(creators, "deliveryPoint"))
         messages[[length(messages) + 1]] <- sprintf("%d of %d creators have addresses.", length(creator_addresses), length(creators))
     }
 
@@ -552,7 +517,7 @@ qa_creator_info <- function(eml) {
 
 
 # Check if contact is present
-qa_contact <- function(eml) {
+qa_contacts <- function(eml) {
     stopifnot(is(eml, "eml"))
 
     contacts <- eml@dataset@contact
@@ -578,8 +543,8 @@ qa_contact <- function(eml) {
 }
 
 
-# Check if contact ORCIDs, emails, and addresses are present
-qa_contact_orcid <- function(eml) {
+# Check if contact info is present
+qa_contacts_info <- function(eml) {
     stopifnot(is(eml, "eml"))
 
     contacts <- eml@dataset@contact
@@ -602,7 +567,7 @@ qa_contact_orcid <- function(eml) {
         contact_ORCIDs <- unlist(EML::eml_get(contacts, "userId"))
         has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", contact_ORCIDs)
         if (suppressWarnings(any(has_ORCID))) {
-            messages[[length(messages) + 1]] <- "The user identifier for a contact is an ORCID."
+            messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have an ORCID.", length(contact_ORCIDs), length(contacts))
         } else {
             status <- "FAILURE"
             messages[[length(messages) + 1]] <- "The user identifier for any contact is not an ORCID."
@@ -618,7 +583,7 @@ qa_contact_orcid <- function(eml) {
         contact_emails <- unlist(EML::eml_get(contacts, "electronicMailAddress"))
         has_email <-  grepl("@", contact_emails)
         if (suppressWarnings(any(has_email))) {
-            messages[[length(messages) + 1]] <- "An email address for a contact is present."
+            messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have an email.", length(contact_emails), length(contacts))
         } else {
             status <- "FAILURE"
             messages[[length(messages) + 1]] <- "An email address for any contact is not present."
@@ -631,43 +596,8 @@ qa_contact_orcid <- function(eml) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An address for any contact is not present."
     } else {
-        messages[[length(messages) + 1]] <- "An address for a contact is present."
-    }
-
-    return(list(status = status,
-                output = messages))
-}
-
-
-# Check if all contacts have email and address
-qa_contact_info <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    contacts <- eml@dataset@contact
-
-    if (length(contacts) <= 0) {
-        return(list(status = "SKIP", output = "A contact entry is not present. Unable to check for email or address."))
-    }
-
-    # Assume that the check will succeed, until proven otherwise
-    status <- "SUCCESS"
-    # Output messages will be stored in a list
-    messages <- list()
-
-    # Check number of contacts that have email addresses
-    contact_emails <- unlist(EML::eml_get(contacts, "electronicMailAddress"))
-    if (length(contact_emails) == length(contacts)) {
-        messages[[length(messages) + 1]] <- "All contacts have email addresses."
-    } else {
-        messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have email addresses.", length(contact_emails), length(contacts))
-    }
-
-    # Check number of contacts that have addresses
-    contact_addresses <- unlist(EML::eml_get(contacts, "deliveryPoint"))
-    if (length(contact_addresses) == length(contacts)) {
-        messages[[length(messages) + 1]] <- "All contacts have addresses."
-    } else {
-        messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have addresses.", length(contact_addresses), length(contacts))
+        contact_addresses <- unlist(EML::eml_get(contacts, "deliveryPoint"))
+        messages[[length(messages) + 1]] <- sprintf("%d of %d contacts have an address.", length(contact_addresses), length(contacts))
     }
 
     return(list(status = status,
@@ -855,7 +785,7 @@ qa_keywords <- function(eml) {
 
     if (length(key) == 0) {
         return(list(status = "FAILURE",
-                    output = "No keywords are present. At least one keyword is required."))
+                    output = "No keywords are present. At least one keyword is recommended."))
     } else {
         return(list(status = "SUCCESS",
                     output = "At least one keyword is present."))
