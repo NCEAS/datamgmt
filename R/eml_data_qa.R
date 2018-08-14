@@ -57,7 +57,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
 
     # Check creators
     if (check_creators | check_access) {
-        creator_ORCIDs <- qa_creators(eml)
+        creator_ORCIDs <- qa_creator_ORCIDs(eml)
     }
 
     # Check access
@@ -189,7 +189,7 @@ qa_package <- function(node, pid, readAllData = TRUE,
 #'
 #' @param eml (eml) Package metadata
 #' @return creator_ORCIDs (character). Returns \code{character(0)} if any tests fail.
-qa_creators <- function(eml) {
+qa_creator_ORCIDs <- function(eml) {
     # Check creators
     creators <- eml@dataset@creator
     creator_ORCIDs <- unlist(eml_get(creators, "userId"))
@@ -210,7 +210,7 @@ qa_creators <- function(eml) {
 #' See \code{\link{qa_package}} help documentation for more details.
 #'
 #' @param sysmeta (sysmeta)  Sysmeta of a given object.
-#' @param creator_ORCIDs (character) ORCIDs of creators. Result of \code{\link{qa_creators}}.
+#' @param creator_ORCIDs (character) ORCIDs of creators. Result of \code{\link{qa_creator_ORCIDs}}.
 qa_access <- function(sysmeta, creator_ORCIDs) {
 
     # Check rightsHolder
