@@ -61,7 +61,7 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
         })
 
     fl <- paste(fields, collapse=", ")
-    q <- paste0("documents:\"", object_pid, "\"")
+    q <- paste0("identifier:\"", object_pid, "\"")
     df_query <- dataone::query(mn, list(q = q, fl = fl, rows = "5"),
                                as = "data.frame")
 
