@@ -30,6 +30,16 @@ test_that("we can check for a creative commons license", {
     cc_fail <- "This work has no license"
     out <- qa_creative_commons(cc_fail)
     expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@intellectualRights <- read_eml("<intellectualRights><para></para></intellectualRights>")
+    out <- qa_creative_commons(eml)
+    expect_equal(out$status, "FAILURE")
+
+    # Test multiple intellectual rights
+    eml@dataset@intellectualRights <- read_eml("<intellectualRights><para>rights1</para><para>rights2</para></intellectualRights>")
+    out <- qa_creative_commons(eml)
+    expect_equal(out$status, "FAILURE")
 })
 
 test_that("we can check for the prescence of a title", {
@@ -40,5 +50,10 @@ test_that("we can check for the prescence of a title", {
     expect_equal(out$status, "SUCCESS")
 
     out <- qa_title(character(0))
+    expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@title[[1]] <- EML::read_eml("<title></title>")
+    out <- qa_title(eml)
     expect_equal(out$status, "FAILURE")
 })

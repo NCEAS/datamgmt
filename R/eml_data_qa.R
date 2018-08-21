@@ -709,14 +709,20 @@ qa_abstract <- function(input) {
 qa_title <- function(input) {
     if (methods::is(input, "eml")) {
         title <- EML::eml_get(input, "title") %>%
-            utils::capture.output() %>%
-            paste(collapse = " ")
+            lapply(function(x){x}) %>%  # returns the printed output in a list
+            simplify2array() %>%
+            as.character()
     } else {
         title <- input
     }
+    stopifnot(is.character(title))
+
     if (length(title) <= 0) {
         status <- "FAILURE"
-        message <- "No title(s) were found."
+        message <- "No titles were found."
+    } else if (any(nchar(title) <= 0)){
+        status <- "FAILURE"
+        message <- "One or more titles has length 0."
     } else {
         status <- "SUCCESS"
         message <- "One or more titles were found."
@@ -758,5 +764,42 @@ qa_creative_commons <- function(input) {
     }
     mdq_result <- list(status = status,
                        output = list(list(value = message)))
+    return(mdq_result)
+}
+
+
+qa_award_number_present <- function(input) {
+    if (methods::is(input, "eml")) {
+        awards <- EML::eml_get(input, "funding") %>%
+            utils::capture.output() %>%
+            str_extract(">.*<") %>%
+            str_replace_all("<|>", "") %>%
+            na.omit() %>%
+            as.character()
+    } else {
+        awards <- input
+    }
+
+    if (is.null(awards)) {
+        status <- "FAILURE"
+        output <- "No award numbers were found."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (length(awards) < 1) {
+        status <- "FAILURE"
+        output <- paste0("No award numbers were found when one or more were expected.")
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (all(nchar(awards) <= 0)) {
+        status <- "FAILURE"
+        output <- "Of the award numbers found, none were non-zero in length."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else {
+        status <- "SUCCESS"
+        output <- "At least one award number was found."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    }
     return(mdq_result)
 }
