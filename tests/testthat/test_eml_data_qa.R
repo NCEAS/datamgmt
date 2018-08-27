@@ -17,6 +17,11 @@ test_that("we can check if an abstract is >= 100 words.", {
 test_that("qa_abstract fails when < 100 words", {
     out <- qa_abstract(eml_test)
     expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@abstract <- EML::read_eml("<abstract></abstract>")
+    out <- qa_abstract(eml)
+    expect_equal(out$status, "FAILURE")
 })
 
 test_that("we can check for a creative commons license", {
@@ -55,5 +60,21 @@ test_that("we can check for the prescence of a title", {
     eml <- eml_test
     eml@dataset@title[[1]] <- EML::read_eml("<title></title>")
     out <- qa_title(eml)
+    expect_equal(out$status, "FAILURE")
+})
+
+test_that("we can check for funding numbers", {
+    out <- qa_award_number_present(eml_test)
+    expect_equal(out$status, "SUCCESS")
+
+    out <- qa_award_number_present("1234567")
+    expect_equal(out$status, "SUCCESS")
+
+    eml <- eml_test
+    eml@dataset@project@funding <- EML::read_eml("<funding></funding>")
+    out <- qa_award_number_present(eml)
+    expect_equal(out$status, "FAILURE")
+
+    out <- qa_award_number_present("")
     expect_equal(out$status, "FAILURE")
 })

@@ -772,9 +772,9 @@ qa_award_number_present <- function(input) {
     if (methods::is(input, "eml")) {
         awards <- EML::eml_get(input, "funding") %>%
             utils::capture.output() %>%
-            str_extract(">.*<") %>%
-            str_replace_all("<|>", "") %>%
-            na.omit() %>%
+            stringr::str_extract(">.*<") %>%  # extract all text between <para> </para> tags
+            stringr::str_replace_all("<|>", "") %>%
+            stats::na.omit() %>%
             as.character()
     } else {
         awards <- input
@@ -790,9 +790,14 @@ qa_award_number_present <- function(input) {
         output <- paste0("No award numbers were found when one or more were expected.")
         mdq_result <- list(status = status,
                            output = list(list(value = output)))
-    } else if (all(nchar(awards) <= 0)) {
+    } else if (!all(nchar(awards) <= 0)) {
         status <- "FAILURE"
         output <- "Of the award numbers found, none were non-zero in length."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (all(sapply(awards, is_whitespace))) {
+        status <- "FAILURE"
+        output <- "Of the awards numbers found, none were non-whitespace."
         mdq_result <- list(status = status,
                            output = list(list(value = output)))
     } else {
@@ -802,4 +807,24 @@ qa_award_number_present <- function(input) {
                            output = list(list(value = output)))
     }
     return(mdq_result)
+}
+
+# test both cases rangeOfDates beginDate and singleDateTime calendarDate
+qa_temporal_start_year <- function(input) {
+    if (methods::is(input, "eml")) {
+        date <- EML::eml_get(input, "calendarDate") %>%
+            lapply(function(x){x}) %>%
+            simplify2array()
+    } else {
+        date <- input
+    }
+}
+
+# helper function that checks if the input is whitespace
+is_whitespace <- function(input) {
+    input <- trimws(input, which = "both")
+    if (input == "") {
+        return(TRUE)
+    }
+    return(FALSE)
 }
