@@ -940,3 +940,53 @@ qa_title_length <- function(input) {
                     output = "The number of words in the title is sufficient."))
     }
 }
+
+
+# Check physical of entity object
+qa_physical <- function(input) {
+    if (methods::is(input, "eml")) {
+        eml <- list(input@dataset@dataTable,
+                    input@dataset@otherEntity,
+                    input@dataset@spatialVector)
+    } else if (any(c("ListOfdataTable", "ListOfotherEntity", "ListOfspatialVector") %in% class(input))) {
+        eml <- list(input)
+    } else if (any(c("dataTable", "otherEntity", "spatialVector", "character") %in% class(input))) {
+        eml <- list(list(input))
+    } else {
+        stop("Input should be of class 'eml', 'ListOfdataTable', 'ListOfotherEntity', 'ListOfspatialVector', 'dataTable', 'otherEntity', 'spatialVector', or 'character'.")
+    }
+
+    # Assume that the check will succeed, until proven otherwise
+    status <- "SUCCESS"
+    # Output messages will be stored in a vector
+    messages <- c()
+
+    for (i in seq_along(eml)) {
+        for (j in seq_along(eml[[i]])) {
+            if (length(eml[[i]]) == 0) {
+                next
+            } else {
+                if (length(eml[[i]][[j]]@physical@.Data) == 0) {
+                    status <- "FAILURE"
+                    messages[[length(messages) + 1]] <- paste0("The physical for '", eml[[i]][[j]]@entityName@.Data, "' is missing.")
+                } else {
+                    result <- character(5)
+                    elements <- c("objectName", "size", "authentication", "formatName", "url")
+                    for (x in elements) {
+                        result[which(elements == x)] <- ifelse(length(EML::eml_get(eml[[i]][[j]], x)) == 1, paste(x, "exists"), paste(x, "does not exist"))
+                    }
+                    if (any(stringr::str_detect(result, "not"))) {
+                        status <- "FAILURE"
+                        messages[[length(messages) + 1]] <- paste0("The physical for '", eml[[i]][[j]]@entityName@.Data, "' is present but not complete: ",
+                                                                   paste0(stringr::str_subset(result, "not"), collapse = " + "), ".")
+                    } else {
+                        messages[[length(messages) + 1]] <- paste0("The physical for '", eml[[i]][[j]]@entityName@.Data, "' is present and complete.")
+                    }
+                }
+            }
+        }
+    }
+
+    return(list(status = status,
+                output = messages))
+}

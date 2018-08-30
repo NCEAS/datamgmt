@@ -12,3 +12,5 @@ addons:
       - libnetcdf-dev
       - r-cran-ncdf4
       - libudunits2-dev
+      - libgdal-dev
+      - libproj-dev

@@ -271,3 +271,9 @@ test_that("title length is sufficient", {
     out7 <- qa_title_length(eml_test)
     expect_equal(out7$status, "SKIP")
 })
+
+
+test_that("physical is present and complete", {
+    input <- 7
+    expect_error(qa_physical(input))
+})
