@@ -259,7 +259,6 @@ qa_access <- function(sysmeta, creator_ORCIDs) {
 #' @param data (data.frame) Data frame of data object.
 #' @param checkEnumeratedDomains (logical) Default TRUE. If True, will match unique values in data to defined EML enumerated domains.
 #'
-#' @return
 #' @export
 #'
 #' @author Emily O'Dean \email{eodean10@@gmail.com}
@@ -428,24 +427,25 @@ qa_rightsHolder <- function(eml, system_metadata) {
 
 
 # Check if creator is present
-qa_creators <- function(eml) {
-    stopifnot(is(eml, "eml"))
+qa_creator <- function(input) {
+    if (methods::is(input, "eml")) {
+        creators <- input@dataset@creator
+    } else if (methods::is(input, "ListOfcreator")) {
+        creators <- input
+    } else {
+        stop("Input should be of class 'eml' or 'ListOfcreator'.")
+    }
 
-    creators <- eml@dataset@creator
-
-    # Assume that the check will succeed, until proven otherwise
-    status <- "SUCCESS"
-    # Output messages will be stored in a list
-    messages <- list()
-
-    if (length(creators) <= 0) {
+    if (length(creators) == 0) {
         status <- "FAILURE"
-        messages[[length(messages) + 1]] <- "No creators are present."
+        messages <- "No creators are present."
     } else {
         if (length(creators) == 1) {
-            messages[[length(messages) + 1]] <- "One creator is present."
+            status <- "SUCCESS"
+            messages <- "One creator is present."
         } else {
-            messages[[length(messages) + 1]] <- sprintf("%d creators are present.", length(creators))
+            status <- "SUCCESS"
+            messages <- sprintf("%d creators are present.", length(creators))
         }
     }
 
@@ -455,13 +455,18 @@ qa_creators <- function(eml) {
 
 
 # Check if creator info is present
-qa_creators_info <- function(eml) {
-    stopifnot(is(eml, "eml"))
+qa_creator_info <- function(input) {
+    if (methods::is(input, "eml")) {
+        creators <- input@dataset@creator
+    } else if (methods::is(input, "ListOfcreator")) {
+        creators <- input
+    } else {
+        stop("Input should be of class 'eml' or 'ListOfcreator'.")
+    }
 
-    creators <- eml@dataset@creator
-
-    if (length(creators) <= 0) {
-        return(list(status = "SKIP", output = "A creator entry is not present. Unable to check for an ORCID, email, or address."))
+    if (length(creators) == 0) {
+        return(list(status = "SKIP",
+                    output = "A creator entry is not present. Unable to check for an ORCID, email, or address."))
     }
 
     # Assume that the check will succeed, until proven otherwise
@@ -470,10 +475,10 @@ qa_creators_info <- function(eml) {
     messages <- list()
 
     # There could be multiple creators, but just one creator with a "userId" will satisfy this check
-    userId <- lapply(c(1:length(creators)), function(i) {length(eml@dataset@creator[[i]]@userId@.Data)})
+    userId <- lapply(c(1:length(creators)), function(i) {length(creators[[i]]@userId@.Data)})
     if (all(userId == 0)) {
         status <- "FAILURE"
-        messages[[length(messages) + 1]] <- "A user identifier for any creator is not present, so checking for an ORCID is not possible."
+        messages[[length(messages) + 1]] <- "A user identifier for any creator is not present. Unable to check for an ORCID."
     } else {
         creator_ORCIDs <- unlist(EML::eml_get(creators, "userId"))
         has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", creator_ORCIDs)
@@ -486,7 +491,7 @@ qa_creators_info <- function(eml) {
     }
 
     # There could be multiple creators, but just one creator with an "email" will satisfy this check
-    email <- lapply(c(1:length(creators)), function(i) {length(eml@dataset@creator[[i]]@electronicMailAddress@.Data)})
+    email <- lapply(c(1:length(creators)), function(i) {length(creators[[i]]@electronicMailAddress@.Data)})
     if (all(email == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An email address for any creator is not present."
@@ -502,7 +507,7 @@ qa_creators_info <- function(eml) {
     }
 
     # There could be multiple creators, but just one creator with an "address" will satisfy this check
-    address <- lapply(c(1:length(creators)), function(i) {length(eml@dataset@creator[[i]]@address@.Data)})
+    address <- lapply(c(1:length(creators)), function(i) {length(creators[[i]]@address@.Data)})
     if (all(address == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An address for any creator is not present."
@@ -517,24 +522,25 @@ qa_creators_info <- function(eml) {
 
 
 # Check if contact is present
-qa_contacts <- function(eml) {
-    stopifnot(is(eml, "eml"))
+qa_contact <- function(input) {
+    if (methods::is(input, "eml")) {
+        contacts <- input@dataset@contact
+    } else if (methods::is(input, "ListOfcontact")) {
+        contacts <- input
+    } else {
+        stop("Input should be of class 'eml' or 'ListOfcontact'.")
+    }
 
-    contacts <- eml@dataset@contact
-
-    # Assume that the check will succeed, until proven otherwise
-    status <- "SUCCESS"
-    # Output messages will be stored in a list
-    messages <- list()
-
-    if (length(contacts) <= 0) {
+    if (length(contacts) == 0) {
         status <- "FAILURE"
-        messages[[length(messages) + 1]] <- "No contacts are present."
+        messages <- "No contacts are present."
     } else {
         if (length(contacts) == 1) {
-            messages[[length(messages) + 1]] <- "One contact is present."
+            status <- "SUCCESS"
+            messages <- "One contact is present."
         } else {
-            messages[[length(messages) + 1]] <- sprintf("%d contacts are present.", length(contacts))
+            status <- "SUCCESS"
+            messages <- sprintf("%d contacts are present.", length(contacts))
         }
     }
 
@@ -544,13 +550,18 @@ qa_contacts <- function(eml) {
 
 
 # Check if contact info is present
-qa_contacts_info <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    contacts <- eml@dataset@contact
+qa_contact_info <- function(input) {
+    if (methods::is(input, "eml")) {
+        contacts <- input@dataset@contact
+    } else if (methods::is(input, "ListOfcontact")) {
+        contacts <- input
+    } else {
+        stop("Input should be of class 'eml' or 'ListOfcontact'.")
+    }
 
     if (length(contacts) <= 0) {
-        return(list(status = "SKIP", output = "A contact entry is not present. Unable to check for an ORCID, email, or address."))
+        return(list(status = "SKIP",
+                    output = "A contact entry is not present. Unable to check for an ORCID, email, or address."))
     }
 
     # Assume that the check will succeed, until proven otherwise
@@ -559,10 +570,10 @@ qa_contacts_info <- function(eml) {
     messages <- list()
 
     # There could be multiple contacts, but just one contact with a "userId" will satisfy this check
-    userId <- lapply(c(1:length(contacts)), function(i) {length(eml@dataset@contact[[i]]@userId@.Data)})
+    userId <- lapply(c(1:length(contacts)), function(i) {length(contacts[[i]]@userId@.Data)})
     if (all(userId == 0)) {
         status <- "FAILURE"
-        messages[[length(messages) + 1]] <- "A user identifier for any contact is not present, so checking for an ORCID is not possible."
+        messages[[length(messages) + 1]] <- "A user identifier for any contact is not present. Unable to check for an ORCID."
     } else {
         contact_ORCIDs <- unlist(EML::eml_get(contacts, "userId"))
         has_ORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", contact_ORCIDs)
@@ -575,7 +586,7 @@ qa_contacts_info <- function(eml) {
     }
 
     # There could be multiple contacts, but just one contact with an "email" will satisfy this check
-    email <- lapply(c(1:length(contacts)), function(i) {length(eml@dataset@contact[[i]]@electronicMailAddress@.Data)})
+    email <- lapply(c(1:length(contacts)), function(i) {length(contacts[[i]]@electronicMailAddress@.Data)})
     if (all(email == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An email address for any contact is not present."
@@ -591,7 +602,7 @@ qa_contacts_info <- function(eml) {
     }
 
     # There could be multiple contacts, but just one contact with an "address" will satisfy this check
-    address <- lapply(c(1:length(contacts)), function(i) {length(eml@dataset@contact[[i]]@address@.Data)})
+    address <- lapply(c(1:length(contacts)), function(i) {length(contacts[[i]]@address@.Data)})
     if (all(address == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An address for any contact is not present."
@@ -693,142 +704,198 @@ qa_creative_commons <- function(input) {
 
 
 # Check if geographic coverage description is present
-qa_geographic_desc <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    geo <- eml@dataset@coverage@geographicCoverage
+qa_geographic_desc <- function(input) {
+    if (methods::is(input, "eml")) {
+        geo <- input@dataset@coverage@geographicCoverage
+    } else if (any(c("ListOfgeographicCoverage", "character") %in% class(input))) {
+        geo <- input
+    } else {
+        stop("Input should be of class 'eml', 'ListOfgeographicCoverage', or 'character'.")
+    }
 
     if (length(geo) == 0) {
-        return(list(status = "FAILURE",
+        return(list(status = "SKIP",
                     output = "Geographic coverage is not present. Unable to check for description."))
     }
 
-    desc <- EML::eml_get(eml, "geographicDescription")
+    if (class(input) == "character") { # For class eml, is.character(input) returns TRUE; use alternative method instead
+        desc <- input
+    } else {
+        desc <- EML::eml_get(input, "geographicDescription")
+    }
 
     if (length(desc) != length(geo)) {
         return(list(status = "FAILURE",
-                    output = "A textual description is not present for one or more geographic coverages."))
+                    output = sprintf("A textual description is present for %d of %d geographic coverages.",
+                                     length(desc), length(geo))))
     } else {
         return(list(status = "SUCCESS",
-                    output = "A textual description of the geographic coverage is present."))
+                    output = sprintf("A textual description is present for %d of %d geographic coverages.",
+                                     length(desc), length(geo))))
     }
 }
 
 
 # Check if geographic coverage bounding coordinates are present
-qa_geographic_coord <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    geo <- eml@dataset@coverage@geographicCoverage
+qa_geographic_coord <- function(input) {
+    if (methods::is(input, "eml")) {
+        geo <- input@dataset@coverage@geographicCoverage
+    } else if (any(c("ListOfgeographicCoverage", "character") %in% class(input))) {
+        geo <- input
+    } else {
+        stop("Input should be of class 'eml', 'ListOfgeographicCoverage', or 'character'.")
+    }
 
     if (length(geo) == 0) {
-        return(list(status = "FAILURE",
+        return(list(status = "SKIP",
                     output = "Geographic coverage is not present. Unable to check for bounding coordinates."))
     }
 
     # Both bounding boxes and single points should have four coordinates
     # Single points have duplicates for north/south and east/west
+    if (class(input) == "character") { # For class eml, is.character(input) returns TRUE; use alternative method instead
+        four_coords <- geo
+        if (length(input) == 4) {logicals <- TRUE} else {logicals <- FALSE}
+        true_sum <- 1
+    } else {
+        four_coords <- function(x) {
+            coord <- EML::eml_get(x, "westBoundingCoordinate")
+            coord <- append(coord, EML::eml_get(x, "eastBoundingCoordinate"))
+            coord <- append(coord, EML::eml_get(x, "northBoundingCoordinate"))
+            coord <- append(coord, EML::eml_get(x, "southBoundingCoordinate"))
+            length(coord) == 4 #TRUE/FALSE
+        }
 
-    four_coords <- function(x) {
-        coord <- EML::eml_get(x, "westBoundingCoordinate")
-        coord <- append(coord, EML::eml_get(x, "eastBoundingCoordinate"))
-        coord <- append(coord, EML::eml_get(x, "northBoundingCoordinate"))
-        coord <- append(coord, EML::eml_get(x, "southBoundingCoordinate"))
-        length(coord) == 4
+        logicals <- lapply(geo, four_coords)
+        true_sum <- sum(unlist(logicals))
     }
-
-    logicals <- lapply(geo, four_coords)
 
     if (any(logicals == FALSE)) {
         return(list(status = "FAILURE",
-                    output = "A complete set of bounding coordinates is not present for one or more geographic coverages."))
+                    output = sprintf("A complete set of bounding coordinates is not present for %d of %d geographic coverages.",
+                                     true_sum, length(geo))))
     } else {
         return(list(status = "SUCCESS",
-                    output = "A complete set of bounding coordinates describing the geographic coverage is present."))
+                    output = sprintf("A complete set of bounding coordinates is present for %d of %d geographic coverages.",
+                                     true_sum, length(geo))))
     }
 }
 
 
 # Check if geographic coverage intersects with Arctic
-qa_geographic_arctic <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    geo <- eml@dataset@coverage@geographicCoverage
+qa_geographic_arctic <- function(input) {
+    if (methods::is(input, "eml")) {
+        geo <- input@dataset@coverage@geographicCoverage
+    } else if (any(c("ListOfgeographicCoverage", "numeric", "character") %in% class(input))) {
+        geo <- input
+    } else {
+        stop("Input should be of class 'eml', 'ListOfgeographicCoverage', 'numeric', or 'character'.")
+    }
 
     if (length(geo) == 0) {
-        return(list(status = "FAILURE",
+        return(list(status = "SKIP",
                     output = "Geographic coverage is not present. Unable to check for bounding coordinates."))
     }
 
-    ncoord <- EML::eml_get(eml, "northBoundingCoordinate")
+    if (any(c("numeric", "character") %in% class(input))) {
+        ncoord <- input
+    } else {
+        ncoord <- EML::eml_get(input, "northBoundingCoordinate")
+    }
 
     if (any(is.na(suppressWarnings(as.numeric(ncoord))))) {
         return(list(status = "FAILURE",
                     output = "A northern bounding coordinate is not numeric."))
+    } else if (any(as.numeric(ncoord) > 90)) {
+        return(list(status = "FAILURE",
+                    output = "A northern bounding coordinate is out of range. The valid range is 0 to +90."))
     } else {
         if (any(as.numeric(ncoord) >= 45)) {
             return(list(status = "SUCCESS",
                         output = "Geographic coverage is in the Arctic."))
         } else {
             return(list(status = "FAILURE",
-                        output = "No geographic coverage is in the Arctic."))
+                        output = "Geographic coverage is not in the Arctic."))
         }
     }
 }
 
 
 # Check that keywords are present
-qa_keywords <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    key <- eml@dataset@keywordSet
+qa_keywords <- function(input) {
+    if (methods::is(input, "eml")) {
+        key <- input@dataset@keywordSet
+    } else if (any(c("ListOfkeywordSet", "character") %in% class(input))) {
+        key <- input
+    } else {
+        stop("Input should be of class 'eml', 'ListOfkeywordSet', or 'character'.")
+    }
 
     if (length(key) == 0) {
         return(list(status = "FAILURE",
                     output = "No keywords are present. At least one keyword is recommended."))
+    }
+
+    if (class(input) == "character") { # For class eml, is.character(input) returns TRUE; use alternative method instead
+        len <- length(key)
+    } else {
+        len <- length(key[[1]]@keyword)
+    }
+
+    if (len == 1) {
+        return(list(status = "SUCCESS",
+                    output = "One keyword is present."))
     } else {
         return(list(status = "SUCCESS",
-                    output = "At least one keyword is present."))
+                    output = sprintf("%d keywords are present.", len)))
     }
 }
 
 
 # Check title length
-qa_title_length <- function(eml) {
-    stopifnot(is(eml, "eml"))
-
-    title <- eml@dataset@title
-
-    if (length(title) == 0) {
-        return(list(status = "FAILURE",
-                    output = "The dataset title is not present. Unable to determine length of title."))
+qa_title_length <- function(input) {
+    if (methods::is(input, "eml")) {
+        title <- input@dataset@title
+    } else if (any(c("ListOftitle", "character") %in% class(input))) {
+        title <- input
+    } else {
+        stop("Input should be of class 'eml', 'ListOftitle', or 'character'.")
     }
 
-    title2 <- eml@dataset@title[[1]]@.Data
+    if (length(title) == 0) {
+        return(list(status = "SKIP",
+                    output = "The title is not present. Unable to determine length of title."))
+    }
 
-    # Required minimum word count for title
+    if (class(input) == "character") { # For class eml, is.character(input) returns TRUE; use alternative method instead
+        title2 <- title[[1]]
+    } else {
+        title2 <- title[[1]]@.Data
+    }
+
+    word_count <- length(unlist(strsplit(title2, "\\s+", perl = TRUE)))
+
+    # Required minimum word count
     req_min_count <- 5
     # Recommended minimum word count
     rec_min_count <- 7
     # Recommended max word count
     rec_max_count <- 20
 
-    word_count <- length(unlist(strsplit(title2, "\\s+", perl = TRUE)))
-
     if (word_count < req_min_count) {
         return(list(status = "FAILURE",
-                    output = sprintf("There are %d words in the dataset title. The minimum required word count is %s.",
+                    output = sprintf("There are %d words in the title. The minimum required word count is %d.",
                                      word_count, req_min_count)))
     } else if (word_count < rec_min_count) {
         return(list(status = "FAILURE",
-                    output = sprintf("There are %d words in the dataset title. The minimum recommended word count is %s.",
+                    output = sprintf("There are %d words in the title. The minimum recommended word count is %d.",
                                      word_count, rec_min_count)))
     } else if (word_count > rec_max_count) {
         return(list(status = "FAILURE",
-                    output = sprintf("There are %d words in the dataset title. The maximum recommended word count is %s.",
+                    output = sprintf("There are %d words in the title. The maximum recommended word count is %d.",
                                      word_count, rec_max_count)))
     } else {
         return(list(status = "SUCCESS",
-                    output = "The number of words in the dataset title is sufficient."))
+                    output = "The number of words in the title is sufficient."))
     }
 }

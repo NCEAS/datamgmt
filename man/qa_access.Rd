@@ -9,7 +9,7 @@ qa_access(sysmeta, creator_ORCIDs)
 \arguments{
 \item{sysmeta}{(sysmeta)  Sysmeta of a given object.}
 
-\item{creator_ORCIDs}{(character) ORCIDs of creators. Result of \code{\link{qa_creators}}.}
+\item{creator_ORCIDs}{(character) ORCIDs of creators. Result of \code{\link{qa_creator_ORCIDs}}.}
 }
 \description{
 This function is called by \code{\link{qa_package}}.
