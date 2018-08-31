@@ -1,13 +1,13 @@
 #' Remove and substitute special characters in a string.
 #'
-#' This is a helper function for the 'download_package' function.  This was
+#' This is a helper function for the 'download_package' function. This was
 #' created as a helper so that users can edit the helper, rather than 'download_package'
-#' if they want differing special character substitions.  Substitues special
+#' if they want differing special character substitutions. Substitutes special
 #' characters from a package identifier. Can be generalized for use with any pid.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @param pid (character) The identifier a dataOne object.
+#' @param pid (character) The identifier a DataONE object.
 #'
 #' @return (character) The formatted identifer as a string
 remove_special_characters <- function(pid) {
@@ -155,9 +155,9 @@ convert_bytes <- function(download_size) {
 
 #' Download multiple data objects using their pids.
 #'
-#' @description Download mutiple dataone objects.  This is a helper function
+#' @description Download multiple DataONE objects.  This is a helper function
 #' for 'datamgmt::download_package'
-#' @param mn (MNode) The Dataone Member Node to download the data objects from.
+#' @param mn (MNode) The DataONE Member Node to download the data objects from.
 #' @param data_pids (character) A vector of Data object pids.
 #' @param out_paths (character) A vector of file paths to download to.
 #' @param n_max (numeric) Optional.  Number of attempts at downloading a Data object.
@@ -194,10 +194,10 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
 #' It is particularly useful when a Data Package is too large to download using the web interface.
 #'
 #' @param mn (MNode) The Member Node to download from.
-#' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
+#' @param resource_map_pid (character) The identifier of the Resource Map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
-#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommened to also set \code{prefix_file_names = TRUE}
+#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommended to also set \code{prefix_file_names = TRUE}
 #' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  This is not recommended if the separate csv files already exist in the package. The csv files are downloaded as sheetName_excelWorkbookName.csv
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar write.csv
@@ -289,7 +289,7 @@ download_one_package <- function(mn,
 #' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
 #' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
-#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this, then its recommened to also set \code{prefix_file_names = TRUE}
+#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this, then its recommended to also set \code{prefix_file_names = TRUE}
 #' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
 #' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package. Defaults to \code{TRUE}
 #' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.

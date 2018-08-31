@@ -22,7 +22,7 @@
 #' @param pid (character) The PID of a resource map.
 #' @param readAllData (logical) Default TRUE. Read all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset). If \code{check_attributes = FALSE}, no rows will be read.
 #' @param check_attributes (logical) Default TRUE. Calls \code{\link{qa_attributes}}. Checks congruence of attributes and data.
-#' @param check_creators (logigal) Default FALSE. Calls \code{\link{qa_creator_ORCIDs}}. Checks if each creator has an ORCID. Will also run if \code{check_access = TRUE}.
+#' @param check_creators (logical) Default FALSE. Calls \code{\link{qa_creator_ORCIDs}}. Checks if each creator has an ORCID. Will also run if \code{check_access = TRUE}.
 #' @param check_access (logigal) Default FALSE. Calls \code{\link{qa_access}}. Checks if each creator has full access to the metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.
 #'
 #' @return invisible

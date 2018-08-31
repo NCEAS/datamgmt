@@ -1,11 +1,10 @@
 # Data management utilities for curating, documenting, and publishing data
 
 ## Installation
-You can install the development version from github with:
+You can install the development version from GitHub with:
 
 ```{r eval = FALSE}
 # install.packages("devtools")
-
 devtools::install_github("NCEAS/datamgmt")
 ```
 
@@ -14,7 +13,7 @@ Click on "Articles" to see information about functions for:
 
 - General ADC/SASAP data team use
 - PIs/data package submitters
-- datamgmt developers and contributers
+- datamgmt developers and contributors
 
 
 

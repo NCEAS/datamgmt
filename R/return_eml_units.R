@@ -291,7 +291,7 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     return(unit)
 }
 
-#' Performs formating on unit and splits into components
+#' Performs formatting on unit and splits into components
 #' @param unit (character) unit
 #' @param all_units (data.frame)
 #' @return (character) unit_split
@@ -508,7 +508,7 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
 #' @param unit_split (character) result of function get_unit_split
 #' @param form ('id', 'symbol', 'udunit', 'description'). 'id' is an EML id form. 'symbol' is an EML abbreviation form. 'udunit' is a udunits2 form.
 #' @param all_units (data.frame)
-#' @return (character) formated unit_split
+#' @return (character) formatted unit_split
 format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_units()) {
 
     if (!is.na(unit_split[1])) {
@@ -765,7 +765,7 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #'
 #' @param units (character) unit or vector of units
 #' @param quiet (logical) if true will quiet console text
-#' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
+#' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formatted in an EML form)
 #' @examples
 #' \dontrun{
 #' #The following all return the same data frame.

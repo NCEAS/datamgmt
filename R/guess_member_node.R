@@ -1,13 +1,13 @@
 #' Guess the Member Node
 #'
-#' @description Guess the member node that stores a Dataone object based on its
+#' @description Guess the member node that stores a DataONE object based on its
 #' unique identifier (\code{pid}) and coordinating node (\code{cn}).  In most cases
 #' the object is stored on the Production ("PROD") Node, however this function can
 #' search across all coordinating nodes.  If only one member node is identified this
-#' function returns the member node as a Dataone "MNode" object.  If multiple member
+#' function returns the member node as a DataONE "MNode" object.  If multiple member
 #' nodes are identified a vector of nodes is printed.
 #'
-#' @param pid (character) The Datone unique object identifier.  A Dataone package URL can also be used as input (although this method is less reliable).
+#' @param pid (character) The DataONE unique object identifier.  A DataONE package URL can also be used as input (although this method is less reliable).
 #' @param cn (character) A character vector of coordinate nodes to search.  Defaults to "PROD".
 #' Can be set to any combination of ("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2").
 #'
@@ -21,7 +21,7 @@
 #' mn <- guess_member_node("doi:10.18739/A2G287")
 #' mn <- guess_member_node("doi:10.18739/A2G287", "PROD")
 #'
-#' Use a DataOne package URL
+#' Use a DataONE package URL
 #' mn <- guess_member_node("https://arcticdata.io/catalog/#view/doi:10.18739/A2TX35587")
 #' Search all coordinating nodes:
 #' cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")

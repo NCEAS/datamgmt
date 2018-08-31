@@ -1,6 +1,6 @@
 #' Get all Solr fields
 #'
-#' @description Simple helper function for 'query_all_versions' function to retrive all Solr fields
+#' @description Simple helper function for 'query_all_versions' function to retrieve all Solr fields
 #'
 #' @return (character) List of Solr fields
 #'
@@ -16,12 +16,12 @@ get_solr_fields <- function() {
 
 #' Create data frame with Solr fields
 #'
-#' This is a helper function for 'query_all_versions' function. It simplifies solr queries
+#' This is a helper function for 'query_all_versions' function. It simplifies Solr queries
 #' and creates a one row data frame with the specified Solr fields as the columns.
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param mn (MNode) Specify the DataOne Member Node where the object should be searched for.
+#' @param mn (MNode) Specify the DataONE Member Node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
 #' @param fields (character) List of fields that you want returned in the data frame. Default of "*"
 #' returns all non NULL fields.
@@ -48,7 +48,7 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
         stop("Object does not exist on specified member node")
     }
 
-    # Get all solr fields
+    # Get all Solr fields
     adc_solr <- get_solr_fields()
 
     # Check that all specified fields are valid
@@ -70,13 +70,13 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
 
 #' Solr query all versions of a PID
 #'
-#' This function uses a combination of get_all_versions and solr query to return the query fields
+#' This function uses a combination of get_all_versions and Solr query to return the query fields
 #' for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 #' and the columns are the query fields.
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param mn (MNode) Specify the DataOne Member Node where the object should be searched for.
+#' @param mn (MNode) Specify the DataONE Member Node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
 #' @param fields (character) List of fields that you want returned in the data frame. Default
 #' returns all non NULL fields.
