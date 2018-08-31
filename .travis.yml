@@ -3,14 +3,18 @@
 language: r
 r:
   - oldrel
-sudo: false
+sudo: required
+dist: trusty
 cache: packages
 addons:
    apt:
+    sources:
+      - sourceline: 'ppa:ubuntugis/ppa' # for sf
     packages:
       - librdf0-dev
       - libnetcdf-dev
       - r-cran-ncdf4
       - libudunits2-dev
-      - libgdal-dev
-      - libproj-dev
+      - libgeos-dev # for sf
+      - libproj-dev # for sf
+      - libgdal-dev # for sf
