@@ -11,13 +11,13 @@ download_one_package(mn, resource_map_pid, download_directory,
 \arguments{
 \item{mn}{(MNode) The Member Node to download from.}
 
-\item{resource_map_pid}{(chraracter) The identifier of the Resource Map for the package to download.}
+\item{resource_map_pid}{(character) The identifier of the Resource Map for the package to download.}
 
 \item{download_directory}{(character) The path of the directory to download the package to.}
 
 \item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.}
 
-\item{download_column_metadata}{(logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommened to also set \code{prefix_file_names = TRUE}}
+\item{download_column_metadata}{(logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommended to also set \code{prefix_file_names = TRUE}}
 
 \item{convert_excel_to_csv}{(logical) Optional. Whether to convert excel files to csv(s).  This is not recommended if the separate csv files already exist in the package. The csv files are downloaded as sheetName_excelWorkbookName.csv}
 }

@@ -14,6 +14,8 @@ Authors@R: c(
   )
 Maintainer: The package maintainer <dmullen17@gmail.com>
 Description: Data management utilities for curating, documenting, and publishing data.
+URL: https://nceas.github.io/datamgmt/
+BugReports: https://github.com/NCEAS/datamgmt/issues
 Depends:
     magrittr
 Imports:

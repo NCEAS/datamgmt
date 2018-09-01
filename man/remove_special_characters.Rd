@@ -7,15 +7,15 @@
 remove_special_characters(pid)
 }
 \arguments{
-\item{pid}{(character) The identifier a dataOne object.}
+\item{pid}{(character) The identifier a DataONE object.}
 }
 \value{
 (character) The formatted identifer as a string
 }
 \description{
-This is a helper function for the 'download_package' function.  This was
+This is a helper function for the 'download_package' function. This was
 created as a helper so that users can edit the helper, rather than 'download_package'
-if they want differing special character substitions.  Substitues special
+if they want differing special character substitutions. Substitutes special
 characters from a package identifier. Can be generalized for use with any pid.
 }
 \author{

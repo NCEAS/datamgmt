@@ -2,12 +2,12 @@
 % Please edit documentation in R/obsolete_package.R
 \name{obsolete_package}
 \alias{obsolete_package}
-\title{Obsolete a DataOne Package with a new version.}
+\title{Obsolete a DataONE Package with a new version.}
 \usage{
 obsolete_package(mn, metadata_obsolete, metadata_new)
 }
 \arguments{
-\item{mn}{(MNode) The DataOne member node}
+\item{mn}{(MNode) The DataONE member node}
 
 \item{metadata_obsolete}{(character) The metadata pid of the old, or broken, version. Any
 metadata pid from the obsolete version chain can be used - sets the pid to the
@@ -21,7 +21,7 @@ the version chain.}
 (TRUE)
 }
 \description{
-This function obsoletes a DataOne package with a newer version
+This function obsoletes a DataONE package with a newer version
 by merging the two version chains. The ideal use case for this function is
 when the only option to fix a broken package is by re-uploading a previous
 version and merging the two version chains. In other cases

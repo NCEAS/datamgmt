@@ -21,13 +21,19 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
 <meta property="og:title" content="Articles" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -40,7 +46,7 @@
   </head>
 
   <body>
-    <div class="container template-vignette-index">
+    <div class="container template-article-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -50,8 +56,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">datamgmt</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">datamgmt</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -79,6 +89,9 @@
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
+    <li>
+      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -86,6 +99,7 @@
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -93,12 +107,12 @@
       
       </header>
 
-      <div class="page-header">
-  <h1>Articles <small>version&nbsp;0.1.0</small></h1>
-</div>
-
 <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+      <h1>Articles</h1>
+    </div>
+
     <div class="section ">
       <h3>All vignettes</h3>
       <p class="section-desc"></p>
@@ -107,6 +121,7 @@
         <li><a href="a_datateam.html">General ADC/SASAP data team use</a></li>
         <li><a href="b_pi.html">Functions for PI's</a></li>
         <li><a href="c_datadev.html">Advanced functions for package developers and contributors</a></li>
+        <li><a href="download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a></li>
       </ul>
     </div>
   </div>
@@ -114,7 +129,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund.</p>
+  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund, Sharis Ochs, Derek Strong.</p>
 </div>
 
 <div class="pkgdown">
@@ -123,6 +138,8 @@
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

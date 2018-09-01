@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{download_eml_attributes}
 \alias{download_eml_attributes}
-\title{Download attribute (column) metadata from a Dataone Metadata object to csvs.}
+\title{Download attribute (column) metadata from a DataONE Metadata object to csvs.}
 \usage{
 download_eml_attributes(eml, download_directory,
   prefix_file_names = FALSE)

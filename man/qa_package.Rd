@@ -16,7 +16,7 @@ qa_package(node, pid, readAllData = TRUE, check_attributes = TRUE,
 
 \item{check_attributes}{(logical) Default TRUE. Calls \code{\link{qa_attributes}}. Checks congruence of attributes and data.}
 
-\item{check_creators}{(logigal) Default FALSE. Calls \code{\link{qa_creator_ORCIDs}}. Checks if each creator has an ORCID. Will also run if \code{check_access = TRUE}.}
+\item{check_creators}{(logical) Default FALSE. Calls \code{\link{qa_creator_ORCIDs}}. Checks if each creator has an ORCID. Will also run if \code{check_access = TRUE}.}
 
 \item{check_access}{(logigal) Default FALSE. Calls \code{\link{qa_access}}. Checks if each creator has full access to the metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.}
 }

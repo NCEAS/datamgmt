@@ -10,7 +10,7 @@ clone_package(resource_map_pid, from, to, add_access_to, change_auth_node,
 \arguments{
 \item{resource_map_pid}{(character) Object pid}
 
-\item{from}{(D1Client) D1Client to clone pacakge from. (Package must be public)}
+\item{from}{(D1Client) D1Client to clone package from. (Package must be public)}
 
 \item{to}{(D1Client) D1Client to clone package to. (Token must be set for this node)}
 

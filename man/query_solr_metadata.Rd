@@ -7,7 +7,7 @@
 query_solr_metadata(mn, object_pid, fields = "*")
 }
 \arguments{
-\item{mn}{(MNode) Specify the DataOne Member Node where the object should be searched for.}
+\item{mn}{(MNode) Specify the DataONE Member Node where the object should be searched for.}
 
 \item{object_pid}{(character) PID for the object that you want to return information about.}
 
@@ -18,7 +18,7 @@ returns all non NULL fields.}
 (data.frame) One row data frame with query fields as columns.
 }
 \description{
-This is a helper function for 'query_all_versions' function. It simplifies solr queries
+This is a helper function for 'query_all_versions' function. It simplifies Solr queries
 and creates a one row data frame with the specified Solr fields as the columns.
 }
 \author{

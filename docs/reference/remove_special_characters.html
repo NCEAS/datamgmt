@@ -21,19 +21,25 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
 <meta property="og:title" content="Remove and substitute special characters in a string. — remove_special_characters" />
 
-<meta property="og:description" content="This is a helper function for the 'download_package' function.  This was
+<meta property="og:description" content="This is a helper function for the 'download_package' function. This was
 created as a helper so that users can edit the helper, rather than 'download_package'
-if they want differing special character substitions.  Substitues special
+if they want differing special character substitutions. Substitutes special
 characters from a package identifier. Can be generalized for use with any pid." />
 <meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -56,8 +62,12 @@ characters from a package identifier. Can be generalized for use with any pid." 
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">datamgmt</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">datamgmt</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -85,6 +95,9 @@ characters from a package identifier. Can be generalized for use with any pid." 
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
+    <li>
+      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -92,6 +105,7 @@ characters from a package identifier. Can be generalized for use with any pid." 
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -99,27 +113,31 @@ characters from a package identifier. Can be generalized for use with any pid." 
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Remove and substitute special characters in a string.</h1>
+    
+    <div class="hidden name"><code>remove_special_characters.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
-    <p>This is a helper function for the 'download_package' function.  This was
+    <p>This is a helper function for the 'download_package' function. This was
 created as a helper so that users can edit the helper, rather than 'download_package'
-if they want differing special character substitions.  Substitues special
+if they want differing special character substitutions. Substitutes special
 characters from a package identifier. Can be generalized for use with any pid.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>remove_special_characters</span>(<span class='no'>pid</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>pid</th>
-      <td><p>(character) The identifier a dataOne object.</p></td>
+      <td><p>(character) The identifier a DataONE object.</p></td>
     </tr>
     </table>
     
@@ -146,7 +164,7 @@ Dominic Mullen, <a href='mailto:dmullen17@gmail.com'>dmullen17@gmail.com</a>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund.</p>
+  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund, Sharis Ochs, Derek Strong.</p>
 </div>
 
 <div class="pkgdown">
@@ -155,6 +173,8 @@ Dominic Mullen, <a href='mailto:dmullen17@gmail.com'>dmullen17@gmail.com</a>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

@@ -2,15 +2,15 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{get_eml_attributes_url}
 \alias{get_eml_attributes_url}
-\title{Return attribute (column) metadata from a Dataone Package URL.}
+\title{Return attribute (column) metadata from a DataONE Package URL.}
 \usage{
 get_eml_attributes_url(mn, url_path, write_to_csv = FALSE,
   prefix_file_names = FALSE, download_directory = NULL)
 }
 \arguments{
-\item{mn}{(MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}
+\item{mn}{(MNode/CNode) The DataONE Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}
 
-\item{url_path}{(character) The url of the Dataone Package.}
+\item{url_path}{(character) The url of the DataONE Package.}
 
 \item{write_to_csv}{(logical) Optional. Option whether to download the attribute metadata to csv's.  Defaults to \code{FALSE}}
 
@@ -24,7 +24,7 @@ Required if \code{write_to_csv} is \code{TRUE}}
 (list) A list of all attribute metadata from the EML in data.frame objects
 }
 \description{
-Return attribute metadata from an EML object or Dataone Package URL.
+Return attribute metadata from an EML object or DataONE Package URL.
 This is largely a wrapper for the function \code{get_attributes} from the EML Package
 \url{https://github.com/ropensci/EML}.
 }

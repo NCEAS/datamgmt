@@ -144,7 +144,7 @@ create_attributes_table <- function(data = NULL, attributes_table = NULL) {
 #' @export
 get_numberType <- function(values) {
     # Unlist data. Use do.call to preserve date format
-    if (is.list(values) == T) {
+    if (is.list(values)) {
         values <- do.call("c", values)
     }
 
@@ -156,15 +156,15 @@ get_numberType <- function(values) {
             # If all values are NaN
             numberType <- "real"
 
-        } else if (any(round(values) != values, na.rm = T)) {
+        } else if (any(round(values) != values, na.rm = TRUE)) {
             # If any values are a fraction
             numberType <- "real"
 
-        } else if (any(values < 0, na.rm = T)) {
+        } else if (any(values < 0, na.rm = TRUE)) {
             # if any values are less than 0
             numberType <- "integer"
 
-        } else if (any(values == 0, na.rm = T)) {
+        } else if (any(values == 0, na.rm = TRUE)) {
             # if any values are == 0
             numberType <- "whole"
 
@@ -522,7 +522,7 @@ shiny_attributes_table <- function(att_table, data) {
 
     }
 
-    shiny::runApp(shiny::shinyApp(ui, server, options = list(launch.browser = T)))
+    shiny::runApp(shiny::shinyApp(ui, server, options = list(launch.browser = TRUE)))
 }
 
 #' Hot table to r
@@ -584,12 +584,12 @@ build_factors <- function(att_table, data) {
     attributeNames <- att_table[att_table$domain == "enumeratedDomain", "attributeName"]
 
     if (length(attributeNames) == 0) {
-        out <- data.frame(matrix(nrow = 0, ncol = 3), stringsAsFactors = F)
+        out <- data.frame(matrix(nrow = 0, ncol = 3), stringsAsFactors = FALSE)
         colnames(out) <- c("attributeName", "code", "definition")
 
         # If data is null or attribute is not in data make one blank row
     } else if (is.null(data) || !all(attributeNames %in% colnames(data))) {
-        out <- data.frame(matrix(nrow = length(attributeNames), ncol = 3), stringsAsFactors = F)
+        out <- data.frame(matrix(nrow = length(attributeNames), ncol = 3), stringsAsFactors = FALSE)
         colnames(out) <- c("attributeName", "code", "definition")
         out$attributeName <- attributeNames
 
@@ -600,7 +600,7 @@ build_factors <- function(att_table, data) {
             attributeName <- colnames(en_data)[i]
             code <- unique(en_data[, i])
             definition <- NA
-            out <- data.frame(attributeName, code, definition, stringsAsFactors = F)
+            out <- data.frame(attributeName, code, definition, stringsAsFactors = FALSE)
             colnames(out) <- c("attributeName", "code", "definition")
             out <- out[!is.na(code),]
             out
