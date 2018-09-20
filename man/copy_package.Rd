@@ -10,7 +10,7 @@ copy_package(resource_map_pid, from, to, public = FALSE,
 \arguments{
 \item{resource_map_pid}{(character) Object pid}
 
-\item{from}{(D1Client) D1Client to clone pacakge from. (Token must be set for this node)}
+\item{from}{(D1Client) D1Client to clone package from. (Token must be set for this node)}
 
 \item{to}{(D1Client) D1Client to clone package to. (Token must be set for this node)}
 

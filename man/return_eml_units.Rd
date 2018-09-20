@@ -12,7 +12,7 @@ return_eml_units(units, quiet = FALSE)
 \item{quiet}{(logical) if true will quiet console text}
 }
 \value{
-(data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
+(data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formatted in an EML form)
 }
 \description{
 Uses the udunits2 unit library to format inputted unit into an EML unit form (see examples).

@@ -7,7 +7,7 @@
 download_data_objects(mn, data_pids, out_paths, n_max = 3)
 }
 \arguments{
-\item{mn}{(MNode) The Dataone Member Node to download the data objects from.}
+\item{mn}{(MNode) The DataONE Member Node to download the data objects from.}
 
 \item{data_pids}{(character) A vector of Data object pids.}
 
@@ -16,6 +16,6 @@ download_data_objects(mn, data_pids, out_paths, n_max = 3)
 \item{n_max}{(numeric) Optional.  Number of attempts at downloading a Data object.}
 }
 \description{
-Download mutiple dataone objects.  This is a helper function
+Download multiple DataONE objects.  This is a helper function
 for 'datamgmt::download_package'
 }

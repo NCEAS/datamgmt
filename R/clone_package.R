@@ -6,7 +6,7 @@
 #' @param pid (character) Object pid
 #' @param from (D1Client) D1Client to clone objects from. (Objects must be public)
 #' @param to (D1Client) D1Client to clone objects to. (Token must be set for this node)
-#' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
+#' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note: Setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermission on the cloned object.
 #' @param change_auth_node (logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit the package system metadata.
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.
@@ -126,7 +126,7 @@ clone_object <- function(pid,
 #' obsoletes the version of the package that they used to create the clone.
 #'
 #' @param resource_map_pid (character) Object pid
-#' @param from (D1Client) D1Client to clone pacakge from. (Package must be public)
+#' @param from (D1Client) D1Client to clone package from. (Package must be public)
 #' @param to (D1Client) D1Client to clone package to. (Token must be set for this node)
 #' @param add_access_to (character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.
 #' @param change_auth_node (logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit package system metadata.
@@ -300,7 +300,7 @@ clone_package <- function(resource_map_pid,
 #' the package that they used to create the copy (`datamgmt::obsolete_package`).
 #'
 #' @param resource_map_pid (character) Object pid
-#' @param from (D1Client) D1Client to clone pacakge from. (Token must be set for this node)
+#' @param from (D1Client) D1Client to clone package from. (Token must be set for this node)
 #' @param to (D1Client) D1Client to clone package to. (Token must be set for this node)
 #' @param public (logical) Optional. Will set public read access.  Defaults to \code{FALSE}.
 #' @param clone_children (logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.

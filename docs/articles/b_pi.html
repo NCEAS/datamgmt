@@ -8,8 +8,8 @@
 <title>Functions for PI’s • datamgmt</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Functions for PI’s">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Functions for PI’s">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -18,7 +18,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -27,8 +27,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">datamgmt</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">datamgmt</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -56,6 +60,9 @@
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
+    <li>
+      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -69,16 +76,19 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1>Functions for PI’s</h1>
             
-            <h4 class="date">Last updated 2018-03-15</h4>
-          </div>
+            <h4 class="date">Last updated 2018-08-31</h4>
+      
+      
+      <div class="hidden name"><code>b_pi.Rmd</code></div>
+
+    </div>
 
     
     
-<div class="contents">
 <div id="download-package" class="section level2">
 <h2 class="hasAnchor">
 <a href="#download-package" class="anchor"></a>Download package</h2>
@@ -89,7 +99,6 @@
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cn &lt;-<span class="st"> </span><span class="kw">CNode</span>(<span class="st">"PROD"</span>)
 mn &lt;-<span class="st"> </span><span class="kw">getMNode</span>(cn, <span class="st">"urn:node:ARCTIC"</span>)
 <span class="kw"><a href="../reference/download_package.html">download_package</a></span>(mn, <span class="st">"resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269"</span>)</code></pre></div>
-</div>
 </div>
   </div>
 
@@ -107,7 +116,7 @@ mn &lt;-<span class="st"> </span><span class="kw">getMNode</span>(cn, <span clas
 
 
       <footer><div class="copyright">
-  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund.</p>
+  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund, Sharis Ochs, Derek Strong.</p>
 </div>
 
 <div class="pkgdown">
@@ -116,6 +125,8 @@ mn &lt;-<span class="st"> </span><span class="kw">getMNode</span>(cn, <span clas
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>

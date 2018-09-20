@@ -13,8 +13,9 @@ Authors@R: c(
   person("Derek", "Strong", email = "dstrong@nceas.ucsb.edu", role = c("aut"))
   )
 Maintainer: The package maintainer <dmullen17@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Data management utilities for curating, documenting, and publishing data.
+URL: https://nceas.github.io/datamgmt/
+BugReports: https://github.com/NCEAS/datamgmt/issues
 Depends:
     magrittr
 Imports:
@@ -30,6 +31,7 @@ Imports:
     htmlwidgets,
     httr,
     jsonlite,
+    lubridate,
     memoise,
     metadig,
     methods,
@@ -37,6 +39,7 @@ Imports:
     RCurl,
     readxl,
     rhandsontable,
+    sf,
     shiny,
     shinyjs,
     stringi,
@@ -51,14 +54,16 @@ Imports:
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
-Suggests: testthat,
+Suggests:
+    testthat,
     knitr,
     igraph,
     purrr,
     rmarkdown,
     visNetwork
-Remotes: NCEAS/arcticdatautils,
-         NCEAS/metadig-r,
-         ropensci/EML
+Remotes:
+    NCEAS/arcticdatautils,
+    NCEAS/metadig-r,
+    ropensci/EML
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr

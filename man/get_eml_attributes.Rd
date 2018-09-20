@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{get_eml_attributes}
 \alias{get_eml_attributes}
-\title{Return attribute (column) metadata from a Dataone Metadata object.}
+\title{Return attribute (column) metadata from a DataONE Metadata object.}
 \usage{
 get_eml_attributes(eml)
 }

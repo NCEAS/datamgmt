@@ -15,7 +15,7 @@ format_unit_split(unit_split, form = "id",
 \item{all_units}{(data.frame)}
 }
 \value{
-(character) formated unit_split
+(character) formatted unit_split
 }
 \description{
 Formats unit_split

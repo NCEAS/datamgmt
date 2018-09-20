@@ -2,16 +2,16 @@
 % Please edit documentation in R/eml_data_qa.R
 \name{qa_access}
 \alias{qa_access}
-\title{Tests that the rights and access are set for creators for a give pid sysmeta}
+\title{Check rights and access for creators in sysmeta}
 \usage{
 qa_access(sysmeta, creator_ORCIDs)
 }
 \arguments{
 \item{sysmeta}{(sysmeta)  Sysmeta of a given object.}
 
-\item{creator_ORCIDs}{(character) ORCIDs of creators. Result of \code{\link{qa_creators}}.}
+\item{creator_ORCIDs}{(character) ORCIDs of creators. Result of \code{\link{qa_creator_ORCIDs}}.}
 }
 \description{
 This function is called by \code{\link{qa_package}}.
-See \code{\link{qa_package}} help documentation for more details.
+See \code{\link{qa_package}} documentation for more details.
 }

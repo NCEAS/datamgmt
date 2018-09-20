@@ -79,7 +79,7 @@ Example:
 cnTest <- dataone::CNode('STAGING')
 mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
 
-pkg <- create_dummy_package2(mnTest, title = "My package")
+pkg <- arcticdatautils::create_dummy_package_full(mnTest, title = "My package")
 
 file.create("new_file.csv")
 update_package_object(mnTest, pkg$data[1], "new_file.csv", pkg$resource_map, format_id = "text/csv")

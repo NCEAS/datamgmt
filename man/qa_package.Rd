@@ -2,41 +2,41 @@
 % Please edit documentation in R/eml_data_qa.R
 \name{qa_package}
 \alias{qa_package}
-\title{Test package including congruence of attributes and data}
+\title{Check congruence of attributes and data}
 \usage{
 qa_package(node, pid, readAllData = TRUE, check_attributes = TRUE,
   check_creators = FALSE, check_access = FALSE)
 }
 \arguments{
-\item{node}{(MNode) Member Node where the PID is associated with a package.}
+\item{node}{(MNode) Member Node where the PID is located.}
 
-\item{pid}{(character) The PID of a resource map to be QA'ed.}
+\item{pid}{(character) The PID of a resource map.}
 
-\item{readAllData}{(logical) Default TRUE. If True, pull all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset). If \code{check_attributes = FALSE}, no rows will be read.}
+\item{readAllData}{(logical) Default TRUE. Read all data from remote and check that column types match attributes,
+otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
+If \code{check_attributes = FALSE}, no rows will be read.}
 
-\item{check_attributes}{(logical). Default TRUE. Calls \code{\link{qa_attributes}}.}
+\item{check_attributes}{(logical) Default TRUE. Calls \code{\link{qa_attributes}}. Checks congruence of attributes and data.}
 
-\item{check_creators}{(logigal) Default FALSE. If True, will test if each creator has been assigned an ORCID. Will also run if \code{check_access = TRUE}.}
+\item{check_creators}{(logical) Default FALSE. Calls \code{\link{qa_creator_ORCIDs}}. Checks if each creator has an ORCID.
+Will also run if \code{check_access = TRUE}.}
 
-\item{check_access}{(logigal) Default FALSE. If True, will test if each creator has full access to the metadata, resource_map, and data objects. Will not run if the tests associated with \code{check_creators} fails.}
+\item{check_access}{(logical) Default FALSE. Calls \code{\link{qa_access}}.Checks if each creator has full access to the
+metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.}
 }
 \value{
 invisible
 }
 \description{
-This script assumes correctness in the resource map and data
-Purpose: QA script to check a DataONE EML package. Will check that attributes match values in the data.
-}
-\details{
-Note: this function also calls \code{\link{qa_attributes}} and passes the data object and associated dataTable, but that function can also be called directly.
+This function assumes correctness in the resource map and data.
+Purpose: QA script to check a DataONE EML package. Checks that attributes match values in the data.
+Note: this function also calls \code{\link{qa_attributes}}, \code{\link{qa_creator_ORCIDs}}, and \code{\link{qa_access}}.
 }
 \examples{
 \dontrun{
-# For a package, run QA checks
+# Run QA checks
+
 qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE,
            check_creators = FALSE, check_access = FALSE)
 }
-}
-\author{
-Emily O'Dean \email{eodean10@gmail.com}
 }

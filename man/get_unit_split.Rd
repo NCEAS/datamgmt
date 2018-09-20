@@ -2,7 +2,7 @@
 % Please edit documentation in R/return_eml_units.R
 \name{get_unit_split}
 \alias{get_unit_split}
-\title{Performs formating on unit and splits into components}
+\title{Performs formatting on unit and splits into components}
 \usage{
 get_unit_split(unit, all_units = mem_load_all_units())
 }
@@ -15,5 +15,5 @@ get_unit_split(unit, all_units = mem_load_all_units())
 (character) unit_split
 }
 \description{
-Performs formating on unit and splits into components
+Performs formatting on unit and splits into components
 }

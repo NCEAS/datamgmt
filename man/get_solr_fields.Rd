@@ -10,7 +10,7 @@ get_solr_fields()
 (character) List of Solr fields
 }
 \description{
-Simple helper function for 'query_all_versions' function to retrive all Solr fields
+Simple helper function for 'query_all_versions' function to retrieve all Solr fields
 }
 \references{
 Written by Irene in the reference guide at https://github.com/NCEAS/datateam-training/blob/master/workflows/solr_queries/construct_a_query.Rmd

@@ -14,7 +14,7 @@ clone_object(pid, from, to, add_access_to, change_auth_node,
 
 \item{to}{(D1Client) D1Client to clone objects to. (Token must be set for this node)}
 
-\item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.}
+\item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note: Setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermission on the cloned object.}
 
 \item{change_auth_node}{(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit the package system metadata.}
 

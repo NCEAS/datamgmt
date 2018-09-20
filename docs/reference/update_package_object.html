@@ -21,12 +21,15 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
 <meta property="og:title" content="Update a data object and accompanying resource map &amp; EML — update_package_object" />
 
 <meta property="og:description" content="This function updates a data object, and then automatically
@@ -36,6 +39,9 @@ physical section, the EML will be updated with the new data's physical.
 It is a convenience wrapper around update_object
 and update_resource_map." />
 <meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -58,8 +64,12 @@ and update_resource_map." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">datamgmt</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">datamgmt</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -87,6 +97,9 @@ and update_resource_map." />
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
+    <li>
+      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -94,6 +107,7 @@ and update_resource_map." />
       <ul class="nav navbar-nav navbar-right">
         
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -101,12 +115,15 @@ and update_resource_map." />
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Update a data object and accompanying resource map &amp; EML</h1>
+    
+    <div class="hidden name"><code>update_package_object.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>This function updates a data object, and then automatically
 updates the package resource map with the new data pid. If an object
@@ -115,11 +132,12 @@ physical section, the EML will be updated with the new data's physical.
 It is a convenience wrapper around <a href='http://www.rdocumentation.org/packages/arcticdatautils/topics/update_object'>update_object</a>
 and <a href='http://www.rdocumentation.org/packages/arcticdatautils/topics/update_resource_map'>update_resource_map</a>.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>update_package_object</span>(<span class='no'>mn</span>, <span class='no'>data_pid</span>, <span class='no'>new_data_path</span>, <span class='no'>resource_map_pid</span>,
-  <span class='kw'>format_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>public</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>use_doi</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+  <span class='kw'>format_id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>public</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>use_doi</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -155,6 +173,10 @@ Access policies are not affected.</p></td>
       <th>use_doi</th>
       <td><p>(logical) Optional. If TRUE, a new doi will be minted.</p></td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td><p>other parameters to pass into <a href='http://www.rdocumentation.org/packages/arcticdatautils/topics/publish_update'>publish_update</a></p></td>
+    </tr>
     </table>
     
 
@@ -187,7 +209,7 @@ Access policies are not affected.</p></td>
 
       <footer>
       <div class="copyright">
-  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund.</p>
+  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund, Sharis Ochs, Derek Strong.</p>
 </div>
 
 <div class="pkgdown">
@@ -196,6 +218,8 @@ Access policies are not affected.</p></td>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

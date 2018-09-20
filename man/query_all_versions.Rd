@@ -7,7 +7,7 @@
 query_all_versions(mn, object_pid, fields = "*")
 }
 \arguments{
-\item{mn}{(MNode) Specify the DataOne Member Node where the object should be searched for.}
+\item{mn}{(MNode) Specify the DataONE Member Node where the object should be searched for.}
 
 \item{object_pid}{(character) PID for the object that you want to return information about.}
 
@@ -18,7 +18,7 @@ returns all non NULL fields.}
 (data.frame) Data frame with rows for each version of the PID and columns with each query field
 }
 \description{
-This function uses a combination of get_all_versions and solr query to return the query fields
+This function uses a combination of get_all_versions and Solr query to return the query fields
 for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 and the columns are the query fields.
 }

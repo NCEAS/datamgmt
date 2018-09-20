@@ -18,7 +18,7 @@ download_package(mn, resource_map_pid, download_directory,
 
 \item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.}
 
-\item{download_column_metadata}{(logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this, then its recommened to also set \code{prefix_file_names = TRUE}}
+\item{download_column_metadata}{(logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this, then its recommended to also set \code{prefix_file_names = TRUE}}
 
 \item{convert_excel_to_csv}{(logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv}
 

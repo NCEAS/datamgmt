@@ -1,12 +1,12 @@
-#' Obsolete a DataOne Package with a new version.
+#' Obsolete a DataONE Package with a new version.
 #'
-#' @description This function obsoletes a DataOne package with a newer version
+#' @description This function obsoletes a DataONE package with a newer version
 #' by merging the two version chains. The ideal use case for this function is
 #' when the only option to fix a broken package is by re-uploading a previous
 #' version and merging the two version chains. In other cases
 #' \code{NCEAS/arcticdatautils::publish_update} should be used.
 #'
-#' @param mn (MNode) The DataOne member node
+#' @param mn (MNode) The DataONE member node
 #' @param metadata_obsolete (character) The metadata pid of the old, or broken, version. Any
 #' metadata pid from the obsolete version chain can be used - sets the pid to the
 #' end of the version chain
@@ -32,11 +32,11 @@
 #' obsolete_package(mn, pkg_old$metadata, pkg_new$metadata)
 #'}
 obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
-    # Check that token is set 
+    # Check that token is set
     if (!arcticdatautils::is_token_set(mn)) {
         stop("Token is not set")
     }
-    
+
     # shorten for readability
     metadata_obs <- metadata_obsolete
 
