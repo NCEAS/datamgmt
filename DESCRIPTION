@@ -54,14 +54,16 @@ Imports:
 License: Apache License (== 2.0)
 Encoding: UTF-8
 LazyData: true
-Suggests: testthat,
+Suggests:
+    testthat,
     knitr,
     igraph,
     purrr,
     rmarkdown,
     visNetwork
-Remotes: NCEAS/arcticdatautils,
-         NCEAS/metadig-r,
-         ropensci/EML
+Remotes:
+    NCEAS/arcticdatautils,
+    NCEAS/metadig-r,
+    ropensci/EML
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr

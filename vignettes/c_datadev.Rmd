@@ -33,14 +33,6 @@ mn_push <- getMNode(cn_push,'urn:node:mnTestARCTIC')
 clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
 ```
 
-## Create a dummy package
-
-The function `create_dummy_package2` creates a fuller package than create_dummy_package but is otherwise based on the same concept. This dummy package includes multiple data objects (2 csv's, and 2 jpg's), responsible parties, geographic locations, method steps, etc. You can also define a unique title for the package to distinguish it from other test packages.
-
-```{r}
-create_dummy_package2(mn, title = "A Dummy Package")
-```
-
 ## Get NSF awards
 
 The `get_awards` function uses the NSF API to get all records pertaining to the Arctic or Polar programs.
