@@ -2,7 +2,7 @@
 % Please edit documentation in R/edit_attribute.R
 \name{edit_attribute}
 \alias{edit_attribute}
-\title{Edit a single attribute.}
+\title{Edit a single attribute}
 \usage{
 edit_attribute(eml, dataTableNumber, attributeNumber,
   attributeName = NULL, attributeDefinition = NULL, domain = NULL,
@@ -41,8 +41,9 @@ edit_attribute(eml, dataTableNumber, attributeNumber,
 This function edits the slots of a single attribute in an existing attribute table.
 }
 \details{
-Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit the factor table of an enumeratedDomain.
-In cases with very large attribute lists, user may want to use \link[datamgmt]{which_in_eml} function first to locate the attribute position.
+Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit
+the factor table of an enumeratedDomain. In cases with very large attribute lists, user may want to use
+\code{\link[=which_in_eml]{which_in_eml()}} first to locate the attribute position.
 }
 \examples{
 \dontrun{

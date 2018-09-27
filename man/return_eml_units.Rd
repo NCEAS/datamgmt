@@ -7,15 +7,15 @@
 return_eml_units(units, quiet = FALSE)
 }
 \arguments{
-\item{units}{(character) unit or vector of units}
+\item{units}{(character) Unit or vector of units.}
 
-\item{quiet}{(logical) if true will quiet console text}
+\item{quiet}{(logical) If \code{TRUE}, will quiet console text.}
 }
 \value{
-(data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formatted in an EML form)
+(data.frame) Custom unit data frame (will return a row of \code{NAs} if a unit cannot be formatted in an EML form).
 }
 \description{
-Uses the udunits2 unit library to format inputted unit into an EML unit form (see examples).
+Uses the udunits2 unit library to format inputted unit into an EML unit form.
 }
 \examples{
 \dontrun{

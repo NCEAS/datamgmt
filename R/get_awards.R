@@ -34,7 +34,6 @@
 #' all_awards <- get_awards()
 #' new_awards <- get_awards(from_date = "01/01/2017")
 #' }
-
 get_awards <- function(from_date = NULL,
                        to_date = NULL,
                        query = NULL,

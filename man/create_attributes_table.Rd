@@ -12,10 +12,10 @@ create_attributes_table(data = NULL, attributes_table = NULL)
 \item{attributes_table}{(data.frame) an existing attributes table for \code{data} that needs to be updated (if specified along with \code{data}, all non-empty fields will be used over any values automatically generated from \code{data})}
 }
 \value{
-Returns a list of three items (an attributes table, a custom units table, a factors table)
+(list) a list of three items (an attributes table, a custom units table, a factors table)
 }
 \description{
-create/edit EML attributes, custom units, and factors in a shiny environment
+Create/edit EML attributes, custom units, and factors in a Shiny environment
 }
 \examples{
 \dontrun{

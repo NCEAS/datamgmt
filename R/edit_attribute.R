@@ -1,9 +1,10 @@
-#' Edit a single attribute.
+#' Edit a single attribute
 #'
 #' This function edits the slots of a single attribute in an existing attribute table.
 #'
-#' Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit the factor table of an enumeratedDomain.
-#' In cases with very large attribute lists, user may want to use \link[datamgmt]{which_in_eml} function first to locate the attribute position.
+#' Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit
+#' the factor table of an enumeratedDomain. In cases with very large attribute lists, user may want to use
+#' [which_in_eml()] first to locate the attribute position.
 #'
 #' @param eml The eml object containing the attributeList
 #' @param dataTableNumber The number of the dataTable containing the attributeList; in other words its position in the dataTable list.

@@ -22,22 +22,22 @@ Purpose: QA function to check that attributes match values in the data
 
 Functions:
 \itemize{
-    \item Names: Check that column names in attributes match column names in data frame. Possible conditions to check for:
-    \itemize{
-        \item attributeList does not exist for data frame
-        \item Physical has not been set correctly
-        \item Some of the attributes that exist in the data do not exist in the attributeList
-        \item Some of the attributes that exist in the attributeList do not exist in the data
-        \item Typos in attribute or column names resulting in nonmatches
-    }
-    \item Domains: Check that attribute types match attribute types in data frame. Possible conditions to check for:
-    \itemize{
-        \item nominal, ordinal, integer, ratio, dateTime
-        \item If domain is enumerated domain, enumerated values in the data are accounted for in the enumerated definition
-        \item If domain is enumerated domain, enumerated values in the enumerated definition are all represented in the data
-        \item Type of data does not match attribute type
-    }
-    \item Values: Check for accidental characters in the data frame (one character in a column of integers)
+\item Names: Check that column names in attributes match column names in data frame. Possible conditions to check for:
+\itemize{
+\item attributeList does not exist for data frame
+\item Physical has not been set correctly
+\item Some of the attributes that exist in the data do not exist in the attributeList
+\item Some of the attributes that exist in the attributeList do not exist in the data
+\item Typos in attribute or column names resulting in nonmatches
+}
+\item Domains: Check that attribute types match attribute types in data frame. Possible conditions to check for:
+\itemize{
+\item nominal, ordinal, integer, ratio, dateTime
+\item If domain is enumerated domain, enumerated values in the data are accounted for in the enumerated definition
+\item If domain is enumerated domain, enumerated values in the enumerated definition are all represented in the data
+\item Type of data does not match attribute type
+}
+\item Values: Check for accidental characters in the data frame (one character in a column of integers)
 }
 }
 \examples{

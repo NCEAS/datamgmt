@@ -1,13 +1,16 @@
 #' Search through EMLs
 #'
-#' This function returns indices within an EML list that contain an instance where \code{test == TRUE}. See examples for more information.
+#' This function returns indices within an EML list that contain an instance where `test == TRUE`.
+#' See examples for more information.
+#'
+#' @param eml_list (S4/List) An EML list object.
+#' @param element (character) Element to evaluate.
+#' @param test (function/character) A function to evaluate.
+#'   If character, will evaluate if `element == test` (see example 1).
 #'
 #' @import EML
-#' @param eml_list (S4/List) an EML list object
-#' @param element (character) element to evaluate
-#' @param test (function/character) A function to evaluate (see examples). If test is a character, will evaluate if \code{element == test} (see example 1).
 #'
-#' @keywords eml
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -27,8 +30,6 @@
 #' n <- which_in_eml(eml@@dataset@@dataTable, "numberType", function(x) {"natural" %in% x})
 #' # Answer: eml@@dataset@@dataTable[n]
 #' }
-#' @export
-#'
 which_in_eml <- function(eml_list, element, test) {
 
     stopifnot(isS4(eml_list))
@@ -68,5 +69,3 @@ which_in_eml <- function(eml_list, element, test) {
 
     return(location)
 }
-
-

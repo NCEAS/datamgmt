@@ -14,8 +14,11 @@ Authors@R: c(
   )
 Maintainer: The package maintainer <dmullen17@gmail.com>
 Description: Data management utilities for curating, documenting, and publishing data.
+License: Apache License (== 2.0)
 URL: https://nceas.github.io/datamgmt/
 BugReports: https://github.com/NCEAS/datamgmt/issues
+Encoding: UTF-8
+LazyData: true
 Depends:
     magrittr
 Imports:
@@ -51,9 +54,6 @@ Imports:
     uuid,
     XML,
     xml2
-License: Apache License (== 2.0)
-Encoding: UTF-8
-LazyData: true
 Suggests:
     testthat,
     knitr,
@@ -65,5 +65,6 @@ Remotes:
     NCEAS/arcticdatautils,
     NCEAS/metadig-r,
     ropensci/EML
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 VignetteBuilder: knitr

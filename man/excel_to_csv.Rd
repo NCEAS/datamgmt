@@ -2,7 +2,7 @@
 % Please edit documentation in R/excel_to_csv.R
 \name{excel_to_csv}
 \alias{excel_to_csv}
-\title{Convert excel workbook to multiple csv files}
+\title{Convert Excel workbook to multiple csv files}
 \usage{
 excel_to_csv(path, directory = NULL, ...)
 }
@@ -18,7 +18,7 @@ Defaults to the base directory that \code{path} is located in.}
 (invisible())
 }
 \description{
-Converts an excel workbook into multiple csv files (one per tab).  Names the
+Converts an Excel workbook into multiple csv files (one per tab). Names the
 files in the following format: sheetName_excelName.csv.
 }
 \author{

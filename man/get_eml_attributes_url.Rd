@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{get_eml_attributes_url}
 \alias{get_eml_attributes_url}
-\title{Return attribute (column) metadata from a DataONE Package URL.}
+\title{Return attribute (column) metadata from a DataONE package URL}
 \usage{
 get_eml_attributes_url(mn, url_path, write_to_csv = FALSE,
   prefix_file_names = FALSE, download_directory = NULL)
@@ -10,23 +10,22 @@ get_eml_attributes_url(mn, url_path, write_to_csv = FALSE,
 \arguments{
 \item{mn}{(MNode/CNode) The DataONE Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}
 
-\item{url_path}{(character) The url of the DataONE Package.}
+\item{url_path}{(character) The URL of the DataONE Package.}
 
-\item{write_to_csv}{(logical) Optional. Option whether to download the attribute metadata to csv's.  Defaults to \code{FALSE}}
+\item{write_to_csv}{(logical) Optional. Option whether to download the attribute metadata to csv files. Defaults to \code{FALSE}}
 
-\item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.
+\item{prefix_file_names}{(logical) Optional. Whether to prefix file names with the package metadata identifier.
 This is useful when downloading files from multiple packages to one directory.}
 
-\item{download_directory}{(character) Optional.  Directory to download attribute metadata csv's to.
-Required if \code{write_to_csv} is \code{TRUE}}
+\item{download_directory}{(character) Optional. Directory to download attribute metadata csv files to.
+Required if \code{write_to_csv} is \code{TRUE}.}
 }
 \value{
-(list) A list of all attribute metadata from the EML in data.frame objects
+(list) A list of all attribute metadata from the EML in data.frame objects.
 }
 \description{
-Return attribute metadata from an EML object or DataONE Package URL.
-This is largely a wrapper for the function \code{get_attributes} from the EML Package
-\url{https://github.com/ropensci/EML}.
+Return attribute metadata from an EML object or DataONE package URL.
+This is largely a wrapper for the function \code{\link[EML:get_attributes]{EML::get_attributes()}}.
 }
 \examples{
 \dontrun{

@@ -5,14 +5,14 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/datamgmt)](https://cran.r-project.org/package=datamgmt)
 
 - **Authors**: NCEAS Data Science Fellows
-- **License**: [Apache 2](http://opensource.org/licenses/Apache-2.0)
+- **License**: [Apache 2.0](https://opensource.org/licenses/Apache-2.0)
 - [Package source code on GitHub](https://github.com/NCEAS/datamgmt)
 - [**Submit bugs and feature requests**](https://github.com/NCEAS/datamgmt/issues)
 
 The *datamgmt* R package supports management of data packages on the [Arctic Data Center](https://arcticdata.io/) (ADC) and [State of Alaska's Salmon and People](https://alaskasalmonandpeople.org/) (SASAP) data portals. 
 
 
-## Installation
+## Installing
 
 You can install the development version from GitHub with:
 
@@ -21,12 +21,17 @@ You can install the development version from GitHub with:
 devtools::install_github("NCEAS/datamgmt")
 ```
 
-## Style
 
-We generally follow the [tidyverse style conventions](http://style.tidyverse.org/), with the following specific style preferences: 
+## Contributing
 
-- underscore for all variable names unless referring to an EML object (i.e. otherEntity, publicationDate, etc.)
-- all functions should include argument checks in the form of `stopifnot` statements
+- Submit suggestions or bugs as [Issues](https://github.com/NCEAS/arcticdatautils/issues).
+- For pull requests, target the `master` branch
+- Follow the [tidyverse style conventions](http://style.tidyverse.org/), with the following specific style preferences: 
+    - use underscore for all variable names unless referring to an EML object (e.g., otherEntity, publicationDate, etc.)
+    - include argument checks in the form of `stopifnot` statements for all functions
+- Before submitting a pull request, please update documentation, check package, and run tests using:
+    - `devtools::check()`
+    - Fix any ERRORs and test failures to ensure the Travis CI build passes
 
 
 ## Errors
