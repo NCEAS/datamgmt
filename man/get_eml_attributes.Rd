@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{get_eml_attributes}
 \alias{get_eml_attributes}
-\title{Return attribute (column) metadata from a DataONE Metadata object.}
+\title{Return attribute (column) metadata from a DataONE metadata object}
 \usage{
 get_eml_attributes(eml)
 }
@@ -14,8 +14,7 @@ get_eml_attributes(eml)
 }
 \description{
 Return attribute metadata from an EML object. This is largely a
-wrapper for the function \code{get_attributes} from the EML Package
-\url{https://github.com/ropensci/EML}.
+wrapper for the function \code{\link[EML:get_attributes]{EML::get_attributes()}}.
 }
 \examples{
 \dontrun{

@@ -2,24 +2,21 @@
 #'
 #' This function allows you to add an ORCID or reference ID to a creator in EML.
 #'
-#' @param eml EML script to modify
-#' @param orcid ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'
-#' @param id reference ID. Character string to set reference ID for creators with additional roles (i.e. metadataProvider, etc.)
-#' @param surname creator surname (last name), defaults to first creator if not specified. Not case-sensitive.
-#'
-#' @keywords eml creator orcid id
-#'
-#' @details
 #' The function invisibly returns the full EML, which
 #' can be saved to a variable. It also prints the changed creator
-#' entry so that it's easy to check that the appropriate change was
-#' made. In addition to the EML, at least one of either the orcid or
+#' entry so that it is easy to check that the appropriate change was
+#' made. In addition to the EML, at least one of either the ORCID or
 #' reference id is required.
 #'
-#' Note: updated creator information cannot be used as a
+#' Note: Updated creator information cannot be used as a
 #' reference for associatedParties because the extra "role"
 #' field is required. Also, the function does not (yet) account
 #' for cases in which multiple creators have the same surname.
+#'
+#' @param eml EML script to modify.
+#' @param orcid ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'.
+#' @param id Reference ID. Character string to set reference ID for creators with additional roles (e.g., metadataProvider).
+#' @param surname Creator surname. Defaults to first creator if not specified. Not case-sensitive.
 #'
 #' @export
 #'
@@ -38,7 +35,6 @@
 #' eml@dataset@contact[[1]] <- new('contact', reference = "henrietta")
 #' eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
 #' }
-
 add_creator_id <- function(eml,
                            orcid = NULL,
                            id = NULL,
@@ -70,7 +66,7 @@ add_creator_id <- function(eml,
     } else {
         #make vector of creator surnames
         surNames <- rep(NA, times = length(creatorList))
-        for (i in 1:length(creatorList)) {
+        for (i in 1:seq_along(creatorList)) {
             creator1 <- creatorList[[i]]
             surName1 <- creator1@individualName[[1]]@surName@.Data
             surNames[i] <- surName1

@@ -1,14 +1,17 @@
 #' Create/Edit EML attributes
 #'
-#' create/edit EML attributes, custom units, and factors in a shiny environment
+#' Create/edit EML attributes, custom units, and factors in a Shiny environment
 #'
 #' @param data (data.frame) the data.frame of data that needs an attribute table
 #' @param attributes_table (data.frame) an existing attributes table for \code{data} that needs to be updated (if specified along with \code{data}, all non-empty fields will be used over any values automatically generated from \code{data})
 #'
+#' @return (list) a list of three items (an attributes table, a custom units table, a factors table)
+#'
 #' @importFrom shinyjs enable disable
 #' @import shiny
 #'
-#' @return Returns a list of three items (an attributes table, a custom units table, a factors table)
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' # Create a blank attributes table
@@ -28,8 +31,7 @@
 #' # Once finished, use EML commands to transform tables into EML objects
 #' attributeList <- EML::set_attributes(attributes = foo$attributes, factors = foo$factors)
 #' unitlist <- EML::set_unitList(units = foo$units)
-#'}
-#' @export
+#' }
 create_attributes_table <- function(data = NULL, attributes_table = NULL) {
     fields <- c("attributeName", "measurementScale", "domain", "unit", "numberType", "attributeLabel",
                 "attributeDefinition", "definition", "formatString", "missingValueCode", "missingValueCodeExplanation")
@@ -129,19 +131,23 @@ create_attributes_table <- function(data = NULL, attributes_table = NULL) {
     shiny_attributes_table(att_table, data)
 }
 
+
 #' Get EML numberType
 #'
-#' returns the EML numberType (either 'real', 'integer', 'whole', or 'natural') of input values
+#' Returns the EML numberType (either 'real', 'integer', 'whole', or 'natural') of input values
 #'
-#' @param values  (numeric/character) a vector of values, if vector is non-numeric will return NA
+#' @param values (numeric/character) a vector of values, if vector is non-numeric will return NA
+#'
 #' @return the numberType of \code{values} (either 'real', 'integer', 'whole', or 'natural').
+#'
+#' @noRd
+#'
 #' @examples
 #' \dontrun{
 #' # To get numberType for each column in a data.frame:
 #'
 #' unlist(lapply(df, function(x) get_numberType(x)))
 #' }
-#' @export
 get_numberType <- function(values) {
     # Unlist data. Use do.call to preserve date format
     if (is.list(values)) {
@@ -177,9 +183,12 @@ get_numberType <- function(values) {
     return(numberType)
 }
 
-#' Outputs data.frame to text for shiny app
+
+#' Output data.frame to text for Shiny app
 #'
 #' @param df (data.frame)
+#'
+#' @noRd
 output_text_func <- function(df) {
 
     # Initiallize text
@@ -209,12 +218,16 @@ output_text_func <- function(df) {
 }
 
 
-#' Create/Edit EML attributes
+#' Create or edit EML attributes
 #'
-#' create/edit EML attributes, custom units, and factors in a dynamic setting
+#' Create or edit EML attributes, custom units, and factors in a dynamic setting
 #'
 #' @param data (data.frame) the data.frame of data that needs an attribute table
 #' @param att_table (data.frame) initial attributes table
+#'
+#' @import shiny
+#'
+#' @noRd
 shiny_attributes_table <- function(att_table, data) {
 
     # UI
@@ -525,11 +538,14 @@ shiny_attributes_table <- function(att_table, data) {
     shiny::runApp(shiny::shinyApp(ui, server, options = list(launch.browser = TRUE)))
 }
 
-#' Hot table to r
+
+#' Hot table to R data.frame
 #'
-#' Takes a hot table and converts to r data.frame
+#' Converts a hot table to a data.frame
 #'
 #' @param table input table
+#'
+#' @noRd
 table_to_r <- function(table) {
 
     # Initiallize
@@ -552,11 +568,14 @@ table_to_r <- function(table) {
     out
 }
 
+
 #' Build units table
 #'
 #' Get units and custom units
 #'
 #' @param units (character) input units
+#'
+#' @noRd
 build_units_table <- function(units) {
 
     # Get custom units
@@ -572,12 +591,15 @@ build_units_table <- function(units) {
     return(units_table)
 }
 
+
 #' Build factor table
 #'
 #' Get factors
 #'
 #' @param att_table (data.frame) input attributes table
 #' @param data (data.frame) input data
+#'
+#' @noRd
 build_factors <- function(att_table, data) {
 
     # Get attribute names of enumeratedDomains
@@ -611,4 +633,3 @@ build_factors <- function(att_table, data) {
 
     out
 }
-

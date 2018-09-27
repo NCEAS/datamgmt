@@ -1,15 +1,17 @@
 #' Query tree
 #'
-#' This is a helper function for \code{\link{plot_pkg_structure}}
+#' This is a helper function for [plot_pkg_structure()]
 #' that allows you to start with a (grand)parent PID and recursively
-#' run Solr queries. The function outputs a tibble with
+#' run Solr queries.
 #'
-#' @param mn The member node
-#' @param parent_rm_pid (character) The top-level PID to use for the query
+#' @param mn The Member Node.
+#' @param parent_rm_pid (character) The top-level PID to use for the query.
 #'
 #' @import magrittr
 #' @import stringr
 #' @importFrom tidyr unnest
+#'
+#' @noRd
 #'
 #' @examples
 #' \dontrun{
@@ -20,7 +22,6 @@
 #'
 #' query_tree(mn, parent_rm_pid)
 #' }
-
 query_tree <- function(mn, parent_rm_pid){
     # Initialize structure
     if(!exists("rm_all")){
@@ -46,18 +47,19 @@ query_tree <- function(mn, parent_rm_pid){
     return(rm_all)
 }
 
+
 #' Plot package structure
 #'
 #' This function allows you to quickly visualize how data packages
 #' are related to each other.
 #'
-#' @param mn The member node
-#' @param parent_rm_pid (character) The top-level PID in a data package family
-#'
-#' @export
+#' @param mn The Member Node.
+#' @param parent_rm_pid (character) The top-level PID in a data package family.
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
+#'
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -68,7 +70,6 @@ query_tree <- function(mn, parent_rm_pid){
 #'
 #' plot_pkg_structure(mn, parent_rm_pid)
 #' }
-
 plot_pkg_structure <- function(mn, parent_rm_pid) {
 
     if (!requireNamespace("visNetwork", quietly = TRUE) | !requireNamespace("igraph", quietly = TRUE) | !requireNamespace("purrr", quietly = TRUE)) {

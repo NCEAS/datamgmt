@@ -14,5 +14,5 @@ of Alaska's Salmon and People (SASAP) data portals.
 \href{https://nceas.github.io/datamgmt/}{datamgmt pkgdown website}
 }
 \author{
-Data Science Fellows, Spring 2018: Dominic Mullen, Irene Steves, Mitchell Maier, Stephanie Freund, Emily O'Dean (NCEAS)
+NCEAS Data Science Fellows
 }

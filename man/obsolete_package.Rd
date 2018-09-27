@@ -2,19 +2,19 @@
 % Please edit documentation in R/obsolete_package.R
 \name{obsolete_package}
 \alias{obsolete_package}
-\title{Obsolete a DataONE Package with a new version.}
+\title{Obsolete a DataONE Package with a new version}
 \usage{
 obsolete_package(mn, metadata_obsolete, metadata_new)
 }
 \arguments{
-\item{mn}{(MNode) The DataONE member node}
+\item{mn}{(MNode) The DataONE member node.}
 
-\item{metadata_obsolete}{(character) The metadata pid of the old, or broken, version. Any
-metadata pid from the obsolete version chain can be used - sets the pid to the
-end of the version chain}
+\item{metadata_obsolete}{(character) The metadata PID of the old, or broken, version. Any
+metadata PID from the obsolete version chain can be used - sets the PID to the
+end of the version chain.}
 
-\item{metadata_new}{(character) The metadata pid of the new version. Any metadata
-pid from the new version chain can be used - sets the pid to the beginning of
+\item{metadata_new}{(character) The metadata PID of the new version. Any metadata
+PID from the new version chain can be used - sets the PID to the beginning of
 the version chain.}
 }
 \value{
@@ -25,7 +25,7 @@ This function obsoletes a DataONE package with a newer version
 by merging the two version chains. The ideal use case for this function is
 when the only option to fix a broken package is by re-uploading a previous
 version and merging the two version chains. In other cases
-\code{NCEAS/arcticdatautils::publish_update} should be used.
+\code{\link[arcticdatautils:publish_update]{arcticdatautils::publish_update()}} should be used.
 }
 \examples{
 \dontrun{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/clone_package.R
 \name{copy_package}
 \alias{copy_package}
-\title{Copies packages between Dataone Member Nodes with new identifiers.}
+\title{Copy packages between DataONE Member Nodes with new identifiers}
 \usage{
 copy_package(resource_map_pid, from, to, public = FALSE,
   clone_children = FALSE)
@@ -14,18 +14,18 @@ copy_package(resource_map_pid, from, to, public = FALSE,
 
 \item{to}{(D1Client) D1Client to clone package to. (Token must be set for this node)}
 
-\item{public}{(logical) Optional. Will set public read access.  Defaults to \code{FALSE}.}
+\item{public}{(logical) Optional. Will set public read access. Defaults to \code{FALSE}.}
 
 \item{clone_children}{(logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.}
 }
 \description{
-This function is a convenience wrapper around 'clone_package' that
-copies a package rather than cloning it.  The distinction is that new pids will
+This function is a convenience wrapper around \code{\link[=clone_package]{clone_package()}} that
+copies a package rather than cloning it. The distinction is that new PIDs will
 always be generated, and the system metadata will reflect a stand-alone package
-rather than a clone. This function copies a Data Package from one DataOne member node to another,
-with new identifiers This can also be used to restore an older version of a Package
-to a member node, provided that the user subsequently obsoletes the version of
-the package that they used to create the copy (`datamgmt::obsolete_package`).
+rather than a clone. This function copies a data package from one DataONE Member Node to another,
+with new identifiers This can also be used to restore an older version of a package
+to a Member Node, provided that the user subsequently obsoletes the version of
+the package that they used to create the copy using \code{\link[=obsolete_package]{obsolete_package()}}.
 }
 \examples{
 \dontrun{
@@ -38,6 +38,9 @@ from <- to
 package <- arcticdatautils::create_dummy_package(to@mn)
 
 }
+}
+\seealso{
+\code{\link[=clone_package]{clone_package()}} \code{\link[=obsolete_package]{obsolete_package()}}
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}

@@ -7,7 +7,7 @@
 #' @docType package
 #' @rdname datamgmt
 #' @name datamgmt
-#' @author Data Science Fellows, Spring 2018: Dominic Mullen, Irene Steves, Mitchell Maier, Stephanie Freund, Emily O'Dean (NCEAS)
+#' @author NCEAS Data Science Fellows
 #'
 #' @seealso \href{https://nceas.github.io/datamgmt/}{datamgmt pkgdown website}
 NULL
