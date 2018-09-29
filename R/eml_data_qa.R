@@ -2,11 +2,11 @@
 # See EML specs at https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/
 
 
-#' Check congruence of attributes and data
+#' Check package including congruence of attributes and data
 #'
-#' This function assumes correctness in the resource map and data.
-#' Purpose: QA script to check a DataONE EML package. Checks that attributes match values in the data.
-#' Note: this function also calls \code{\link{qa_attributes}}, \code{\link{qa_creator_ORCIDs}}, and \code{\link{qa_access}}.
+#' This function checks that the attributes listed in the metadata match the values in the data for each
+#' tabular data object. It may also optionally check if all creators have ORCIDs and have full access
+#' to all elements of the data package.
 #'
 #' @importFrom methods is
 #' @import crayon
@@ -27,10 +27,10 @@
 #' @param readAllData (logical) Default TRUE. Read all data from remote and check that column types match attributes,
 #' otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
 #' If \code{check_attributes = FALSE}, no rows will be read.
-#' @param check_attributes (logical) Default TRUE. Calls \code{\link{qa_attributes}}. Checks congruence of attributes and data.
-#' @param check_creators (logical) Default FALSE. Calls \code{\link{qa_creator_ORCIDs}}. Checks if each creator has an ORCID.
+#' @param check_attributes (logical) Default TRUE. Checks congruence of attributes and data.
+#' @param check_creators (logical) Default FALSE. Checks if each creator has an ORCID.
 #' Will also run if \code{check_access = TRUE}.
-#' @param check_access (logical) Default FALSE. Calls \code{\link{qa_access}}.Checks if each creator has full access to the
+#' @param check_access (logical) Default FALSE. Checks if each creator has full access to the
 #' metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.
 #'
 #' @return invisible
@@ -489,7 +489,7 @@ qa_rightsHolder <- function(eml, system_metadata) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 # TODO: check number of words in multiple titles (title[[i]])
 qa_title <- function(input) {
     if (methods::is(input, "eml")) {
@@ -555,7 +555,7 @@ qa_title <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_pubDate <- function(input) {
     if (methods::is(input, "eml")) {
         pubDate <- input@dataset@pubDate@.Data
@@ -604,7 +604,7 @@ qa_pubDate <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_abstract <- function(input) {
     if (methods::is(input, "eml")) {
         # Usually 'abstract' has a 'para' slot but sometimes not
@@ -663,7 +663,7 @@ qa_abstract <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_keywordSet <- function(input) {
     if (methods::is(input, "eml")) {
         key <- input@dataset@keywordSet
@@ -706,7 +706,7 @@ qa_keywordSet <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_intellectualRights <- function(input) {
     if (methods::is(input, "eml")) {
         # Usually 'intellectualRights' has a 'para' slot but sometimes not
@@ -765,7 +765,7 @@ qa_intellectualRights <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_creator <- function(input) {
     if (methods::is(input, "eml")) {
         creators <- input@dataset@creator
@@ -800,7 +800,7 @@ qa_creator <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_creator_info <- function(input) {
     if (methods::is(input, "eml")) {
         creators <- input@dataset@creator
@@ -875,7 +875,7 @@ qa_creator_info <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_contact <- function(input) {
     if (methods::is(input, "eml")) {
         contacts <- input@dataset@contact
@@ -910,7 +910,7 @@ qa_contact <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_contact_info <- function(input) {
     if (methods::is(input, "eml")) {
         contacts <- input@dataset@contact
@@ -987,7 +987,7 @@ qa_contact_info <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_geographic <- function(input) {
     if (methods::is(input, "eml")) {
         geo <- input@dataset@coverage@geographicCoverage
@@ -1030,7 +1030,7 @@ qa_geographic <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_geographic_coord <- function(input) {
     if (methods::is(input, "eml")) {
         geo <- input@dataset@coverage@geographicCoverage
@@ -1086,7 +1086,7 @@ qa_geographic_coord <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_geographic_arctic <- function(input) {
     if (methods::is(input, "eml")) {
         geo <- input@dataset@coverage@geographicCoverage
@@ -1136,7 +1136,7 @@ qa_geographic_arctic <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_temporal <- function(input) {
     if (methods::is(input, "eml")) {
         temp <- input@dataset@coverage@temporalCoverage
@@ -1175,7 +1175,7 @@ qa_temporal <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_taxonomic <- function(input) {
     if (methods::is(input, "eml")) {
         taxo <- input@dataset@coverage@taxonomicCoverage
@@ -1210,7 +1210,7 @@ qa_taxonomic <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 # TODO: account for more than one sampling step (sampling[[i]])
 qa_methods <- function(input) {
     if (methods::is(input, "eml")) {
@@ -1279,7 +1279,7 @@ qa_methods <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_project <- function(input) {
     if (methods::is(input, "eml")) {
         project <- input@dataset@project
@@ -1325,7 +1325,7 @@ qa_project <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_entity <- function(input) {
     if (methods::is(input, "eml")) {
         entity <- list(input@dataset@dataTable,
@@ -1386,7 +1386,7 @@ qa_entity <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_entity_dup <- function(input) {
     if (methods::is(input, "eml")) {
         entity <- list(input@dataset@dataTable,
@@ -1434,7 +1434,7 @@ qa_entity_dup <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
-#' @keywords internal
+#' @noRd
 qa_physical <- function(input) {
     if (methods::is(input, "eml")) {
         entity <- list(input@dataset@dataTable,

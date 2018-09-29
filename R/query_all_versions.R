@@ -73,7 +73,7 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
 
 #' Solr query all versions of a PID
 #'
-#' This function uses a combination of [query_all_versions()] and a Solr query to return the query fields
+#' This function uses a combination of [arcticdatautils::get_all_versions()] and a Solr query to return the query fields
 #' for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 #' and the columns are the query fields.
 #'

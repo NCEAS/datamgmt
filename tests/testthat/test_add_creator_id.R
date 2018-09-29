@@ -1,13 +1,18 @@
-context("Add creator id")
+context("Add creator ID")
 
-#for add_creator_id
-    #misspelled surname will give an error
-    #surname is not case sensitive
-    #orcid is added to correct location in EML
-    #ref id is added to correct location in EML
+# For add_creator_id
+    # input is eml
+    # misspelled surname will give an error
+    # surname is not case sensitive
+    # orcid is added to correct location in EML
+    # ref id is added to correct location in EML
 
 eml_path_original <- file.path(system.file(package = "datamgmt"), "dummy_meta_full.xml")
 eml1 <- EML::read_eml(eml_path_original)
+
+test_that("input is eml", {
+    expect_error(add_creator_id("test"))
+})
 
 test_that("misspelled surname will give an error", {
   expect_error(add_creator_id(eml1, surname = "HighStakes"))

@@ -18,7 +18,7 @@ returns all non \code{NULL} fields.}
 (data.frame) Data frame with rows for each version of the PID and columns with each query field.
 }
 \description{
-This function uses a combination of \code{\link[=query_all_versions]{query_all_versions()}} and a Solr query to return the query fields
+This function uses a combination of \code{\link[arcticdatautils:get_all_versions]{arcticdatautils::get_all_versions()}} and a Solr query to return the query fields
 for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 and the columns are the query fields.
 }

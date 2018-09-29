@@ -7,11 +7,11 @@
 add_creator_id(eml, orcid = NULL, id = NULL, surname = NULL)
 }
 \arguments{
-\item{eml}{EML script to modify.}
+\item{eml}{(eml) EML file to modify.}
 
-\item{orcid}{ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'.}
+\item{orcid}{(character) ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'.}
 
-\item{id}{Reference ID. Character string to set reference ID for creators with additional roles (e.g., metadataProvider).}
+\item{id}{(character) Reference ID for creators with additional roles (e.g., metadataProvider).}
 
 \item{surname}{Creator surname. Defaults to first creator if not specified. Not case-sensitive.}
 }
@@ -23,7 +23,7 @@ The function invisibly returns the full EML, which
 can be saved to a variable. It also prints the changed creator
 entry so that it is easy to check that the appropriate change was
 made. In addition to the EML, at least one of either the ORCID or
-reference id is required.
+reference ID is required.
 
 Note: Updated creator information cannot be used as a
 reference for associatedParties because the extra "role"
@@ -41,7 +41,7 @@ eml <- eml \%>\%
                           orcid = "https://orcid.org/0000-1234-5678-4321",
                           id = "henrietta")
 
-#use references to add updated contact info to Henrietta's other roles
+# Use references to add updated contact info to Henrietta's other roles
 eml@dataset@contact[[1]] <- new('contact', reference = "henrietta")
 eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
 }
