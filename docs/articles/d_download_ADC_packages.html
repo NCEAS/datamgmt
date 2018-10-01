@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Downloading Packages from the Arctic Data Center • datamgmt</title>
+<title>Downloading packages from the Arctic Data Center • datamgmt</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Downloading Packages from the Arctic Data Center">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Downloading packages from the Arctic Data Center">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -55,18 +55,25 @@
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -78,27 +85,27 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Downloading Packages from the Arctic Data Center</h1>
+      <h1>Downloading packages from the Arctic Data Center</h1>
                         <h4 class="author">Dominic Mullen</h4>
             
-            <h4 class="date">Last updated 2018-08-31</h4>
+            <h4 class="date">Last updated 2018-10-01</h4>
       
       
-      <div class="hidden name"><code>download_ADC_packages.Rmd</code></div>
+      <div class="hidden name"><code>d_download_ADC_packages.Rmd</code></div>
 
     </div>
 
     
     
 <p><strong>Mac Users:</strong></p>
-<p>First install the following packages:    </p>
+<p>First install the following R packages:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"ropensci/EML"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"NCEAS/datamgmt"</span>)
 <span class="kw">library</span>(datamgmt)
 <span class="kw">library</span>(dataone)</code></pre></div>
 <p><strong>PC Users:</strong></p>
-<p>We currently have issues installing ‘datamgmt’ on PCs. Instead of installing the package, we can load the functions directly into your global environment by copy-pasting.   First install the following packages:</p>
+<p>We currently have issues installing datamgmt on PCs. Instead of installing the package, we can load the functions directly into your global environment by copy-pasting. First install the following R packages:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"devtools"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"ropensci/EML"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"NCEAS/arcticdatautils"</span>)
@@ -106,8 +113,9 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <span class="kw">install.packages</span>(<span class="st">"magrittr"</span>)
 <span class="kw">library</span>(dataone)
 <span class="kw">library</span>(magrittr)</code></pre></div>
-<p>Source (copy-paste into your R console) the file (<a href="https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R" class="uri">https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R</a>) <em>Note:</em> This concludes the differences between Mac and PC installs</p>
-<p>Next, we need to specify which DataOne Member Node we want to interact with. The following code specifies the Arctic Data Center. Most of the functions that we use specificy the <code>mn</code> as the first argument. First, we specify the coordinating node and then its corresponding member node.</p>
+<p>Source (copy-paste into your R console) the file <a href="https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R" class="uri">https://github.com/dmullen17/work-samples/blob/master/R/wg_helpers.R</a></p>
+<p><em>Note:</em> This concludes the differences between Mac and PC installs.</p>
+<p>Next, we need to specify which DataONE Member Node we want to interact with. The following code specifies the Arctic Data Center. Most of the functions that we use specify the <code>mn</code> as the first argument. First, we specify the Coordinating Node and then its corresponding Member Node.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cn &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dataone/topics/CNode">CNode</a></span>(<span class="st">"PROD"</span>)
 mn &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/dataone/topics/getMNode">getMNode</a></span>(cn, <span class="st">"urn:node:ARCTIC"</span>)</code></pre></div>
 <div id="download-a-small-data-package" class="section level3">
@@ -119,10 +127,10 @@ mn &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumenta
 <p align="center">
 <img src="../inst/images/download.png" width="500px"></p>
 <ol start="2" style="list-style-type: decimal">
-<li>Download the attribute (column metadata) by pasting the url into this function. This reads the attributes into a list of data.frames by default.</li>
+<li>Download the attribute (column metadata) by pasting the URL into this function. This reads the attributes into a list of data.frames by default.</li>
 </ol>
+<p>Optional arguments:</p>
 <ul>
-<li>Optional Arguments:</li>
 <li>
 <code>write_to_csv</code> - writes each data.frame to a csv in the specified <code>download_directory</code>
 </li>
@@ -141,19 +149,19 @@ mn &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumenta
 <div id="download-a-data-package-without-the-ui" class="section level3">
 <h3 class="hasAnchor">
 <a href="#download-a-data-package-without-the-ui" class="anchor"></a>Download a Data Package without the UI</h3>
-This is a better option (than the first method) if you would like to prefix your data files (in addition to metadata files) with the DOI identifier.<br><br> All we need to specificy is the Package resource map. Copy-paste this into R. <br><p align="center">
+<p>This is a better option (than the first method) if you would like to prefix your data files (in addition to metadata files) with the DOI identifier.<br><br> All we need to specify is the package resource map. Copy-paste this into R.</p>
+<p align="center">
 <img src="../inst/images/resmap.png" width="500px"></p>
-<p><br></p>
+<p>Optional arguments:</p>
 <ul>
-<li>Optional Arguments:</li>
 <li>
-<code>prefix_file_names</code> - prepends the DOI identifier to each file.</li>
+<code>prefix_file_names</code> - prepends the DOI identifier to each file</li>
 <li>
-<code>download_column_metadata</code> - downloads column metadata to csv’s.</li>
+<code>download_column_metadata</code> - downloads column metadata to csv files</li>
 <li>
-<code>convert_excel_to_csv</code> - attempts to convert excel workbooks in the package to csvs. Not recommended if the csv’s are already present in the package.</li>
+<code>convert_excel_to_csv</code> - attempts to convert Excel workbooks in the package to csv files. Not recommended if the csv files are already present in the package</li>
 <li>
-<code>download_child_packages</code> - downloads any “Nested” Data Packages associated with the Data Package.</li>
+<code>download_child_packages</code> - downloads any “Nested” Data Packages associated with the Data Package</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/download_package.html">download_package</a></span>(mn,
                  <span class="st">"resource_map_doi:10.18739/A22W0R"</span>,
@@ -166,7 +174,7 @@ This is a better option (than the first method) if you would like to prefix your
 <div id="download-multiple-data-packages" class="section level3">
 <h3 class="hasAnchor">
 <a href="#download-multiple-data-packages" class="anchor"></a>Download multiple Data Packages</h3>
-<p>We can download multiple data packages by specifying multiple resource to the function <code>download_packages</code>. Note the s!<br><br> **<a href="Tip:**" class="uri">Tip:**</a> If you want to download Data Packages that are nested under a common Data Package, you can use the common “parent” resource map rather than copying pasting multiple resource maps into R.</p>
+<p>We can download multiple data packages by specifying multiple resource maps to the function <code><a href="../reference/download_packages.html">download_packages()</a></code>. Note the ‘s’!<br><br><em>Tip</em> If you want to download Data Packages that are nested under a common Data Package, you can use the common “parent” resource map rather than copying-pasting multiple resource maps into R.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/download_packages.html">download_packages</a></span>(mn,
                   <span class="kw">c</span>(<span class="st">"resource_map_doi:10.18739/A21G1P"</span>, <span class="st">"resource_map_doi:10.18739/A2RZ6X"</span>),
                   <span class="st">"/home/dmullen/downloads"</span>,
@@ -175,9 +183,10 @@ This is a better option (than the first method) if you would like to prefix your
 </div>
 <div id="switching-between-dataonelter-member-nodes" class="section level3">
 <h3 class="hasAnchor">
-<a href="#switching-between-dataonelter-member-nodes" class="anchor"></a>Switching between DataOne/LTER Member Nodes</h3>
+<a href="#switching-between-dataonelter-member-nodes" class="anchor"></a>Switching between DataONE/LTER Member Nodes</h3>
 <p>Suppose we want to download this package from LTER: <a href="https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13" class="uri">https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13</a></p>
-<p>We first need to tell R that we’re changing member nodes. The fastest way of doing this is to reset your <code>mn</code> with the <code>guess_member_node</code> function. <em>Note:</em> This function accepts metadata and resource map pids, or DataOne package URLs as inputs</p>
+<p>We first need to tell R that we are changing Member Nodes. The fastest way of doing this is to reset your <code>mn</code> with the <code><a href="../reference/guess_member_node.html">guess_member_node()</a></code> function.</p>
+<p><em>Note:</em> This function accepts metadata and resource map PIDs or DataONE package URLs as inputs.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># The following three calls return the same member node (mn)</span>
 <span class="co"># Metadata pid input: </span>
 mn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/guess_member_node.html">guess_member_node</a></span>(<span class="st">"https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13"</span>)
@@ -185,7 +194,6 @@ mn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/guess_me
 mn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/guess_member_node.html">guess_member_node</a></span>(<span class="st">"doi:10.6073/pasta/97c6d83a5f6a0a065ef3209fcb491b6e"</span>)
 <span class="co"># Package URL input: </span>
 mn &lt;-<span class="st"> </span><span class="kw"><a href="../reference/guess_member_node.html">guess_member_node</a></span>(<span class="st">"https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13"</span>)
-
 
 <span class="co"># We can now use any of the above functions:</span>
 <span class="kw"><a href="../reference/get_eml_attributes_url.html">get_eml_attributes_url</a></span>(mn, <span class="st">"https://search.dataone.org/#view/https://pasta.lternet.edu/package/metadata/eml/knb-lter-ntl/276/13"</span>)</code></pre></div>

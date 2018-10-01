@@ -14,7 +14,7 @@
 #'   PID from the new version chain can be used - sets the PID to the beginning of
 #'   the version chain.
 #'
-#' @return (TRUE)
+#' @return (logical) `TRUE`/`FALSE`
 #'
 #' @importFrom utils tail
 #'
@@ -24,8 +24,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' cn <- dataone::CNode('STAGING')
-#' mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+#' cn <- dataone::CNode("STAGING")
+#' mn <- dataone::getMNode(cn,"urn:node:mnTestARCTIC")
+#'
 #' pkg_old <- arcticdatautils::create_dummy_package(mn)
 #' pkg_new <- arcticdatautils::create_dummy_package(mn)
 #'
@@ -53,7 +54,7 @@ obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
 
     # Check that the pids are not in the same chain already
     if (metadata_obs %in% versions_new || metadata_new %in% versions_obs) {
-        stop(message("pid: ", metadata_obs, " and pid: ", metadata_new,
+        stop(message("PID: ", metadata_obs, " and PID: ", metadata_new,
                      " are already in the same version chain."))
     }
 
@@ -77,7 +78,7 @@ obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
     # Check that sysmeta fields to update are NA
     if (!is.na(sys_obs@obsoletedBy)) {
         stop(message("pid: ", metadata_obs, " already obsoleted by: ",
-                     sys_obs@obsoletedBy, ". If you still wish to obsolete this version chain please use the last pid in the version chain."))
+                     sys_obs@obsoletedBy, ". If you still wish to obsolete this version chain please use the last PID in the version chain."))
     }
     if (!is.na(sys_new@obsoletes)) {
         stop(message("pid: ", metadata_new, " already obsoletes: ",

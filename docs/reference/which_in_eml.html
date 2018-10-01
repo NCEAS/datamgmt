@@ -32,7 +32,8 @@
 
 <meta property="og:title" content="Search through EMLs — which_in_eml" />
 
-<meta property="og:description" content="This function returns indices within an EML list that contain an instance where test == TRUE. See examples for more information." />
+<meta property="og:description" content="This function returns indices within an EML list that contain an instance where test == TRUE.
+See examples for more information." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -87,20 +88,25 @@
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -120,7 +126,8 @@
 
     <div class="ref-description">
     
-    <p>This function returns indices within an EML list that contain an instance where <code>test == TRUE</code>. See examples for more information.</p>
+    <p>This function returns indices within an EML list that contain an instance where <code>test == TRUE</code>.
+See examples for more information.</p>
     
     </div>
 
@@ -131,15 +138,16 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>eml_list</th>
-      <td><p>(S4/List) an EML list object</p></td>
+      <td><p>(S4/List) An EML list object.</p></td>
     </tr>
     <tr>
       <th>element</th>
-      <td><p>(character) element to evaluate</p></td>
+      <td><p>(character) Element to evaluate.</p></td>
     </tr>
     <tr>
       <th>test</th>
-      <td><p>(function/character) A function to evaluate (see examples). If test is a character, will evaluate if <code>element == test</code> (see example 1).</p></td>
+      <td><p>(function/character) A function to evaluate.
+If character, will evaluate if <code>element == test</code> (see example 1).</p></td>
     </tr>
     </table>
     

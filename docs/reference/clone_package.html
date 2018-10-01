@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Clones packages between Dataone Member Nodes. — clone_package • datamgmt</title>
+<title>Clone packages between DataONE Member Nodes — clone_package • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,12 +30,12 @@
 
 
 
-<meta property="og:title" content="Clones packages between Dataone Member Nodes. — clone_package" />
+<meta property="og:title" content="Clone packages between DataONE Member Nodes — clone_package" />
 
-<meta property="og:description" content="This function copies a Data Package from one DataOne member node to another.
-Note, the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
-This will not update the information in the metadata object.  This can also be used
-to restore an older version of a Package to a member node, provided that the user subsequently
+<meta property="og:description" content="This function copies a data package from one DataONE Member Node to another.
+Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+This will not update the information in the metadata object. This can also be used
+to restore an older version of a package to a Member Node, provided that the user subsequently
 obsoletes the version of the package that they used to create the clone." />
 <meta name="twitter:card" content="summary" />
 
@@ -91,20 +91,25 @@ obsoletes the version of the package that they used to create the clone." />
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -117,17 +122,17 @@ obsoletes the version of the package that they used to create the clone." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Clones packages between Dataone Member Nodes.</h1>
+    <h1>Clone packages between DataONE Member Nodes</h1>
     
     <div class="hidden name"><code>clone_package.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function copies a Data Package from one DataOne member node to another.
-Note, the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
-This will not update the information in the metadata object.  This can also be used
-to restore an older version of a Package to a member node, provided that the user subsequently
+    <p>This function copies a data package from one DataONE Member Node to another.
+Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+This will not update the information in the metadata object. This can also be used
+to restore an older version of a package to a Member Node, provided that the user subsequently
 obsoletes the version of the package that they used to create the clone.</p>
     
     </div>
@@ -140,7 +145,7 @@ obsoletes the version of the package that they used to create the clone.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>resource_map_pid</th>
-      <td><p>(character) Object pid</p></td>
+      <td><p>(character) PID for the package resource map.</p></td>
     </tr>
     <tr>
       <th>from</th>
@@ -152,25 +157,34 @@ obsoletes the version of the package that they used to create the clone.</p>
     </tr>
     <tr>
       <th>add_access_to</th>
-      <td><p>(character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to <code>NULL</code>. Note, setting this to <code>NULL</code> could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.</p></td>
+      <td><p>(character) Will give read, write, and changePermission access to all strings in vector.
+If no additional access is desired, set to <code>NULL</code>. Note: setting this to <code>NULL</code> could lead to situations where
+it is not possible to read, write, or changePermissions on the cloned object.</p></td>
     </tr>
     <tr>
       <th>change_auth_node</th>
-      <td><p>(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to <code>TRUE</code> will allow you to edit the package after cloning.  Setting this to <code>FALSE</code> syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit package system metadata.</p></td>
+      <td><p>(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node
+if <code>TRUE</code>. Setting this to <code>TRUE</code> will allow you to edit the package after cloning. Setting this to <code>FALSE</code>
+syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with
+special privileges to edit package system metadata.</p></td>
     </tr>
     <tr>
       <th>public</th>
-      <td><p>(logical) Optional. Will set public read access.  Defaults to <code>FALSE</code>.</p></td>
+      <td><p>(logical) Optional. Will set public read access. Defaults to <code>FALSE</code>.</p></td>
     </tr>
     <tr>
       <th>clone_children</th>
-      <td><p>(logical) Optional. Will clone all children recursively if TRUE. Defaults to <code>FALSE</code>.</p></td>
+      <td><p>(logical) Optional. Will clone all children recursively if <code>TRUE</code>. Defaults to <code>FALSE</code>.</p></td>
     </tr>
     <tr>
       <th>new_pid</th>
-      <td><p>(logical) Optional. Will give the clone a new pid.  Defaults to <code>TRUE</code>.</p></td>
+      <td><p>(logical) Optional. Will give the clone a new PID. Defaults to <code>TRUE</code>.</p></td>
     </tr>
     </table>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='copy_package.html'>copy_package()</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -198,7 +212,9 @@ cloned_package <- clone_package(resource_map_pid = package$resource_map
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-            
+      
+      <li><a href="#see-also">See also</a></li>
+      
       <li><a href="#examples">Examples</a></li>
     </ul>
 

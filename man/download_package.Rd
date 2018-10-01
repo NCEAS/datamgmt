@@ -45,6 +45,7 @@ If you would only like to download data from one data package, set \code{downloa
 \dontrun{
 cn <- CNode("PROD")
 mn <- getMNode(cn, "urn:node:ARCTIC")
+
 download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
 "/home/dmullen")
 }

@@ -16,7 +16,7 @@
 #' @param eml (eml) EML file to modify.
 #' @param orcid (character) ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'.
 #' @param id (character) Reference ID for creators with additional roles (e.g., metadataProvider).
-#' @param surname Creator surname. Defaults to first creator if not specified. Not case-sensitive.
+#' @param surname (character) Creator surname. Defaults to first creator if not specified. Not case-sensitive.
 #'
 #' @export
 #'

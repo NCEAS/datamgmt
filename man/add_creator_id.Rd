@@ -13,7 +13,7 @@ add_creator_id(eml, orcid = NULL, id = NULL, surname = NULL)
 
 \item{id}{(character) Reference ID for creators with additional roles (e.g., metadataProvider).}
 
-\item{surname}{Creator surname. Defaults to first creator if not specified. Not case-sensitive.}
+\item{surname}{(character) Creator surname. Defaults to first creator if not specified. Not case-sensitive.}
 }
 \description{
 This function allows you to add an ORCID or reference ID to a creator in EML.

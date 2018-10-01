@@ -32,9 +32,9 @@
 
 <meta property="og:title" content="Check package including congruence of attributes and data — qa_package" />
 
-<meta property="og:description" content="This function assumes correctness in the resource map and data.
-Purpose: QA script to check a DataONE EML package. Checks that attributes match values in the data.
-Note: this function also calls qa_attributes, qa_creator_ORCIDs, and qa_access." />
+<meta property="og:description" content="This function checks that the attributes listed in the metadata match the values in the data for each
+tabular data object. It may also optionally check if all creators have ORCIDs and have full access
+to all elements of the data package." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -89,20 +89,25 @@ Note: this function also calls qa_attributes, qa_creator_ORCIDs, and qa_access."
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -122,9 +127,9 @@ Note: this function also calls qa_attributes, qa_creator_ORCIDs, and qa_access."
 
     <div class="ref-description">
     
-    <p>This function assumes correctness in the resource map and data.
-Purpose: QA script to check a DataONE EML package. Checks that attributes match values in the data.
-Note: this function also calls <code><a href='qa_attributes.html'>qa_attributes</a></code>, <code><a href='qa_creator_ORCIDs.html'>qa_creator_ORCIDs</a></code>, and <code><a href='qa_access.html'>qa_access</a></code>.</p>
+    <p>This function checks that the attributes listed in the metadata match the values in the data for each
+tabular data object. It may also optionally check if all creators have ORCIDs and have full access
+to all elements of the data package.</p>
     
     </div>
 
@@ -144,19 +149,23 @@ Note: this function also calls <code><a href='qa_attributes.html'>qa_attributes<
     </tr>
     <tr>
       <th>readAllData</th>
-      <td><p>(logical) Default TRUE. Read all data from remote and check that column types match attributes, otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset). If <code>check_attributes = FALSE</code>, no rows will be read.</p></td>
+      <td><p>(logical) Default TRUE. Read all data from remote and check that column types match attributes,
+otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
+If <code>check_attributes = FALSE</code>, no rows will be read.</p></td>
     </tr>
     <tr>
       <th>check_attributes</th>
-      <td><p>(logical) Default TRUE. Calls <code><a href='qa_attributes.html'>qa_attributes</a></code>. Checks congruence of attributes and data.</p></td>
+      <td><p>(logical) Default TRUE. Checks congruence of attributes and data.</p></td>
     </tr>
     <tr>
       <th>check_creators</th>
-      <td><p>(logical) Default FALSE. Calls <code><a href='qa_creator_ORCIDs.html'>qa_creator_ORCIDs</a></code>. Checks if each creator has an ORCID. Will also run if <code>check_access = TRUE</code>.</p></td>
+      <td><p>(logical) Default FALSE. Checks if each creator has an ORCID.
+Will also run if <code>check_access = TRUE</code>.</p></td>
     </tr>
     <tr>
       <th>check_access</th>
-      <td><p>(logigal) Default FALSE. Calls <code><a href='qa_access.html'>qa_access</a></code>. Checks if each creator has full access to the metadata, resource map, and data objects. Will not run if the checks associated with <code>check_creators</code> fail.</p></td>
+      <td><p>(logical) Default FALSE. Checks if each creator has full access to the
+metadata, resource map, and data objects. Will not run if the checks associated with <code>check_creators</code> fail.</p></td>
     </tr>
     </table>
     

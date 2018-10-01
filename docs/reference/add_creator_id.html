@@ -87,20 +87,25 @@
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -131,19 +136,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>eml</th>
-      <td><p>EML script to modify</p></td>
+      <td><p>(eml) EML file to modify.</p></td>
     </tr>
     <tr>
       <th>orcid</th>
-      <td><p>ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'</p></td>
+      <td><p>(character) ORCID in the format 'https://orcid.org/WWWW-XXXX-YYYY-ZZZZ'.</p></td>
     </tr>
     <tr>
       <th>id</th>
-      <td><p>reference ID. Character string to set reference ID for creators with additional roles (i.e. metadataProvider, etc.)</p></td>
+      <td><p>(character) Reference ID for creators with additional roles (e.g., metadataProvider).</p></td>
     </tr>
     <tr>
       <th>surname</th>
-      <td><p>creator surname (last name), defaults to first creator if not specified. Not case-sensitive.</p></td>
+      <td><p>(character) Creator surname. Defaults to first creator if not specified. Not case-sensitive.</p></td>
     </tr>
     </table>
     
@@ -151,10 +156,10 @@
 
     <p>The function invisibly returns the full EML, which
 can be saved to a variable. It also prints the changed creator
-entry so that it's easy to check that the appropriate change was
-made. In addition to the EML, at least one of either the orcid or
-reference id is required.</p>
-<p>Note: updated creator information cannot be used as a
+entry so that it is easy to check that the appropriate change was
+made. In addition to the EML, at least one of either the ORCID or
+reference ID is required.</p>
+<p>Note: Updated creator information cannot be used as a
 reference for associatedParties because the extra "role"
 field is required. Also, the function does not (yet) account
 for cases in which multiple creators have the same surname.</p>
@@ -171,7 +176,7 @@ for cases in which multiple creators have the same surname.</p>
                           <span class='kw'>orcid</span> <span class='kw'>=</span> <span class='st'>"https://orcid.org/0000-1234-5678-4321"</span>,
                           <span class='kw'>id</span> <span class='kw'>=</span> <span class='st'>"henrietta"</span>)
 
-<span class='co'>#use references to add updated contact info to Henrietta's other roles</span>
+<span class='co'># Use references to add updated contact info to Henrietta's other roles</span>
 <span class='no'>eml</span>@<span class='kw'>dataset</span>@<span class='kw'>contact</span><span class='kw'>[[</span><span class='fl'>1</span>]] <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>'contact'</span>, <span class='kw'>reference</span> <span class='kw'>=</span> <span class='st'>"henrietta"</span>)
 <span class='no'>eml</span>@<span class='kw'>dataset</span>@<span class='kw'>metadataProvider</span><span class='kw'>[[</span><span class='fl'>1</span>]] <span class='kw'>&lt;-</span> <span class='fu'>new</span>(<span class='st'>'metadataProvider'</span>, <span class='kw'>reference</span> <span class='kw'>=</span> <span class='st'>"henrietta"</span>)
 <span class='co'># }</span></pre>

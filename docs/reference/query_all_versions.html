@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="Solr query all versions of a PID — query_all_versions" />
 
-<meta property="og:description" content="This function uses a combination of get_all_versions and Solr query to return the query fields
+<meta property="og:description" content="This function uses a combination of arcticdatautils::get_all_versions() and a Solr query to return the query fields
 for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 and the columns are the query fields." />
 <meta name="twitter:card" content="summary" />
@@ -89,20 +89,25 @@ and the columns are the query fields." />
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -122,7 +127,7 @@ and the columns are the query fields." />
 
     <div class="ref-description">
     
-    <p>This function uses a combination of get_all_versions and Solr query to return the query fields
+    <p>This function uses a combination of <code><a href='http://www.rdocumentation.org/packages/arcticdatautils/topics/get_all_versions'>arcticdatautils::get_all_versions()</a></code> and a Solr query to return the query fields
 for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 and the columns are the query fields.</p>
     
@@ -135,7 +140,7 @@ and the columns are the query fields.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>mn</th>
-      <td><p>(MNode) Specify the DataONE Member Node where the object should be searched for.</p></td>
+      <td><p>(MNode) The Member Node where the object should be searched for.</p></td>
     </tr>
     <tr>
       <th>object_pid</th>
@@ -144,19 +149,20 @@ and the columns are the query fields.</p>
     <tr>
       <th>fields</th>
       <td><p>(character) List of fields that you want returned in the data frame. Default
-returns all non NULL fields.</p></td>
+returns all non <code>NULL</code> fields.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>(data.frame) Data frame with rows for each version of the PID and columns with each query field</p>
+    <p>(data.frame) Data frame with rows for each version of the PID and columns with each query field.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='no'>cn</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dataone</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/dataone/topics/CNode'>CNode</a></span>(<span class='st'>"PROD"</span>)
 <span class='no'>mn</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dataone</span><span class='kw ns'>::</span><span class='fu'><a href='http://www.rdocumentation.org/packages/dataone/topics/getMNode'>getMNode</a></span>(<span class='no'>cn</span>, <span class='st'>"urn:node:ARCTIC"</span>)
+
 <span class='no'>df</span> <span class='kw'>&lt;-</span> <span class='fu'>query_all_versions</span>(<span class='no'>mn</span>, <span class='st'>"doi:10.18739/A27D2Q670"</span>, <span class='fu'>c</span>(<span class='st'>"id"</span>, <span class='st'>"title"</span>, <span class='st'>"origin"</span>, <span class='st'>"submitter"</span>))
 <span class='fu'>View</span>(<span class='no'>df</span>)
 <span class='co'># }</span></pre>

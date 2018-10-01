@@ -19,11 +19,11 @@ Uses the udunits2 unit library to format inputted unit into an EML unit form.
 }
 \examples{
 \dontrun{
-#The following all return the same data frame.
-return_eml_units('kilometersPerSquareSecond')
-return_eml_units('Kilometers per seconds squared')
-return_eml_units('km/s^2')
-return_eml_units('km s-2')
-return_eml_units('s-2 /     kilometers-1') # this works but is not advised
+# The following all return the same data frame
+return_eml_units("kilometersPerSquareSecond")
+return_eml_units("Kilometers per seconds squared")
+return_eml_units("km/s^2")
+return_eml_units("km s-2")
+return_eml_units("s-2 /     kilometers-1") # this works but is not advised
 }
 }
