@@ -14,7 +14,7 @@ clone_package(resource_map_pid, from, to, add_access_to, change_auth_node,
 
 \item{to}{(D1Client) D1Client to clone package to. (Token must be set for this node)}
 
-\item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector.
+\item{add_access_to}{(character) Will give read, write, and changePermission access to all strings in vector.
 If no additional access is desired, set to \code{NULL}. Note: setting this to \code{NULL} could lead to situations where
 it is not possible to read, write, or changePermissions on the cloned object.}
 
@@ -27,13 +27,13 @@ special privileges to edit package system metadata.}
 
 \item{clone_children}{(logical) Optional. Will clone all children recursively if \code{TRUE}. Defaults to \code{FALSE}.}
 
-\item{new_pid}{(logical) Optional. Will give the clone a new pid. Defaults to \code{TRUE}.}
+\item{new_pid}{(logical) Optional. Will give the clone a new PID. Defaults to \code{TRUE}.}
 }
 \description{
-This function copies a Data Package from one DataONE member node to another.
+This function copies a data package from one DataONE Member Node to another.
 Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
 This will not update the information in the metadata object. This can also be used
-to restore an older version of a Package to a member node, provided that the user subsequently
+to restore an older version of a package to a Member Node, provided that the user subsequently
 obsoletes the version of the package that they used to create the clone.
 }
 \examples{

@@ -333,6 +333,7 @@ download_one_package <- function(mn,
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
+#'
 #' download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
 #' "/home/dmullen")
 #' }
@@ -414,6 +415,7 @@ download_package <- function(mn,
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
+#'
 #' download_packages(mn, c("resource_map_doi:10.18739/A21G1P", "resource_map_doi:10.18739/A2RZ6X"),
 #' "/home/dmullen/downloads", prefix_file_names = TRUE, download_column_metadata = TRUE,
 #' convert_excel_to_csv = TRUE)

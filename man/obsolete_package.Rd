@@ -18,7 +18,7 @@ PID from the new version chain can be used - sets the PID to the beginning of
 the version chain.}
 }
 \value{
-(TRUE)
+(logical) \code{TRUE}/\code{FALSE}
 }
 \description{
 This function obsoletes a DataONE package with a newer version
@@ -29,8 +29,9 @@ version and merging the two version chains. In other cases
 }
 \examples{
 \dontrun{
-cn <- dataone::CNode('STAGING')
-mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+cn <- dataone::CNode("STAGING")
+mn <- dataone::getMNode(cn,"urn:node:mnTestARCTIC")
+
 pkg_old <- arcticdatautils::create_dummy_package(mn)
 pkg_new <- arcticdatautils::create_dummy_package(mn)
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Download attribute (column) metadata from a DataONE Metadata object to csvs. — download_eml_attributes • datamgmt</title>
+<title>Download attribute (column) metadata from a DataONE metadata object to csv files — download_eml_attributes • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Download attribute (column) metadata from a DataONE Metadata object to csvs. — download_eml_attributes" />
+<meta property="og:title" content="Download attribute (column) metadata from a DataONE metadata object to csv files — download_eml_attributes" />
 
 <meta property="og:description" content="Download attribute metadata from an EML object as csvs. The name
 of each csv corresponds to the file name of the Data Object it describes.
@@ -89,20 +89,25 @@ This can be prepended with the package identifier by setting prefix_file_names =
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -115,7 +120,7 @@ This can be prepended with the package identifier by setting prefix_file_names =
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Download attribute (column) metadata from a DataONE Metadata object to csvs.</h1>
+    <h1>Download attribute (column) metadata from a DataONE metadata object to csv files</h1>
     
     <div class="hidden name"><code>download_eml_attributes.Rd</code></div>
     </div>
@@ -140,11 +145,12 @@ This can be prepended with the package identifier by setting <code>prefix_file_n
     </tr>
     <tr>
       <th>download_directory</th>
-      <td><p>(character) Directory to download attribute metadata csv's to.</p></td>
+      <td><p>(character) Directory to download attribute metadata csvs to.</p></td>
     </tr>
     <tr>
       <th>prefix_file_names</th>
-      <td><p>(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.</p></td>
+      <td><p>(logical) Optional. Whether to prefix file names with the package metadata identifier.
+This is useful when downloading files from multiple packages to one directory.</p></td>
     </tr>
     </table>
     

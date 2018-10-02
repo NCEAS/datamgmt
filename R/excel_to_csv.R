@@ -4,11 +4,11 @@
 #' files in the following format: sheetName_excelName.csv.
 #'
 #' @param path (character) File location of the excel workbook.
-#' @param directory (character) Optional.  Directory to download csv files to.
-#' @param ... Optional.  Allows arguments from \link[readxl]{read_excel}
+#' @param directory (character) Optional. Directory to download csv files to.
+#' @param ... Optional. Allows arguments from \link[readxl]{read_excel}.
 #' Defaults to the base directory that \code{path} is located in.
 #'
-#' @return (invisible())
+#' @return invisible
 #'
 #' @importFrom readxl excel_sheets read_excel
 #'

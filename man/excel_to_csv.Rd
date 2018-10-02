@@ -9,13 +9,13 @@ excel_to_csv(path, directory = NULL, ...)
 \arguments{
 \item{path}{(character) File location of the excel workbook.}
 
-\item{directory}{(character) Optional.  Directory to download csv files to.}
+\item{directory}{(character) Optional. Directory to download csv files to.}
 
-\item{...}{Optional.  Allows arguments from \link[readxl]{read_excel}
+\item{...}{Optional. Allows arguments from \link[readxl]{read_excel}.
 Defaults to the base directory that \code{path} is located in.}
 }
 \value{
-(invisible())
+invisible
 }
 \description{
 Converts an Excel workbook into multiple csv files (one per tab). Names the

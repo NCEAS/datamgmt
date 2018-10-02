@@ -15,8 +15,8 @@
 #'
 #' @examples
 #' \dontrun{
-#' cn <- dataone::CNode('PROD')
-#' mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
+#' cn <- dataone::CNode("PROD")
+#' mn <- dataone::getMNode(cn,"urn:node:ARCTIC")
 #'
 #' parent_rm_pid <- "urn:uuid:b3dc11f5-95e8-4f30-bef9-82464398bc5f"
 #'

@@ -55,18 +55,25 @@
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -80,7 +87,7 @@
     <div class="page-header toc-ignore">
       <h1>Advanced functions for package developers and contributors</h1>
             
-            <h4 class="date">Last updated 2018-08-31</h4>
+            <h4 class="date">Last updated 2018-10-01</h4>
       
       
       <div class="hidden name"><code>c_datadev.Rmd</code></div>
@@ -89,28 +96,27 @@
 
     
     
-<div id="clone-or-download-packages" class="section level2">
+<div id="clone-package" class="section level2">
 <h2 class="hasAnchor">
-<a href="#clone-or-download-packages" class="anchor"></a>Clone or download packages</h2>
-<p>The <code>clone_package</code> function copies a Data Package from one DataOne member node to another. It can also be used to copy an older version of a Data Package to the same member node in order to restore it, provided that the old Package is then obsoleted by the copied version.</p>
-<p>NOTE: BUGS ARE CURRENTLY BEING FIXED</p>
+<a href="#clone-package" class="anchor"></a>Clone package</h2>
+<p>The <code><a href="../reference/clone_package.html">clone_package()</a></code> function clones a data package from one DataONE Member Node to another. It can also be used to copy an older version of a data package to the same Member Node in order to restore it, provided that the old package is then obsoleted by the copied version. Use the <code><a href="../reference/copy_package.html">copy_package()</a></code> function to copy a data package from one DataONE Member Node to another while generating new PIDs and new system metadata.</p>
 <p>Example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cn_pull &lt;-<span class="st"> </span><span class="kw">CNode</span>(<span class="st">"PROD"</span>)
 mn_pull &lt;-<span class="st"> </span><span class="kw">getMNode</span>(cn_pull, <span class="st">"urn:node:ARCTIC"</span>)
-cn_push &lt;-<span class="st"> </span><span class="kw">CNode</span>(<span class="st">'STAGING'</span>)
-mn_push &lt;-<span class="st"> </span><span class="kw">getMNode</span>(cn_push,<span class="st">'urn:node:mnTestARCTIC'</span>)
-<span class="kw"><a href="../reference/clone_package.html">clone_package</a></span>(mn_pull, mn_push, <span class="st">"resource_map_doi:10.18739/A2RZ6X"</span>)</code></pre></div>
-</div>
-<div id="create-a-dummy-package" class="section level2">
-<h2 class="hasAnchor">
-<a href="#create-a-dummy-package" class="anchor"></a>Create a dummy package</h2>
-<p>The function <code>create_dummy_package2</code> creates a fuller package than create_dummy_package but is otherwise based on the same concept. This dummy package includes multiple data objects (2 csv’s, and 2 jpg’s), responsible parties, geographic locations, method steps, etc. You can also define a unique title for the package to distinguish it from other test packages.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/create_dummy_package2.html">create_dummy_package2</a></span>(mn, <span class="dt">title =</span> <span class="st">"A Dummy Package"</span>)</code></pre></div>
+
+cn_push &lt;-<span class="st"> </span><span class="kw">CNode</span>(<span class="st">"STAGING"</span>)
+mn_push &lt;-<span class="st"> </span><span class="kw">getMNode</span>(cn_push, <span class="st">"urn:node:mnTestARCTIC"</span>)
+
+<span class="kw"><a href="../reference/clone_package.html">clone_package</a></span>(<span class="st">"resource_map_doi:10.18739/A2RZ6X"</span>,
+              mn_pull,
+              mn_push,
+              <span class="dt">add_access_to =</span> arcticdatautils<span class="op">:::</span><span class="kw">get_token_subject</span>(),
+              <span class="dt">change_auth_node =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>
 <div id="get-nsf-awards" class="section level2">
 <h2 class="hasAnchor">
 <a href="#get-nsf-awards" class="anchor"></a>Get NSF awards</h2>
-<p>The <code>get_awards</code> function uses the NSF API to get all records pertaining to the Arctic or Polar programs.</p>
+<p>The <code><a href="../reference/get_awards.html">get_awards()</a></code> function uses the NSF API to get all records pertaining to the Arctic or Polar programs.</p>
 <p>Example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">all_awards &lt;-<span class="st"> </span><span class="kw"><a href="../reference/get_awards.html">get_awards</a></span>()
 new_awards &lt;-<span class="st"> </span><span class="kw"><a href="../reference/get_awards.html">get_awards</a></span>(<span class="dt">from_date =</span> <span class="st">"01/01/2017"</span>)</code></pre></div>
@@ -118,7 +124,8 @@ new_awards &lt;-<span class="st"> </span><span class="kw"><a href="../reference/
 <div id="which-in-eml" class="section level2">
 <h2 class="hasAnchor">
 <a href="#which-in-eml" class="anchor"></a>Which in EML</h2>
-<p>The <code>which_in_eml</code> function returns indices within an EML list that contain an instance where test == TRUE. See examples for more information.</p>
+<p>The <code><a href="../reference/which_in_eml.html">which_in_eml()</a></code> function returns indices within an EML list that contain an instance where <code>test == TRUE</code>.</p>
+<p>Example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Question: Which creators have a surName "Smith"?</span>
 n &lt;-<span class="st"> </span><span class="kw"><a href="../reference/which_in_eml.html">which_in_eml</a></span>(eml<span class="op">@</span>dataset<span class="op">@</span>creator, <span class="st">"surName"</span>, <span class="st">"Smith"</span>)
 <span class="co"># Answer: eml@dataset@creator[n]</span>
@@ -142,8 +149,7 @@ n &lt;-<span class="st"> </span><span class="kw"><a href="../reference/which_in_
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#clone-or-download-packages">Clone or download packages</a></li>
-      <li><a href="#create-a-dummy-package">Create a dummy package</a></li>
+<li><a href="#clone-package">Clone package</a></li>
       <li><a href="#get-nsf-awards">Get NSF awards</a></li>
       <li><a href="#which-in-eml">Which in EML</a></li>
       </ul>

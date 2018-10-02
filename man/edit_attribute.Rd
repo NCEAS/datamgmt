@@ -47,9 +47,10 @@ the factor table of an enumeratedDomain. In cases with very large attribute list
 }
 \examples{
 \dontrun{
-#To change an attribute's name and add a missing value code where there hadn't been one:
+# To change an attribute's name and add a missing value code:
 new_eml <- edit_attribute(eml, 2, 8, attributeName = "new name", missingValueCode = "NA",
                           missingValueCodeExplanation = "Data unavailable")
+
 # To change an attribute's attributeDefinition, as well as change measurementScale
 # from nominal to ratio (requires also changing domain, unit, and numberType, as well
 # as setting definition to NA):

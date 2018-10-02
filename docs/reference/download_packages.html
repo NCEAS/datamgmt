@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Download one or multiple Data Packages — download_packages • datamgmt</title>
+<title>Download multiple data packages — download_packages • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -30,10 +30,10 @@
 
 
 
-<meta property="og:title" content="Download one or multiple Data Packages — download_packages" />
+<meta property="og:title" content="Download multiple data packages — download_packages" />
 
-<meta property="og:description" content="This function is wrapper for download_package It downloads all of the Data Objects in a Data Package
-to the local filesystem.  It is particularly useful when a Data Package is too large to download using
+<meta property="og:description" content="This function is a convenience wrapper for download_package() when downloading multiple data packages. It downloads all of the
+data objects in a data package to the local filesystem. It is particularly useful when a data package is too large to download using
 the web interface." />
 <meta name="twitter:card" content="summary" />
 
@@ -89,20 +89,25 @@ the web interface." />
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
     </li>
     <li>
-      <a href="../articles/download_ADC_packages.html">Downloading Packages from the Arctic Data Center</a>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -115,15 +120,15 @@ the web interface." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Download one or multiple Data Packages</h1>
+    <h1>Download multiple data packages</h1>
     
     <div class="hidden name"><code>download_packages.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function is wrapper for download_package It downloads all of the Data Objects in a Data Package
-to the local filesystem.  It is particularly useful when a Data Package is too large to download using
+    <p>This function is a convenience wrapper for <code><a href='download_package.html'>download_package()</a></code> when downloading multiple data packages. It downloads all of the
+data objects in a data package to the local filesystem. It is particularly useful when a data package is too large to download using
 the web interface.</p>
     
     </div>
@@ -139,7 +144,7 @@ the web interface.</p>
     </tr>
     <tr>
       <th>resource_map_pids</th>
-      <td><p>(chraracter) The identifiers of the Resource Maps for the packages to download.</p></td>
+      <td><p>(chraracter) The PIDs of the resource maps for the packages to download.</p></td>
     </tr>
     <tr>
       <th>download_directory</th>
@@ -147,21 +152,27 @@ the web interface.</p>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>Allows arguments from <code><a href='download_package.html'>download_package</a></code></p></td>
+      <td><p>Allows arguments from <code><a href='download_package.html'>download_package()</a></code>.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Setting <code>check_download_size</code> to <code>TRUE</code> is recommended if you are uncertain of the total download size and want to avoid downloading very large Data Packages.</p>
-<p>This function will also download any data objects it finds in any child Data Packages of the input data package.
-If you would only like to download data from one Data Package, set <code>download_child_packages</code> to <code>FALSE</code>.</p>
+    <p>Setting <code>check_download_size</code> to <code>TRUE</code> is recommended if you are uncertain of the total download size
+and want to avoid downloading very large data packages.</p>
+<p>This function will also download any data objects it finds in any child data packages of the input data package.
+If you would only like to download data from one data package, set <code>download_child_packages</code> to <code>FALSE</code>.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='download_package.html'>download_package()</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='no'>cn</span> <span class='kw'>&lt;-</span> <span class='fu'>CNode</span>(<span class='st'>"PROD"</span>)
 <span class='no'>mn</span> <span class='kw'>&lt;-</span> <span class='fu'>getMNode</span>(<span class='no'>cn</span>, <span class='st'>"urn:node:ARCTIC"</span>)
+
 <span class='fu'>download_packages</span>(<span class='no'>mn</span>, <span class='fu'>c</span>(<span class='st'>"resource_map_doi:10.18739/A21G1P"</span>, <span class='st'>"resource_map_doi:10.18739/A2RZ6X"</span>),
 <span class='st'>"/home/dmullen/downloads"</span>, <span class='kw'>prefix_file_names</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>download_column_metadata</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
 <span class='kw'>convert_excel_to_csv</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
@@ -173,6 +184,8 @@ If you would only like to download data from one Data Package, set <code>downloa
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
@@ -180,8 +193,6 @@ If you would only like to download data from one Data Package, set <code>downloa
     <h2>Author</h2>
     
 Dominic Mullen, <a href='mailto:dmullen17@gmail.com'>dmullen17@gmail.com</a>
-
-<code><a href='download_package.html'>download_package</a></code>
 
   </div>
 </div>
