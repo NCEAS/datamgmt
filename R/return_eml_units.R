@@ -35,11 +35,16 @@
     xml2::write_html(accepted, paste0(ud_dir, "/", "udunits2-accepted.xml"),
                      encoding = "US-ASCII")
     copied <- file.copy(paste0(udunits2_dir, "/", udunits_xmls[-n_accepted]),
-                        ud_dir, overwrite = T)
+                        ud_dir, overwrite = TRUE)
 }
 
-#' Will return TRUE if properly loaded or FALSE if not
-#' @return (logical)
+
+#' Set custom udunits
+#'
+#' Returns TRUE if properly loaded or FALSE if not.
+#'
+#' @return (logical) `TRUE`/`FALSE`
+#'
 #' @import gsubfn
 #' @import udunits2
 #' @import xml2
@@ -48,6 +53,8 @@
 #' @importFrom compare compare
 #' @importFrom memoise memoise
 #' @importFrom utils setTxtProgressBar txtProgressBar
+#'
+#' @noRd
 set_custom_UDUNITS <- function() {
     pkg_dir <- system.file(package = "datamgmt")
     ud_dir <- paste0(pkg_dir, "/UDUNITS")
@@ -59,8 +66,12 @@ set_custom_UDUNITS <- function() {
     Sys.getenv("UDUNITS2_XML_PATH") == p0
 }
 
-#' Loads udunits_units
+
+#' Load udunits_units
+#'
 #' @return (data.frame)
+#'
+#' @noRd
 load_udunits <- function() {
 
     # Get unit systems
@@ -93,7 +104,7 @@ load_udunits <- function() {
         dimensionless <- rep(paste0(udunits_unit_system[i, ]$dimensionless), length(name_singular))
 
         # Data frame
-        data.frame(name_singular, name_plural, symbol, dimensionless, stringsAsFactors = F)
+        data.frame(name_singular, name_plural, symbol, dimensionless, stringsAsFactors = FALSE)
     })
 
     udunits_units <- do.call(rbind, udunits_units)
@@ -104,11 +115,17 @@ load_udunits <- function() {
     return(out)
 }
 
-#' Gets plural form of unit
+
+#' Get plural form of unit
+#'
 #' Based on ut_form_plural function in xml.c of udunits2
+#'
 #' @param unit (character) unit
 #' @param udunits_units (data.frame) load_udunits()
+#'
 #' @return (character) plural form of unit
+#'
+#' @noRd
 get_plural <- function(unit, udunits_units = load_udunits()$udunits_units) {
 
     if (is.na(unit)) {
@@ -164,8 +181,12 @@ get_plural <- function(unit, udunits_units = load_udunits()$udunits_units) {
     return(plural)
 }
 
+
 #' Load all forms of units in udunit list
+#'
 #' @return (data.frame)
+#'
+#' @noRd
 load_all_units <- function() {
 
     udunits_units_out <- load_udunits()
@@ -221,15 +242,20 @@ load_all_units <- function() {
         }
     }))
 
-    all_units <- data.frame(unit_single, unit_plural, symbol, stringsAsFactors = F)
+    all_units <- data.frame(unit_single, unit_plural, symbol, stringsAsFactors = FALSE)
 }
 
-#' Will attempt to deparse unit with  units::deparse_unit(units::as.units(unit))
+
+#' Attempt to deparse unit with units::deparse_unit(units::as.units(unit))
+#'
 #' @param unit (character)
 #' @param exponents (character)
 #' @param exponents_numeric (character)
 #' @param all_units (data.frame)
+#'
 #' @return (character) unit. Fails if cannot deparse.
+#'
+#' @noRd
 try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = load_all_units()) {
 
     stopifnot(length(unlist(gregexpr("\\(", unit))) == length(unlist(gregexpr("\\)", unit))))
@@ -291,10 +317,15 @@ try_units_deparse <- function(unit, exponents, exponents_numeric, all_units = lo
     return(unit)
 }
 
-#' Performs formating on unit and splits into components
+
+#' Perform formatting on unit and splits into components
+#'
 #' @param unit (character) unit
 #' @param all_units (data.frame)
+#'
 #' @return (character) unit_split
+#'
+#' @noRd
 get_unit_split <- function(unit, all_units = mem_load_all_units()) {
 
     # Try to run gsubfn, if can't set gsubfn.engine
@@ -504,11 +535,17 @@ get_unit_split <- function(unit, all_units = mem_load_all_units()) {
     return(unit_split)
 }
 
-#' Formats unit_split
+
+#' Format unit_split
+#'
 #' @param unit_split (character) result of function get_unit_split
-#' @param form ('id', 'symbol', 'udunit', 'description'). 'id' is an EML id form. 'symbol' is an EML abbreviation form. 'udunit' is a udunits2 form.
+#' @param form ('id', 'symbol', 'udunit', 'description'). 'id' is an EML id form. 'symbol' is an EML abbreviation form.
+#'   'udunit' is a udunits2 form.
 #' @param all_units (data.frame)
-#' @return (character) formated unit_split
+#'
+#' @return (character) formatted unit_split
+#'
+#' @noRd
 format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_units()) {
 
     if (!is.na(unit_split[1])) {
@@ -586,9 +623,14 @@ format_unit_split <- function(unit_split, form = "id", all_units = mem_load_all_
     return(unit_split)
 }
 
-#' Loads EML unit library from EML::get_unitList()
+
+#' Load EML unit library from EML::get_unitList()
+#'
 #' @param all_units (data.frame)
+#'
 #' @return (list) EML_units
+#'
+#' @noRd
 load_EML_units <- function(all_units = mem_load_all_units()) {
 
     # Get EML Standard units
@@ -632,11 +674,16 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
     return(EML_units)
 }
 
+
 #' Get the unitType of unit_split
+#'
 #' @param udunit (character) result of format_unit_split(unit_split, form = 'udunit')
 #' @param all_units (data.frame)
 #' @param EML_units (list)
+#'
 #' @return (data.frame) parentSI_df
+#'
+#' @noRd
 get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units = mem_load_EML_units()) {
 
     has_denominator <- grepl(" *[p|P]er .*", udunit)
@@ -703,7 +750,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
                 return(out)
             }))
         }
-        unitType_df <- as.data.frame(do.call(rbind, unitType_l), stringsAsFactors = F)
+        unitType_df <- as.data.frame(do.call(rbind, unitType_l), stringsAsFactors = FALSE)
 
         p_unitTypes <- EML_units$EML_SI_units$unitType[n_EML]
 
@@ -712,7 +759,7 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
             test <- compare::compare(EML_units$unitTypes[EML_units$unitTypes$id %in% p,
                                      c("dimension", "power")],
                                      unitType_df,
-                                     allowAll = T)$result
+                                     allowAll = TRUE)$result
             return(test)
         }))
 
@@ -744,12 +791,16 @@ get_parentSI_df <- function(udunit, all_units = mem_load_all_units(), EML_units 
         multiplierToSI <- NA
     }
 
-    parentSI_df <- data.frame(unitType, parentSI, multiplierToSI, stringsAsFactors = F)
+    parentSI_df <- data.frame(unitType, parentSI, multiplierToSI, stringsAsFactors = FALSE)
     return(parentSI_df)
 }
 
+
 #' Unset custom units
+#'
 #' @return (logical)
+#'
+#' @noRd
 unset_custom_UDUNITS <- function() {
     Sys.unsetenv("UDUNITS2_XML_PATH")
     Sys.getenv("UDUNITS2_XML_PATH") == ""
@@ -759,23 +810,27 @@ unset_custom_UDUNITS <- function() {
 mem_load_all_units <- memoise::memoise(load_all_units)
 mem_load_EML_units <- memoise::memoise(load_EML_units)
 
+
 #' Return EML units
 #'
-#' @description Uses the udunits2 unit library to format inputted unit into an EML unit form (see examples).
+#' Uses the udunits2 unit library to format inputted unit into an EML unit form.
 #'
-#' @param units (character) unit or vector of units
-#' @param quiet (logical) if true will quiet console text
-#' @return (data.frame) custom unit data frame (will return a row of NAs if a unit cannot be formated in an EML form)
+#' @param units (character) Unit or vector of units.
+#' @param quiet (logical) If `TRUE`, will quiet console text.
+#'
+#' @return (data.frame) Custom unit data frame (will return a row of `NAs` if a unit cannot be formatted in an EML form).
+#'
+#' @export
+#'
 #' @examples
 #' \dontrun{
-#' #The following all return the same data frame.
-#' return_eml_units('kilometersPerSquareSecond')
-#' return_eml_units('Kilometers per seconds squared')
-#' return_eml_units('km/s^2')
-#' return_eml_units('km s-2')
-#' return_eml_units('s-2 /     kilometers-1') # this works but is not advised
+#' # The following all return the same data frame
+#' return_eml_units("kilometersPerSquareSecond")
+#' return_eml_units("Kilometers per seconds squared")
+#' return_eml_units("km/s^2")
+#' return_eml_units("km s-2")
+#' return_eml_units("s-2 /     kilometers-1") # this works but is not advised
 #' }
-#' @export
 return_eml_units <- function(units, quiet = FALSE) {
 
     # Load custom .xml files
@@ -820,10 +875,10 @@ return_eml_units <- function(units, quiet = FALSE) {
             description <-  format_unit_split(unit_split, form = "description", all_units)
             parentSI_df <- get_parentSI_df(udunit, all_units, EML_units)
 
-            custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = F)
+            custom_unit <- data.frame(id, parentSI_df, abbreviation, description, stringsAsFactors = FALSE)
         } else {
             warning("Unknown unit ", units[i])
-            custom_unit <- data.frame(matrix(ncol = length(columns), nrow = 1), stringsAsFactors = F)
+            custom_unit <- data.frame(matrix(ncol = length(columns), nrow = 1), stringsAsFactors = FALSE)
             colnames(custom_unit) <- columns
             custom_unit$id <- units[i]
         }
@@ -835,4 +890,3 @@ return_eml_units <- function(units, quiet = FALSE) {
     return(custom_unit_df)
     unset_custom_UDUNITS()
 }
-

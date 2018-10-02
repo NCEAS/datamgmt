@@ -1,42 +1,43 @@
-#' Obsolete a DataOne Package with a new version.
+#' Obsolete a DataONE Package with a new version
 #'
-#' @description This function obsoletes a DataOne package with a newer version
+#' This function obsoletes a DataONE package with a newer version
 #' by merging the two version chains. The ideal use case for this function is
 #' when the only option to fix a broken package is by re-uploading a previous
 #' version and merging the two version chains. In other cases
-#' \code{NCEAS/arcticdatautils::publish_update} should be used.
+#' [arcticdatautils::publish_update()] should be used.
 #'
-#' @param mn (MNode) The DataOne member node
-#' @param metadata_obsolete (character) The metadata pid of the old, or broken, version. Any
-#' metadata pid from the obsolete version chain can be used - sets the pid to the
-#' end of the version chain
-#' @param metadata_new (character) The metadata pid of the new version. Any metadata
-#' pid from the new version chain can be used - sets the pid to the beginning of
-#' the version chain.
+#' @param mn (MNode) The DataONE member node.
+#' @param metadata_obsolete (character) The metadata PID of the old, or broken, version. Any
+#'   metadata PID from the obsolete version chain can be used - sets the PID to the
+#'   end of the version chain.
+#' @param metadata_new (character) The metadata PID of the new version. Any metadata
+#'   PID from the new version chain can be used - sets the PID to the beginning of
+#'   the version chain.
+#'
+#' @return (logical) `TRUE`/`FALSE`
 #'
 #' @importFrom utils tail
 #'
-#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
-#'
-#' @return (TRUE)
-#'
 #' @export
+#'
+#' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
 #' @examples
 #' \dontrun{
-#' cn <- dataone::CNode('STAGING')
-#' mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+#' cn <- dataone::CNode("STAGING")
+#' mn <- dataone::getMNode(cn,"urn:node:mnTestARCTIC")
+#'
 #' pkg_old <- arcticdatautils::create_dummy_package(mn)
 #' pkg_new <- arcticdatautils::create_dummy_package(mn)
 #'
 #' obsolete_package(mn, pkg_old$metadata, pkg_new$metadata)
-#'}
+#' }
 obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
-    # Check that token is set 
+    # Check that token is set
     if (!arcticdatautils::is_token_set(mn)) {
         stop("Token is not set")
     }
-    
+
     # shorten for readability
     metadata_obs <- metadata_obsolete
 
@@ -53,7 +54,7 @@ obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
 
     # Check that the pids are not in the same chain already
     if (metadata_obs %in% versions_new || metadata_new %in% versions_obs) {
-        stop(message("pid: ", metadata_obs, " and pid: ", metadata_new,
+        stop(message("PID: ", metadata_obs, " and PID: ", metadata_new,
                      " are already in the same version chain."))
     }
 
@@ -77,7 +78,7 @@ obsolete_package <- function(mn, metadata_obsolete, metadata_new) {
     # Check that sysmeta fields to update are NA
     if (!is.na(sys_obs@obsoletedBy)) {
         stop(message("pid: ", metadata_obs, " already obsoleted by: ",
-                     sys_obs@obsoletedBy, ". If you still wish to obsolete this version chain please use the last pid in the version chain."))
+                     sys_obs@obsoletedBy, ". If you still wish to obsolete this version chain please use the last PID in the version chain."))
     }
     if (!is.na(sys_new@obsoletes)) {
         stop(message("pid: ", metadata_new, " already obsoletes: ",

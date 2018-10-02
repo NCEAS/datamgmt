@@ -2,23 +2,23 @@
 % Please edit documentation in R/excel_to_csv.R
 \name{excel_to_csv}
 \alias{excel_to_csv}
-\title{Convert excel workbook to multiple csv files}
+\title{Convert Excel workbook to multiple csv files}
 \usage{
 excel_to_csv(path, directory = NULL, ...)
 }
 \arguments{
 \item{path}{(character) File location of the excel workbook.}
 
-\item{directory}{(character) Optional.  Directory to download csv files to.}
+\item{directory}{(character) Optional. Directory to download csv files to.}
 
-\item{...}{Optional.  Allows arguments from \link[readxl]{read_excel}
+\item{...}{Optional. Allows arguments from \link[readxl]{read_excel}.
 Defaults to the base directory that \code{path} is located in.}
 }
 \value{
-(invisible())
+invisible
 }
 \description{
-Converts an excel workbook into multiple csv files (one per tab).  Names the
+Converts an Excel workbook into multiple csv files (one per tab). Names the
 files in the following format: sheetName_excelName.csv.
 }
 \author{

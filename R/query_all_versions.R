@@ -1,10 +1,10 @@
 #' Get all Solr fields
 #'
-#' @description Simple helper function for 'query_all_versions' function to retrive all Solr fields
+#' Simple helper function for [query_all_versions()] to retrieve all Solr fields.
 #'
-#' @return (character) List of Solr fields
+#' @return (character) A set of Solr fields.
 #'
-#' @references Written by Irene in the reference guide at https://github.com/NCEAS/datateam-training/blob/master/workflows/solr_queries/construct_a_query.Rmd
+#' @noRd
 get_solr_fields <- function() {
     adc_solr <- httr::GET("https://arcticdata.io/metacat/d1/mn/v2/query/solr")
     suppressMessages(suppressWarnings(adc_solr <- adc_solr %>%
@@ -14,20 +14,22 @@ get_solr_fields <- function() {
     return(adc_solr)
 }
 
+
 #' Create data frame with Solr fields
 #'
-#' This is a helper function for 'query_all_versions' function. It simplifies solr queries
+#' This is a helper function for [query_all_versions()]. It simplifies Solr queries
 #' and creates a one row data frame with the specified Solr fields as the columns.
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param mn (MNode) Specify the DataOne Member Node where the object should be searched for.
+#' @param mn (MNode) The Member Node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
 #' @param fields (character) List of fields that you want returned in the data frame. Default of "*"
-#' returns all non NULL fields.
+#'   returns all non NULL fields.
 #'
 #' @return (data.frame) One row data frame with query fields as columns.
 #'
+#' @noRd
 query_solr_metadata <- function(mn, object_pid, fields = "*") {
 
     ## Checks =========================
@@ -48,7 +50,7 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
         stop("Object does not exist on specified member node")
     }
 
-    # Get all solr fields
+    # Get all Solr fields
     adc_solr <- get_solr_fields()
 
     # Check that all specified fields are valid
@@ -68,29 +70,32 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
     return(df_query)
 }
 
+
 #' Solr query all versions of a PID
 #'
-#' This function uses a combination of get_all_versions and solr query to return the query fields
+#' This function uses a combination of [arcticdatautils::get_all_versions()] and a Solr query to return the query fields
 #' for all versions of the specified PID. Each row of the resulting data frame corresponds to a version
 #' and the columns are the query fields.
 #'
 #' @author Sharis Ochs, \email{sharisnochs@@gmail.com}
 #'
-#' @param mn (MNode) Specify the DataOne Member Node where the object should be searched for.
+#' @param mn (MNode) The Member Node where the object should be searched for.
 #' @param object_pid (character) PID for the object that you want to return information about.
 #' @param fields (character) List of fields that you want returned in the data frame. Default
-#' returns all non NULL fields.
+#'   returns all non `NULL` fields.
 #'
-#' @return (data.frame) Data frame with rows for each version of the PID and columns with each query field
+#' @return (data.frame) Data frame with rows for each version of the PID and columns with each query field.
+#'
+#' @export
 #'
 #' @examples
 #' \dontrun{
 #' cn <- dataone::CNode("PROD")
 #' mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
+#'
 #' df <- query_all_versions(mn, "doi:10.18739/A27D2Q670", c("id", "title", "origin", "submitter"))
 #' View(df)
 #' }
-#' @export
 query_all_versions <- function(mn, object_pid, fields = "*") {
     ## Checks =========================
     if (!arcticdatautils::is_token_set(mn)) {

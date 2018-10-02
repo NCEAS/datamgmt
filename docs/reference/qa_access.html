@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Tests that the rights and access are set for creators for a give pid sysmeta — qa_access • datamgmt</title>
+<title>Check rights and access for creators in sysmeta — qa_access • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -21,17 +21,23 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
-<meta property="og:title" content="Tests that the rights and access are set for creators for a give pid sysmeta — qa_access" />
+
+
+
+<meta property="og:title" content="Check rights and access for creators in sysmeta — qa_access" />
 
 <meta property="og:description" content="This function is called by qa_package.
-See qa_package help documentation for more details." />
+See qa_package documentation for more details." />
 <meta name="twitter:card" content="summary" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -54,8 +60,12 @@ See qa_package help documentation for more details." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">datamgmt</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">datamgmt</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -78,18 +88,27 @@ See qa_package help documentation for more details." />
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
+    </li>
+    <li>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -97,20 +116,24 @@ See qa_package help documentation for more details." />
       
       </header>
 
-      <div class="row">
+<div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Tests that the rights and access are set for creators for a give pid sysmeta</h1>
+    <h1>Check rights and access for creators in sysmeta</h1>
+    
+    <div class="hidden name"><code>qa_access.Rd</code></div>
     </div>
 
+    <div class="ref-description">
     
     <p>This function is called by <code><a href='qa_package.html'>qa_package</a></code>.
-See <code><a href='qa_package.html'>qa_package</a></code> help documentation for more details.</p>
+See <code><a href='qa_package.html'>qa_package</a></code> documentation for more details.</p>
     
+    </div>
 
     <pre class="usage"><span class='fu'>qa_access</span>(<span class='no'>sysmeta</span>, <span class='no'>creator_ORCIDs</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -119,7 +142,7 @@ See <code><a href='qa_package.html'>qa_package</a></code> help documentation for
     </tr>
     <tr>
       <th>creator_ORCIDs</th>
-      <td><p>(character) ORCIDs of creators. Result of <code><a href='qa_creators.html'>qa_creators</a></code>.</p></td>
+      <td><p>(character) ORCIDs of creators. Result of <code><a href='qa_creator_ORCIDs.html'>qa_creator_ORCIDs</a></code>.</p></td>
     </tr>
     </table>
     
@@ -136,7 +159,7 @@ See <code><a href='qa_package.html'>qa_package</a></code> help documentation for
 
       <footer>
       <div class="copyright">
-  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund.</p>
+  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund, Sharis Ochs, Derek Strong.</p>
 </div>
 
 <div class="pkgdown">
@@ -145,6 +168,8 @@ See <code><a href='qa_package.html'>qa_package</a></code> help documentation for
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

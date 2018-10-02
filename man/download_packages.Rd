@@ -2,41 +2,44 @@
 % Please edit documentation in R/download_package.R
 \name{download_packages}
 \alias{download_packages}
-\title{Download one or multiple Data Packages}
+\title{Download multiple data packages}
 \usage{
 download_packages(mn, resource_map_pids, download_directory, ...)
 }
 \arguments{
 \item{mn}{(MNode) The Member Node to download from.}
 
-\item{resource_map_pids}{(chraracter) The identifiers of the Resource Maps for the packages to download.}
+\item{resource_map_pids}{(chraracter) The PIDs of the resource maps for the packages to download.}
 
 \item{download_directory}{(character) The path of the directory to download the packages to.}
 
-\item{...}{Allows arguments from \code{\link{download_package}}}
+\item{...}{Allows arguments from \code{\link[=download_package]{download_package()}}.}
 }
 \description{
-This function is wrapper for download_package It downloads all of the Data Objects in a Data Package
-to the local filesystem.  It is particularly useful when a Data Package is too large to download using
+This function is a convenience wrapper for \code{\link[=download_package]{download_package()}} when downloading multiple data packages. It downloads all of the
+data objects in a data package to the local filesystem. It is particularly useful when a data package is too large to download using
 the web interface.
 }
 \details{
-Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size and want to avoid downloading very large Data Packages.
+Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size
+and want to avoid downloading very large data packages.
 
-This function will also download any data objects it finds in any child Data Packages of the input data package.
-If you would only like to download data from one Data Package, set \code{download_child_packages} to \code{FALSE}.
+This function will also download any data objects it finds in any child data packages of the input data package.
+If you would only like to download data from one data package, set \code{download_child_packages} to \code{FALSE}.
 }
 \examples{
 \dontrun{
 cn <- CNode("PROD")
 mn <- getMNode(cn, "urn:node:ARCTIC")
+
 download_packages(mn, c("resource_map_doi:10.18739/A21G1P", "resource_map_doi:10.18739/A2RZ6X"),
 "/home/dmullen/downloads", prefix_file_names = TRUE, download_column_metadata = TRUE,
 convert_excel_to_csv = TRUE)
 }
 }
+\seealso{
+\code{\link[=download_package]{download_package()}}
+}
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}
-
-\code{\link{download_package}}
 }

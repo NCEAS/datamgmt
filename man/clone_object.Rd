@@ -2,32 +2,37 @@
 % Please edit documentation in R/clone_package.R
 \name{clone_object}
 \alias{clone_object}
-\title{Clones objects between DataONE Member Nodes.}
+\title{Clone objects between DataONE Member Nodes}
 \usage{
 clone_object(pid, from, to, add_access_to, change_auth_node,
   public = FALSE, new_pid = TRUE)
 }
 \arguments{
-\item{pid}{(character) Object pid}
+\item{pid}{(character) Object PID.}
 
 \item{from}{(D1Client) D1Client to clone objects from. (Objects must be public)}
 
 \item{to}{(D1Client) D1Client to clone objects to. (Token must be set for this node)}
 
-\item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.}
+\item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector.
+If no additional access is desired, set to \code{NULL}. Note: setting this to \code{NULL} could lead to situations where
+it is not possible to read, write, or changePermission on the cloned object.}
 
-\item{change_auth_node}{(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit the package system metadata.}
+\item{change_auth_node}{(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node
+if \code{TRUE}. Setting this to \code{TRUE} will allow you to edit the package after cloning.
+Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node,
+and will only allow DataONE admins with special privileges to edit the package system metadata.}
 
-\item{public}{(logical) Optional. Will set public read access.  Defaults to \code{FALSE}.}
+\item{public}{(logical) Optional. Will set public read access. Defaults to \code{FALSE}.}
 
-\item{new_pid}{(logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.}
+\item{new_pid}{(logical) Optional. Will give the clone a new PID. Defaults to \code{TRUE}.}
 }
 \value{
 (character) PID of cloned object. \code{NULL} if could not clone.
 }
 \description{
-Clones objects between DataONE member nodes.
-Note, the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+Clones objects between DataONE Member Nodes.
+Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
 }
 \examples{
 \dontrun{

@@ -21,13 +21,19 @@
 <!-- clipboard.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script>
 
+<!-- sticky kit -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
-  
+
+
+
 <meta property="og:title" content="Function reference" />
+
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -50,8 +56,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">datamgmt</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">datamgmt</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">0.1.0</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -74,18 +84,27 @@
       <a href="../articles/a_datateam.html">General ADC/SASAP data team use</a>
     </li>
     <li>
-      <a href="../articles/b_pi.html">Functions for PI's</a>
+      <a href="../articles/b_pi.html">Functions for PIs</a>
     </li>
     <li>
       <a href="../articles/c_datadev.html">Advanced functions for package developers and contributors</a>
+    </li>
+    <li>
+      <a href="../articles/d_download_ADC_packages.html">Downloading packages from the Arctic Data Center</a>
     </li>
   </ul>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/NCEAS/datamgmt">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -93,144 +112,158 @@
       
       </header>
 
-      <div class="row">
-  <div class="col-md-9">
+<div class="row">
+  <div class="contents col-md-9">
     <div class="page-header">
-      <h1>
-        Reference
-        <small>version&nbsp;0.1.0</small>
-      </h1>
+      <h1>Reference</h1>
     </div>
 
-    <div class="contents">
-      <table class="ref-index">
+    <table class="ref-index">
 
-      <colgroup>
-        <col class="alias" />
-        <col class="title" />
-      </colgroup>
+    <colgroup>
+      
+      <col class="alias" />
+      <col class="title" />
+    </colgroup>
 
-      <tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-editing-eml" class="hasAnchor"><a href="#section-editing-eml" class="anchor"></a>Editing EML</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="create_attributes_table.html">create_attributes_table</a></code> </p>
-          </td>
-          <td><p>Create/Edit EML attributes</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_custom_units.html">get_custom_units</a></code> </p>
-          </td>
-          <td><p>Get custom unit data frame</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="add_creator_id.html">add_creator_id</a></code> </p>
-          </td>
-          <td><p>Add an ORCID or reference ID to a creator</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="which_in_eml.html">which_in_eml</a></code> </p>
-          </td>
-          <td><p>Search through EMLs</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-working-with-packages" class="hasAnchor"><a href="#section-working-with-packages" class="anchor"></a>Working with packages</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="update_package_object.html">update_package_object</a></code> </p>
-          </td>
-          <td><p>Update a data object and accompanying resource map &amp; EML</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="clone_package.html">clone_package</a></code> </p>
-          </td>
-          <td><p>Clone a Data Package</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="download_package.html">download_package</a></code> </p>
-          </td>
-          <td><p>Download a Data Package</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="download_packages.html">download_packages</a></code> </p>
-          </td>
-          <td><p>Download one or multiple Data Packages</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="create_dummy_package2.html">create_dummy_package2</a></code> </p>
-          </td>
-          <td><p>Create dummy package</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-quality-assurance" class="hasAnchor"><a href="#section-quality-assurance" class="anchor"></a>Quality Assurance</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="qa_access.html">qa_access</a></code> </p>
-          </td>
-          <td><p>Tests that the rights and access are set for creators for a give pid sysmeta</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="qa_package.html">qa_package</a></code> </p>
-          </td>
-          <td><p>Test package including congruence of attributes and data</p></td>
-        </tr>
-      </tbody><tbody>
-        <tr>
-          <th colspan="2">
-            <h2 id="section-miscellaneous" class="hasAnchor"><a href="#section-miscellaneous" class="anchor"></a>Miscellaneous</h2>
-            <p class="section-desc"></p>
-          </th>
-        </tr>
-        <tr>
-          <!--  -->
-          <td>
-            <p><code><a href="get_awards.html">get_awards</a></code> </p>
-          </td>
-          <td><p>Get NSF Arctic/Polar program award information</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="excel_to_csv.html">excel_to_csv</a></code> </p>
-          </td>
-          <td><p>Convert excel workbook to multiple csv files</p></td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
+    <tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-editing-eml" class="hasAnchor"><a href="#section-editing-eml" class="anchor"></a>Editing EML</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="add_creator_id.html">add_creator_id()</a></code> </p>
+        </td>
+        <td><p>Add an ORCID or reference ID to a creator</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="create_attributes_table.html">create_attributes_table()</a></code> </p>
+        </td>
+        <td><p>Create/Edit EML attributes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="edit_attribute.html">edit_attribute()</a></code> </p>
+        </td>
+        <td><p>Edit a single attribute</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="return_eml_units.html">return_eml_units()</a></code> </p>
+        </td>
+        <td><p>Return EML units</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="which_in_eml.html">which_in_eml()</a></code> </p>
+        </td>
+        <td><p>Search through EMLs</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-working-with-data-packages" class="hasAnchor"><a href="#section-working-with-data-packages" class="anchor"></a>Working with data packages</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="clone_package.html">clone_package()</a></code> </p>
+        </td>
+        <td><p>Clone packages between DataONE Member Nodes</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="copy_package.html">copy_package()</a></code> </p>
+        </td>
+        <td><p>Copy packages between DataONE Member Nodes with new identifiers</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="download_package.html">download_package()</a></code> </p>
+        </td>
+        <td><p>Download a data package (optionally with child packages)</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="download_packages.html">download_packages()</a></code> </p>
+        </td>
+        <td><p>Download multiple data packages</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="obsolete_package.html">obsolete_package()</a></code> </p>
+        </td>
+        <td><p>Obsolete a DataONE Package with a new version</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="plot_pkg_structure.html">plot_pkg_structure()</a></code> </p>
+        </td>
+        <td><p>Plot package structure</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-quality-assurance" class="hasAnchor"><a href="#section-quality-assurance" class="anchor"></a>Quality assurance</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="qa_eml.html">qa_eml()</a></code> </p>
+        </td>
+        <td><p>Quality assurance for EML metadata</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="qa_package.html">qa_package()</a></code> </p>
+        </td>
+        <td><p>Check package including congruence of attributes and data</p></td>
+      </tr>
+    </tbody><tbody>
+      <tr>
+        <th colspan="2">
+          <h2 id="section-miscellaneous" class="hasAnchor"><a href="#section-miscellaneous" class="anchor"></a>Miscellaneous</h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr>
+      <tr>
+        
+        <td>
+          <p><code><a href="excel_to_csv.html">excel_to_csv()</a></code> </p>
+        </td>
+        <td><p>Convert Excel workbook to multiple csv files</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="get_awards.html">get_awards()</a></code> </p>
+        </td>
+        <td><p>Get NSF Arctic/Polar program award information</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="query_all_versions.html">query_all_versions()</a></code> </p>
+        </td>
+        <td><p>Solr query all versions of a PID</p></td>
+      </tr>
+    </tbody>
+    </table>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#section-editing-eml">Editing EML</a></li>
-      <li><a href="#section-working-with-packages">Working with packages</a></li>
-      <li><a href="#section-quality-assurance">Quality Assurance</a></li>
+      <li><a href="#section-working-with-data-packages">Working with data packages</a></li>
+      <li><a href="#section-quality-assurance">Quality assurance</a></li>
       <li><a href="#section-miscellaneous">Miscellaneous</a></li>
     </ul>
   </div>
@@ -238,7 +271,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund.</p>
+  <p>Developed by Matt Jones, Dominic Mullen, Irene Steves, Mitchell Maier, Emily O'Dean, Stephanie Freund, Sharis Ochs, Derek Strong.</p>
 </div>
 
 <div class="pkgdown">
@@ -247,6 +280,8 @@
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

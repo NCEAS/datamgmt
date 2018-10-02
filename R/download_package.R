@@ -1,15 +1,17 @@
-#' Remove and substitute special characters in a string.
+#' Remove and substitute special characters in a string
 #'
-#' This is a helper function for the 'download_package' function.  This was
-#' created as a helper so that users can edit the helper, rather than 'download_package'
-#' if they want differing special character substitions.  Substitues special
+#' This is a helper function for the [download_package()] function. This was
+#' created as a helper so that users can edit the helper, rather than [download_package()]
+#' if they want differing special character substitutions. Substitutes special
 #' characters from a package identifier. Can be generalized for use with any pid.
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' @param pid (character) The identifier a dataOne object.
+#' @param pid (character) The identifier a DataONE object.
 #'
-#' @return (character) The formatted identifer as a string
+#' @return (character) The formatted identifer as a string.
+#'
+#' @noRd
 remove_special_characters <- function(pid) {
     pid <- pid %>%
         gsub(":", "", .) %>%
@@ -19,16 +21,19 @@ remove_special_characters <- function(pid) {
     return(pid)
 }
 
-#' Convert excel workbook to multiple csv files
+
+#' Convert Excel workbook to multiple csv files
 #'
-#' This is a helper function for download_package.
+#' This is a helper function for [download_package()].
 #'
-#' @param path (character) File location of the excel workbook.
+#' @param path (character) File location of the Excel workbook.
 #' @param prefix (character) Optional prefix to prepend to the file name.
 #'
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
 #'
 #' @return (invisible())
+#'
+#' @noRd
 excel_to_csv_prefix <- function(path, prefix) {
     stopifnot(file.exists(path))
 
@@ -70,7 +75,8 @@ excel_to_csv_prefix <- function(path, prefix) {
     return(invisible())
 }
 
-#' Append one list to another.
+
+#' Append one list to another
 #'
 #' This function appends one list to another list. It can also be used to
 #' prepend, just reverse the order of the lists.
@@ -80,11 +86,12 @@ excel_to_csv_prefix <- function(path, prefix) {
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
+#' @noRd
+#'
 #' @examples
 #' \dontrun{
 #' appended_lists <- append_lists(list(1:3), list("a", "b", mean))
 #' }
-#'
 append_lists <- function(list1, list2) {
     # TODO Make this function handle infinite lists
 
@@ -103,15 +110,18 @@ append_lists <- function(list1, list2) {
     return(list1)
 }
 
-#' Calculate the total size (in bytes) of the Objects in a Data Package
+
+#' Calculate the total size (in bytes) of the objects in a data package
 #'
-#' @param mn (MNode/CNode) The Node to query for Object sizes
-#' @param resource_map_pid (character) The identifier of the Data Package's Resource Map
-#' @param formatType (character) Optional. Filter to just Objects of the given formatType. One of METADATA, RESOURCE, or DATA or * for all types
+#' @param mn (MNode/CNode) The Member Node to query for Object sizes.
+#' @param resource_map_pid (character) The identifier of the Data Package's Resource Map.
+#' @param formatType (character) Optional. Filter to just Objects of the given formatType. One of METADATA, RESOURCE, or DATA or * for all types.
 #'
 #' @author Bryce Mecum
 #'
 #' @return (numeric) The sum of all Object sizes in the Data Package
+#'
+#' @noRd
 get_package_size <- function(mn, resource_map_pid, formatType = "*") {
     size_query <- dataone::query(mn,
                                  paste0("q=resourceMap:\"",
@@ -127,13 +137,16 @@ get_package_size <- function(mn, resource_map_pid, formatType = "*") {
     sum(as.integer(size_query$size))
 }
 
+
 #' Format bytes to human readable format
 #'
-#' This is a helper function for 'download_package'
+#' This is a helper function for [download_package()]
 #'
 #' @param download_size (numeric) Total size in bytes
+#'
+#' @noRd
 convert_bytes <- function(download_size) {
-    #' TODO - make this function more robust using gdata::humanReadable as a template
+    # TODO - make this function more robust using gdata::humanReadable as a template
     stopifnot(is.numeric(download_size))
 
     if (download_size >= 1e+12) {
@@ -153,14 +166,18 @@ convert_bytes <- function(download_size) {
     return(paste0(download_size, " ", unit))
 }
 
-#' Download multiple data objects using their pids.
+
+#' Download multiple data objects using their PIDs
 #'
-#' @description Download mutiple dataone objects.  This is a helper function
-#' for 'datamgmt::download_package'
-#' @param mn (MNode) The Dataone Member Node to download the data objects from.
+#' Download multiple DataONE objects. This is a helper function
+#' for [download_package()].
+#'
+#' @param mn (MNode) The DataONE Member Node to download the data objects from.
 #' @param data_pids (character) A vector of Data object pids.
 #' @param out_paths (character) A vector of file paths to download to.
 #' @param n_max (numeric) Optional.  Number of attempts at downloading a Data object.
+#'
+#' @noRd
 download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(is.character(data_pids))
@@ -188,29 +205,35 @@ download_data_objects <- function(mn, data_pids, out_paths, n_max = 3) {
     return(invisible())
 }
 
-#' Download one Package without its child Packages.
+
+#' Download one package without its child packages
 #'
-#' This function downloads all of the Data Objects in a Data Package to the local filesystem.
-#' It is particularly useful when a Data Package is too large to download using the web interface.
+#' This function downloads all of the data objects in a data package to the local filesystem.
+#' It is particularly useful when a data package is too large to download using the web interface.
 #'
 #' @param mn (MNode) The Member Node to download from.
-#' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
+#' @param resource_map_pid (character) The identifier of the Resource Map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
-#' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
-#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this its recommened to also set \code{prefix_file_names = TRUE}
-#' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  This is not recommended if the separate csv files already exist in the package. The csv files are downloaded as sheetName_excelWorkbookName.csv
+#' @param prefix_file_names (logical) Optional. Whether to prefix file names with the package metadata identifier.
+#'   This is useful when downloading files from multiple packages to one directory.
+#' @param download_column_metadata (logical) Optional. Whether to download attribute (column) metadata as csv files.
+#'   If using this it is recommended to also set \code{prefix_file_names = TRUE}.
+#' @param convert_excel_to_csv (logical) Optional. Whether to convert Excel files to csv files.
+#'   This is not recommended if the separate csv files already exist in the package.
+#'   The csv files are downloaded as sheetName_excelWorkbookName.csv
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar write.csv
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#'@examples
+#' @noRd
+#'
+#' @examples
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
 #' download_one_package(mn, "resource_map_doi:10.18739/A2028W", "/home/dmullen")
 #' }
-#'
 download_one_package <- function(mn,
                                  resource_map_pid,
                                  download_directory,
@@ -275,24 +298,30 @@ download_one_package <- function(mn,
     return(invisible())
 }
 
-#' Download a Data Package, with its (optional child_packages).
+
+#' Download a data package (optionally with child packages)
 #'
-#' This function downloads all of the Data Objects in a Data Package to the local filesystem.
-#' It is particularly useful when a Data Package is too large to download using the web interface.
+#' This function downloads all of the data objects in a data package to the local filesystem.
+#' It is particularly useful when a data package is too large to download using the web interface.
 #'
-#' Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size and want to avoid downloading very large Data Packages.
+#' Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size
+#' and want to avoid downloading very large data packages.
 #'
-#' This function will also download any data objects it finds in any child Data Packages of the input data package.
-#' If you would only like to download data from one Data Package, set \code{download_child_packages} to \code{FALSE}.
+#' This function will also download any data objects it finds in any child data packages of the input data package.
+#' If you would only like to download data from one data package, set \code{download_child_packages} to \code{FALSE}.
 #'
 #' @param mn (MNode) The Member Node to download from.
-#' @param resource_map_pid (chraracter) The identifier of the Resource Map for the package to download.
+#' @param resource_map_pid (chraracter) The PID of the resource map for the package to download.
 #' @param download_directory (character) The path of the directory to download the package to.
-#' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
-#' @param download_column_metadata (logical) Optional.  Whether to download attribute (column) metadata as csvs.  If using this, then its recommened to also set \code{prefix_file_names = TRUE}
-#' @param convert_excel_to_csv (logical) Optional. Whether to convert excel files to csv(s).  The csv files are downloaded as sheetName_excelWorkbookName.csv
-#' @param download_child_packages (logical) Optional.  Whether to download data from child packages of the selected package. Defaults to \code{TRUE}
-#' @param check_download_size (logical) Optional.  Whether to check the total download size before continuing.  Setting this to FALSE speeds up the function, especially when the package has many elements.
+#' @param prefix_file_names (logical) Optional. Whether to prefix file names with the package metadata identifier.
+#'   This is useful when downloading files from multiple packages to one directory.
+#' @param download_column_metadata (logical) Optional. Whether to download attribute (column) metadata as csv files.
+#'   If using this, then it is recommended to also set \code{prefix_file_names = TRUE}.
+#' @param convert_excel_to_csv (logical) Optional. Whether to convert Excel files to csv files. The csv files are downloaded
+#'   as sheetName_excelWorkbookName.csv
+#' @param download_child_packages (logical) Optional. Whether to download data from child packages of the selected package. Defaults to \code{TRUE}.
+#' @param check_download_size (logical) Optional. Whether to check the total download size before continuing. Setting this to \code{FALSE}
+#'   speeds up the function, especially when the package has many elements.
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar write.csv
 #'
@@ -304,6 +333,7 @@ download_one_package <- function(mn,
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
+#'
 #' download_package(mn, "resource_map_urn:uuid:2b4e4174-4e4b-4a46-8ab0-cc032eda8269",
 #' "/home/dmullen")
 #' }
@@ -357,25 +387,27 @@ download_package <- function(mn,
     return(invisible())
 }
 
-#' Download one or multiple Data Packages
+
+#' Download multiple data packages
 #'
-#' This function is wrapper for download_package It downloads all of the Data Objects in a Data Package
-#' to the local filesystem.  It is particularly useful when a Data Package is too large to download using
+#' This function is a convenience wrapper for [download_package()] when downloading multiple data packages. It downloads all of the
+#' data objects in a data package to the local filesystem. It is particularly useful when a data package is too large to download using
 #' the web interface.
 #'
-#' Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size and want to avoid downloading very large Data Packages.
+#' Setting \code{check_download_size} to \code{TRUE} is recommended if you are uncertain of the total download size
+#' and want to avoid downloading very large data packages.
 #'
-#' This function will also download any data objects it finds in any child Data Packages of the input data package.
-#' If you would only like to download data from one Data Package, set \code{download_child_packages} to \code{FALSE}.
+#' This function will also download any data objects it finds in any child data packages of the input data package.
+#' If you would only like to download data from one data package, set \code{download_child_packages} to \code{FALSE}.
 #'
 #' @param mn (MNode) The Member Node to download from.
-#' @param resource_map_pids (chraracter) The identifiers of the Resource Maps for the packages to download.
+#' @param resource_map_pids (chraracter) The PIDs of the resource maps for the packages to download.
 #' @param download_directory (character) The path of the directory to download the packages to.
-#' @param ... Allows arguments from \code{\link{download_package}}
+#' @param ... Allows arguments from [download_package()].
 #'
 #' @author Dominic Mullen, \email{dmullen17@@gmail.com}
 #'
-#' \code{\link{download_package}}
+#' @seealso [download_package()]
 #'
 #' @export
 #'
@@ -383,12 +415,12 @@ download_package <- function(mn,
 #' \dontrun{
 #' cn <- CNode("PROD")
 #' mn <- getMNode(cn, "urn:node:ARCTIC")
+#'
 #' download_packages(mn, c("resource_map_doi:10.18739/A21G1P", "resource_map_doi:10.18739/A2RZ6X"),
 #' "/home/dmullen/downloads", prefix_file_names = TRUE, download_column_metadata = TRUE,
 #' convert_excel_to_csv = TRUE)
 #' }
 download_packages <- function(mn, resource_map_pids, download_directory, ...) {
-
     stopifnot(methods::is(mn, "MNode"))
     stopifnot(all(is.character(resource_map_pids)))
     stopifnot(length(resource_map_pids) > 0)

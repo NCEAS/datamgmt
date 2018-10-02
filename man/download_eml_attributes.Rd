@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_eml_attributes.R
 \name{download_eml_attributes}
 \alias{download_eml_attributes}
-\title{Download attribute (column) metadata from a Dataone Metadata object to csvs.}
+\title{Download attribute (column) metadata from a DataONE metadata object to csv files}
 \usage{
 download_eml_attributes(eml, download_directory,
   prefix_file_names = FALSE)
@@ -10,9 +10,10 @@ download_eml_attributes(eml, download_directory,
 \arguments{
 \item{eml}{(S4) EML object.}
 
-\item{download_directory}{(character) Directory to download attribute metadata csv's to.}
+\item{download_directory}{(character) Directory to download attribute metadata csvs to.}
 
-\item{prefix_file_names}{(logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.}
+\item{prefix_file_names}{(logical) Optional. Whether to prefix file names with the package metadata identifier.
+This is useful when downloading files from multiple packages to one directory.}
 }
 \description{
 Download attribute metadata from an EML object as csvs. The name

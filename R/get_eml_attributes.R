@@ -6,13 +6,14 @@ list_depth <- function(input_list) {
            0L)
 }
 
-#' Return attribute (column) metadata from a Dataone Metadata object.
+
+#' Return attribute (column) metadata from a DataONE metadata object
 #'
-#' @description Return attribute metadata from an EML object. This is largely a
-#' wrapper for the function \code{get_attributes} from the EML Package
-#' \url{https://github.com/ropensci/EML}.
+#' Return attribute metadata from an EML object. This is largely a
+#' wrapper for the function [EML::get_attributes()].
 #'
 #' @param eml (S4) EML object.
+#'
 #' @return (list) A list of all attribute metadata from the EML in data.frame objects
 #'
 #' @export
@@ -35,7 +36,7 @@ list_depth <- function(input_list) {
 get_eml_attributes <- function(eml) {
     # TODO - make sure it works for otherEntities
     stopifnot(isS4(eml))
-    
+
     indices <- vector("numeric")
     indices <- which_in_eml(eml@dataset@dataTable,
                             "attributeList",
@@ -59,15 +60,17 @@ get_eml_attributes <- function(eml) {
     return(results)
 }
 
-#' Download attribute (column) metadata from a Dataone Metadata object to csvs.
+
+#' Download attribute (column) metadata from a DataONE metadata object to csv files
 #'
-#' @description Download attribute metadata from an EML object as csvs. The name
+#' Download attribute metadata from an EML object as csvs. The name
 #' of each csv corresponds to the file name of the Data Object it describes.
 #' This can be prepended with the package identifier by setting \code{prefix_file_names = TRUE} (recommended).
 #'
 #' @param eml (S4) EML object.
-#' @param download_directory (character) Directory to download attribute metadata csv's to.
-#' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.  This is useful when downloading files from multiple packages to one directory.
+#' @param download_directory (character) Directory to download attribute metadata csvs to.
+#' @param prefix_file_names (logical) Optional. Whether to prefix file names with the package metadata identifier.
+#'   This is useful when downloading files from multiple packages to one directory.
 #'
 #' @export
 #'
@@ -114,20 +117,21 @@ download_eml_attributes <- function(eml,
     return(invisible())
 }
 
-#' Return attribute (column) metadata from a Dataone Package URL.
+
+#' Return attribute (column) metadata from a DataONE package URL
 #'
-#' @description Return attribute metadata from an EML object or Dataone Package URL.
-#' This is largely a wrapper for the function \code{get_attributes} from the EML Package
-#' \url{https://github.com/ropensci/EML}.
+#' Return attribute metadata from an EML object or DataONE package URL.
+#' This is largely a wrapper for the function [EML::get_attributes()].
 #'
-#' @param mn (MNode/CNode) The Dataone Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}
-#' @param url_path (character) The url of the Dataone Package.
-#' @param write_to_csv (logical) Optional. Option whether to download the attribute metadata to csv's.  Defaults to \code{FALSE}
-#' @param prefix_file_names (logical) Optional.  Whether to prefix file names with the package metadata identifier.
-#' This is useful when downloading files from multiple packages to one directory.
-#' @param download_directory (character) Optional.  Directory to download attribute metadata csv's to.
-#' Required if \code{write_to_csv} is \code{TRUE}
-#' @return (list) A list of all attribute metadata from the EML in data.frame objects
+#' @param mn (MNode/CNode) The DataONE Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}
+#' @param url_path (character) The URL of the DataONE Package.
+#' @param write_to_csv (logical) Optional. Option whether to download the attribute metadata to csv files. Defaults to \code{FALSE}
+#' @param prefix_file_names (logical) Optional. Whether to prefix file names with the package metadata identifier.
+#'   This is useful when downloading files from multiple packages to one directory.
+#' @param download_directory (character) Optional. Directory to download attribute metadata csv files to.
+#'   Required if \code{write_to_csv} is \code{TRUE}.
+#'
+#' @return (list) A list of all attribute metadata from the EML in data.frame objects.
 #'
 #' @export
 #'

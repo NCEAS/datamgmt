@@ -2,49 +2,48 @@
 % Please edit documentation in R/eml_data_qa.R
 \name{qa_attributes}
 \alias{qa_attributes}
-\title{Test congruence of attributes and data for a given dataset and dataTable}
+\title{Check congruence of attributes and data for a given dataset and dataTable}
 \usage{
-qa_attributes(node, dataTable, data, checkEnumeratedDomains = TRUE)
+qa_attributes(dataTable, data, checkEnumeratedDomains = TRUE)
 }
 \arguments{
-\item{node}{(MNode) Member Node where the PID is associated with an object.}
-
-\item{dataTable}{(dataTable) EML \code{dataTable} or \code{otherEntity} associated with the data object.}
+\item{dataTable}{(dataTable) EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
 
 \item{data}{(data.frame) Data frame of data object.}
 
-\item{checkEnumeratedDomains}{(logical) Default TRUE. If True, will match unique values in data to defined EML enumerated domains.}
+\item{checkEnumeratedDomains}{(logical) Default TRUE. Compare unique values in data to defined enumerated domains in EML.}
 }
 \description{
 This function is called by \code{\link{qa_package}} but can be used on its own to test congruence
-between a dataTable and a data object (data.frame). See \code{\link{qa_package}} help documentation for more details.
+between a dataTable and a data object (data.frame). See \code{\link{qa_package}} documentation for more details.
 }
 \details{
-Purpose: QA script to check that attributes match values in the data
+Purpose: QA function to check that attributes match values in the data
 
 Functions:
-    Names: Check that all column names in attributes match the column names in the csv
-    Possible conditions to account for:
-    - attributeList does not exist for a csv
-    - Physical has not been set correctly
-    - Some of the attributes that exist in the data don't exist in the attributeList
-    - Some of the attributes that exist in the attributeList don't exist in the data
-    - There is a typo in one of the attributes or column names so they don't match (maybe covered by above)
-    Domains: Check that all attribute types match attribute types in the csv
-    Possible conditions to account for:
-    - nominal, ordinal, integer, ratio, dateTime
-    - If domain is enumerated domain, not all enumerated values in the data are accounted for in the enumarated definition
-    - If domain is enumerated domain, not all enumerated values in the enumerated definition are actually represented in the data
-    - Type of data does not match type
-    Values: Check for accidental characters in the csv (one char in a column of ints)
+\itemize{
+\item Names: Check that column names in attributes match column names in data frame. Possible conditions to check for:
+\itemize{
+\item attributeList does not exist for data frame
+\item Physical has not been set correctly
+\item Some of the attributes that exist in the data do not exist in the attributeList
+\item Some of the attributes that exist in the attributeList do not exist in the data
+\item Typos in attribute or column names resulting in nonmatches
+}
+\item Domains: Check that attribute types match attribute types in data frame. Possible conditions to check for:
+\itemize{
+\item nominal, ordinal, integer, ratio, dateTime
+\item If domain is enumerated domain, enumerated values in the data are accounted for in the enumerated definition
+\item If domain is enumerated domain, enumerated values in the enumerated definition are all represented in the data
+\item Type of data does not match attribute type
+}
+\item Values: Check for accidental characters in the data frame (one character in a column of integers)
+}
 }
 \examples{
 \dontrun{
-# For a package, run QA checks on a data.frame and its associated EML dataTable.
+# Run attribute checks on a data.frame and its associated EML dataTable
 
-qa_attributes(mn, dataTable, dataObject)
+qa_attributes(dataTable, dataObject)
 }
-}
-\author{
-Emily O'Dean \email{eodean10@gmail.com}
 }

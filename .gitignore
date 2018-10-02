@@ -5,3 +5,4 @@
 datamgmt.Rproj
 inst/UDUNITS
 inst/doc
+*.DS_Store

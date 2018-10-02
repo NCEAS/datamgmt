@@ -1,20 +1,20 @@
-#' Convert excel workbook to multiple csv files
+#' Convert Excel workbook to multiple csv files
 #'
-#' Converts an excel workbook into multiple csv files (one per tab).  Names the
+#' Converts an Excel workbook into multiple csv files (one per tab). Names the
 #' files in the following format: sheetName_excelName.csv.
 #'
 #' @param path (character) File location of the excel workbook.
-#' @param directory (character) Optional.  Directory to download csv files to.
-#' @param ... Optional.  Allows arguments from \link[readxl]{read_excel}
+#' @param directory (character) Optional. Directory to download csv files to.
+#' @param ... Optional. Allows arguments from \link[readxl]{read_excel}.
 #' Defaults to the base directory that \code{path} is located in.
+#'
+#' @return invisible
 #'
 #' @importFrom readxl excel_sheets read_excel
 #'
 #' @export
 #'
 #' @author Dominic Mullen \email{dmullen17@@gmail.com}
-#'
-#' @return (invisible())
 excel_to_csv <- function(path, directory = NULL, ...) {
     # Stop if the user doesn't have the readxl package installed
     if (!requireNamespace("readxl")) {

@@ -1,25 +1,32 @@
+navbar:
+  right:
+    - icon: fa-github
+      href: https://github.com/NCEAS/datamgmt
 reference:
   - title: Editing EML
     contents:
-    - create_attributes_table
-    - get_custom_units
     - add_creator_id
+    - create_attributes_table
+    - edit_attribute
+    - return_eml_units
     - which_in_eml
 
-  - title: Working with packages
+  - title: Working with data packages
     contents:
-    - update_package_object
     - clone_package
+    - copy_package
     - download_package
     - download_packages
-    - create_dummy_package2
+    - obsolete_package
+    - plot_pkg_structure
 
-  - title: Quality Assurance
+  - title: Quality assurance
     contents:
-    - qa_access
+    - qa_eml
     - qa_package
 
   - title: Miscellaneous
     contents:
-    - get_awards
     - excel_to_csv
+    - get_awards
+    - query_all_versions

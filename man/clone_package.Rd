@@ -2,33 +2,38 @@
 % Please edit documentation in R/clone_package.R
 \name{clone_package}
 \alias{clone_package}
-\title{Clones packages between Dataone Member Nodes.}
+\title{Clone packages between DataONE Member Nodes}
 \usage{
 clone_package(resource_map_pid, from, to, add_access_to, change_auth_node,
   public = FALSE, clone_children = FALSE, new_pid = TRUE)
 }
 \arguments{
-\item{resource_map_pid}{(character) Object pid}
+\item{resource_map_pid}{(character) PID for the package resource map.}
 
-\item{from}{(D1Client) D1Client to clone pacakge from. (Package must be public)}
+\item{from}{(D1Client) D1Client to clone package from. (Package must be public)}
 
 \item{to}{(D1Client) D1Client to clone package to. (Token must be set for this node)}
 
-\item{add_access_to}{(character, vector) Will give read, write, and changePermission access to all strings in vector. If no additional access is desired, set to \code{NULL}. Note, setting this to \code{NULL} could lead to situations where it is not possible to read, write, or changePermissions on the cloned object.}
+\item{add_access_to}{(character) Will give read, write, and changePermission access to all strings in vector.
+If no additional access is desired, set to \code{NULL}. Note: setting this to \code{NULL} could lead to situations where
+it is not possible to read, write, or changePermissions on the cloned object.}
 
-\item{change_auth_node}{(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node if TRUE. Setting this to \code{TRUE} will allow you to edit the package after cloning.  Setting this to \code{FALSE} syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with special privileges to edit package system metadata.}
+\item{change_auth_node}{(logical) Will change the authoritativeMemberNode in the system metadata to the cloned member node
+if \code{TRUE}. Setting this to \code{TRUE} will allow you to edit the package after cloning. Setting this to \code{FALSE}
+syncs the system metadata with the package on the Authoritative Member Node, and will only allow DataONE admins with
+special privileges to edit package system metadata.}
 
-\item{public}{(logical) Optional. Will set public read access.  Defaults to \code{FALSE}.}
+\item{public}{(logical) Optional. Will set public read access. Defaults to \code{FALSE}.}
 
-\item{clone_children}{(logical) Optional. Will clone all children recursively if TRUE. Defaults to \code{FALSE}.}
+\item{clone_children}{(logical) Optional. Will clone all children recursively if \code{TRUE}. Defaults to \code{FALSE}.}
 
-\item{new_pid}{(logical) Optional. Will give the clone a new pid.  Defaults to \code{TRUE}.}
+\item{new_pid}{(logical) Optional. Will give the clone a new PID. Defaults to \code{TRUE}.}
 }
 \description{
-This function copies a Data Package from one DataOne member node to another.
-Note, the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
-This will not update the information in the metadata object.  This can also be used
-to restore an older version of a Package to a member node, provided that the user subsequently
+This function copies a data package from one DataONE Member Node to another.
+Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+This will not update the information in the metadata object. This can also be used
+to restore an older version of a package to a Member Node, provided that the user subsequently
 obsoletes the version of the package that they used to create the clone.
 }
 \examples{
@@ -50,6 +55,9 @@ cloned_package <- clone_package(resource_map_pid = package$resource_map
                            public = TRUE,
                            new_pid = TRUE)
 }
+}
+\seealso{
+\code{\link[=copy_package]{copy_package()}}
 }
 \author{
 Dominic Mullen, \email{dmullen17@gmail.com}

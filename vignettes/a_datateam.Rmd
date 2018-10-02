@@ -4,7 +4,7 @@ date: "Last updated `r Sys.Date()`"
 output: 
     rmarkdown::html_vignette:
 vignette: >
-  %\VignetteIndexEntry{General-use}
+  %\VignetteIndexEntry{General data team use}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,25 +17,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Quality Assurance for Data Packages
-
-Purpose: use `qa_package` to check a DataONE EML package. Will check that attributes match values in the data.
-
-Note: this function also calls qa_attributes and passes the data object and associated dataTable, but that function can also be called directly.
-
-Example:
-
-```{r}
-qa_package(mn, pid, 
-           readAllData = FALSE, 
-           check_attributes = TRUE, 
-           check_creators = FALSE, 
-           check_access = FALSE)
-```
 
 ## Create attributes tables
 
-The `create_attributes_table` allows editing of an attribute table and custom units table in a shiny environment
+The `create_attributes_table()` function allows editing of an attributes table, factor table, or custom units table in a Shiny environment.
 
 Example:
 
@@ -51,51 +36,26 @@ create_attributes_table(NULL, attributes_table)
 create_attributes_table(data, attributes_table)
 ```
 
-## Get custom unit data frame
 
-The `get_custom_units` function uses the udunits2 unit library to format inputted unit into an EML unit form.
+## Format custom units
+
+The `return_eml_units()` function uses the udunits2 unit library to format an inputted unit into an EML unit form.
 
 Example:
 
 ```{r}
-#The following all return the same data frame.
-get_custom_units('kilometersPerSquareSecond') #preferred input form
-get_custom_units('Kilometers per seconds squared')
-get_custom_units('km/s^2')
-get_custom_units('km s-2')
-get_custom_units('s-2 /     kilometers-1') #works but is not advised
-```
-
-## Updating objects
-
-The `arcticdatautils::update_object` function updates an object in a package but does not change the resource map or EML. To simultaneously update all three parts of a data package, you can use the `update_package_object` function.
-
-The `update_package_object` function updates a data object, and then automatically updates the package resource map with the new data pid. If an object already has a dataTable or otherEntity with a working physical section, the EML will be updated with the new data's physical. 
-
-Example:
-
-```{r eval = FALSE}
-#input token to run
-cnTest <- dataone::CNode('STAGING')
-mnTest <- dataone::getMNode(cnTest,'urn:node:mnTestARCTIC')
-
-pkg <- create_dummy_package2(mnTest, title = "My package")
-
-file.create("new_file.csv")
-update_package_object(mnTest, pkg$data[1], "new_file.csv", pkg$resource_map, format_id = "text/csv")
-file.remove("new_file.csv") #clean up
-
-#check out the package on test.arcticdata.io
+# The following all return the same data frame
+return_eml_units("kilometersPerSquareSecond") # preferred input form
+return_eml_units("Kilometers per seconds squared")
+return_eml_units("km/s^2")
+return_eml_units("km s-2")
+return_eml_units("s-2 /     kilometers-1") # works but is not advised
 ```
 
 
 ## Adding an ORCID to a creator
 
-A complete data package requires that at minimum one creator includes an associated ORCID ID. The function `add_creator_id` allows you to add an ORCID or reference ID to any creator in EML.
-
-The function invisibly returns the full EML, which can be saved to a variable. It also prints the changed creator entry so that it's easy to check that the appropriate change was made. In addition to the EML, at least one of either the orcid or reference id is required.
-
-Note: updated creator information cannot be used as a reference for associatedParties because the extra "role" field is required. Also, the function does not (yet) account for cases in which multiple creators have the same surname.
+A complete data package requires that at minimum one creator includes an associated ORCID. The `add_creator_id()` function allows you to add an ORCID or reference ID to any creator in the EML.
 
 Example:
 
@@ -110,7 +70,21 @@ eml <- eml %>%
                           id = "henrietta")
 
 #use references to add updated contact info to Henrietta's other roles
-eml@dataset@contact[[1]] <- new('contact', reference = "henrietta")
-eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
+eml@dataset@contact[[1]] <- new("contact", reference = "henrietta")
+eml@dataset@metadataProvider[[1]] <- new("metadataProvider", reference = "henrietta")
+```
 
+
+## Quality assurance for data packages
+
+The `qa_package()` function checks that the attributes in the EML match the values in the data.
+
+Example:
+
+```{r}
+qa_package(mn, pid, 
+           readAllData = FALSE, 
+           check_attributes = TRUE, 
+           check_creators = FALSE, 
+           check_access = FALSE)
 ```

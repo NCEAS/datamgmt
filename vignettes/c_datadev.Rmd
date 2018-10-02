@@ -4,7 +4,7 @@ date: "Last updated `r Sys.Date()`"
 output: 
     rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Data-dev}
+  %\VignetteIndexEntry{Advanced functions for package developers and contributors}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,33 +17,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Clone or download packages
 
-The `clone_package` function copies a Data Package from one DataOne member node to another. It can also be used to copy an older version of a Data Package to the same member node in order to restore it, provided that the old Package is then obsoleted by the copied version.
+## Clone package
 
-NOTE: BUGS ARE CURRENTLY BEING FIXED
+The `clone_package()` function clones a data package from one DataONE Member Node to another. It can also be used to copy an older version of a data package to the same Member Node in order to restore it, provided that the old package is then obsoleted by the copied version. Use the `copy_package()` function to copy a data package from one DataONE Member Node to another while generating new PIDs and new system metadata.
 
 Example:
 
 ```{r}
 cn_pull <- CNode("PROD")
 mn_pull <- getMNode(cn_pull, "urn:node:ARCTIC")
-cn_push <- CNode('STAGING')
-mn_push <- getMNode(cn_push,'urn:node:mnTestARCTIC')
-clone_package(mn_pull, mn_push, "resource_map_doi:10.18739/A2RZ6X")
+
+cn_push <- CNode("STAGING")
+mn_push <- getMNode(cn_push, "urn:node:mnTestARCTIC")
+
+clone_package("resource_map_doi:10.18739/A2RZ6X",
+              mn_pull,
+              mn_push,
+              add_access_to = arcticdatautils:::get_token_subject(),
+              change_auth_node = TRUE)
 ```
 
-## Create a dummy package
-
-The function `create_dummy_package2` creates a fuller package than create_dummy_package but is otherwise based on the same concept. This dummy package includes multiple data objects (2 csv's, and 2 jpg's), responsible parties, geographic locations, method steps, etc. You can also define a unique title for the package to distinguish it from other test packages.
-
-```{r}
-create_dummy_package2(mn, title = "A Dummy Package")
-```
 
 ## Get NSF awards
 
-The `get_awards` function uses the NSF API to get all records pertaining to the Arctic or Polar programs.
+The `get_awards()` function uses the NSF API to get all records pertaining to the Arctic or Polar programs.
 
 Example:
 
@@ -52,9 +50,12 @@ all_awards <- get_awards()
 new_awards <- get_awards(from_date = "01/01/2017")
 ```
 
+
 ## Which in EML
 
-The `which_in_eml` function returns indices within an EML list that contain an instance where test == TRUE. See examples for more information.
+The `which_in_eml()` function returns indices within an EML list that contain an instance where `test == TRUE`.
+
+Example:
 
 ```{r}
 # Question: Which creators have a surName "Smith"?
@@ -73,4 +74,3 @@ n <- which_in_eml(eml@dataset@dataTable[[1]]@attributeList@attribute, "numberTyp
 n <- which_in_eml(eml@dataset@dataTable, "numberType", function(x) {"natural" %in% x})
 # Answer: eml@dataset@dataTable[n]
 ```
-

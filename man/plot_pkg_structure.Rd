@@ -7,9 +7,9 @@
 plot_pkg_structure(mn, parent_rm_pid)
 }
 \arguments{
-\item{mn}{The member node}
+\item{mn}{The Member Node.}
 
-\item{parent_rm_pid}{(character) The top-level PID in a data package family}
+\item{parent_rm_pid}{(character) The top-level PID in a data package family.}
 }
 \description{
 This function allows you to quickly visualize how data packages
