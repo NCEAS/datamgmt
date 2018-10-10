@@ -144,7 +144,6 @@ test_that("abstract is present with sufficient length", {
     expect_equal(out10$status, "FAILURE")
 })
 
-<<<<<<< HEAD
 test_that("qa_abstract fails when < 100 words", {
     out <- qa_abstract(eml_test)
     expect_equal(out$status, "FAILURE")
@@ -153,7 +152,6 @@ test_that("qa_abstract fails when < 100 words", {
     eml@dataset@abstract <- EML::read_eml("<abstract></abstract>")
     out <- qa_abstract(eml)
     expect_equal(out$status, "FAILURE")
-=======
 
 test_that("keywords are present", {
     expect_error(qa_keywordSet(7))
@@ -298,7 +296,6 @@ test_that("contact is present", {
     eml_test@dataset@contact[[1]] <- NULL
     out6 <- qa_contact(eml_test)
     expect_equal(out6$status, "FAILURE")
->>>>>>> 4706aa43c867a1bf55158c56ff185fd0c3756b9b
 })
 
 
@@ -330,7 +327,6 @@ test_that("contact info is present", {
     out6 <- qa_contact_info(eml_test)
     expect_equal(out6$status, "FAILURE")
 
-<<<<<<< HEAD
     cc_fail <- "This work has no license"
     out <- qa_creative_commons(cc_fail)
     expect_equal(out$status, "FAILURE")
@@ -344,14 +340,12 @@ test_that("contact info is present", {
     eml@dataset@intellectualRights <- read_eml("<intellectualRights><para>rights1</para><para>rights2</para></intellectualRights>")
     out <- qa_creative_commons(eml)
     expect_equal(out$status, "FAILURE")
-=======
     eml_test@dataset@contact[[4]] <- NULL
     eml_test@dataset@contact[[3]] <- NULL
     eml_test@dataset@contact[[2]] <- NULL
     eml_test@dataset@contact[[1]] <- NULL
     out7 <- qa_contact_info(eml_test)
     expect_equal(out7$status, "FAILURE")
->>>>>>> 4706aa43c867a1bf55158c56ff185fd0c3756b9b
 })
 
 
@@ -643,7 +637,6 @@ test_that("qa_eml only accepts eml input", {
 
     expect_error(qa_eml(list("test")))
 
-<<<<<<< HEAD
     out <- qa_title(character(0))
     expect_equal(out$status, "FAILURE")
 
@@ -667,11 +660,9 @@ test_that("we can check for funding numbers", {
 
     out <- qa_award_number_present("")
     expect_equal(out$status, "FAILURE")
-=======
     out1 <- qa_eml(eml_test)
     expect_equal(out1$qa_title$status, "FAILURE")
     expect_equal(out1$qa_abstract$status, "FAILURE")
     expect_equal(out1$qa_keywordSet$status, "FAILURE")
     expect_equal(out1$qa_project$status, "FAILURE")
->>>>>>> 4706aa43c867a1bf55158c56ff185fd0c3756b9b
 })
