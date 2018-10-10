@@ -4,9 +4,11 @@
 \alias{qa_attributes}
 \title{Check congruence of attributes and data for a given dataset and dataTable}
 \usage{
-qa_attributes(dataTable, data, checkEnumeratedDomains = TRUE)
+qa_attributes(eml, dataTable, data, checkEnumeratedDomains = TRUE)
 }
 \arguments{
+\item{eml}{(S4) The entire EML object.  This is necessary if attributes with references are being checked.}
+
 \item{dataTable}{(dataTable) EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
 
 \item{data}{(data.frame) Data frame of data object.}

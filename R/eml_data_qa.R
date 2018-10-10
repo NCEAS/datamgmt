@@ -9,6 +9,7 @@
 #' to all elements of the data package.
 #'
 #' @importFrom methods is
+#' @importFrom methods slot
 #' @import crayon
 #' @import dataone
 #' @importFrom datapack hasAccessRule
@@ -141,7 +142,7 @@ qa_package <- function(node, pid, readAllData = TRUE, check_attributes = TRUE, c
         cat(crayon::green(paste0("\n\n..................Processing object ", objectpid,
                                  " (", dataTable@physical[[1]]@objectName, ").................")))
 
-        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes)) {
+        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes) && length(slot(dataTable@attributeList, 'references')) == 0) {
             cat(crayon::red(paste0("\nEmpty attribute table for object at", dataTable@physical[[1]]@distribution[[1]]@online@url)))
             cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
                                      " (", dataTable@physical[[1]]@objectName, ").................")))
@@ -207,6 +208,15 @@ qa_package <- function(node, pid, readAllData = TRUE, check_attributes = TRUE, c
                     cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
                                              " (", dataTable@physical[[1]]@objectName, ").................")))
                     next
+                } else if (format == "netCDF-4" || format == "netCDF-3" || format == "CF-1.4" || format == "CF-1.3" ||
+                           format == "CF-1.2" || format == "CF-1.1" || format == "CF-1.0") {
+                    tmp <- tempfile()
+                    writeBin(dataone::getObject(node, objectpid), tmp)
+                    nc <- ncdf4::nc_open(tmp)
+                    data <- netcdf_to_dataframe(nc)
+                    unlink(tmp)
+                    rm(nc) # clean up now because many netCDF files are large
+                    data
                 } else {
                     utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))),
                                     nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
@@ -217,7 +227,7 @@ qa_package <- function(node, pid, readAllData = TRUE, check_attributes = TRUE, c
             stop(paste0("\nFailed to read file at ", urls[i]))
         })
 
-        qa_attributes(dataTable, data, readAllData)
+        qa_attributes(eml, dataTable, data, readAllData)
 
         cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
                                  " (", dataTable@physical[[1]]@objectName, ").................")))
@@ -308,6 +318,7 @@ qa_access <- function(sysmeta, creator_ORCIDs) {
 #'     \item Values: Check for accidental characters in the data frame (one character in a column of integers)
 #' }
 #'
+#' @param eml (S4) The entire EML object.  This is necessary if attributes with references are being checked.
 #' @param dataTable (dataTable) EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.
 #' @param data (data.frame) Data frame of data object.
 #' @param checkEnumeratedDomains (logical) Default TRUE. Compare unique values in data to defined enumerated domains in EML.
@@ -320,8 +331,16 @@ qa_access <- function(sysmeta, creator_ORCIDs) {
 #'
 #' qa_attributes(dataTable, dataObject)
 #' }
-qa_attributes <- function(dataTable, data, checkEnumeratedDomains = TRUE) {
+qa_attributes <- function(eml, dataTable, data, checkEnumeratedDomains = TRUE) {
     attributeTable <- EML::get_attributes(dataTable@attributeList)
+    # Check for references
+    if (is.null(attributeTable$attributes)) {
+        ref_index <- match_reference_to_attributeList(eml, dataTable)
+        if (length(ref_index) > 0) {
+            entity <- methods::slot(eml@dataset, class(dataTable))[[ref_index]]
+            attributeTable <- EML::get_attributes(entity@attributeList)
+        }
+    }
     attributeNames <- attributeTable$attributes$attributeName
 
     if (is.null(attributeNames)) {
@@ -447,7 +466,11 @@ netcdf_to_dataframe <- function(nc) {
     }
 
     var_names <- c(att_names, dim_names)
-    var_names <- var_names[-which(duplicated(tolower(var_names)))]
+    # remove duplicates
+    dup_indices <- which(duplicated(tolower(var_names)))
+    if (length(dup_indices) > 0) {
+        var_names <- var_names[-dup_indices]
+    }
 
     data <- lapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
     max_length <- max(unlist(lapply(data, function(x) length(x))))
@@ -459,6 +482,23 @@ netcdf_to_dataframe <- function(nc) {
     }
 
     return(results)
+}
+
+# Helper function for matching a reference to an attributeList
+# Returns the index of the match
+match_reference_to_attributeList <- function(eml, entity) {
+    # Get list of 'dataTable', 'otherEntity', etc.
+    entity_list <- methods::slot(eml@dataset, class(entity))
+    # Get the ref we want to match
+    ref <- methods::slot(entity@attributeList, 'references')
+    # Get all of the references present
+    references <- entity_list %>%
+        purrr::map(methods::slot, 'attributeList') %>%
+        purrr::map(methods::slot, 'id') %>%  # two lists - so we need two map() calls
+        unlist()
+    # Get the index of the reference we want - use regex anchors to specify start and end of string
+    index <- which(stringr::str_detect(references, paste0('^', ref, '$')))
+    return(index)
 }
 
 
@@ -1587,4 +1627,66 @@ qa_eml <- function(input, all_results = FALSE) {
                                     output = "All QA functions were successful.")))
         }
     }
+}
+
+
+qa_award_number_present <- function(input) {
+    if (methods::is(input, "eml")) {
+        awards <- EML::eml_get(input, "funding") %>%
+            utils::capture.output() %>%
+            stringr::str_extract(">.*<") %>%  # extract all text between <para> </para> tags
+            stringr::str_replace_all("<|>", "") %>%
+            stats::na.omit() %>%
+            as.character()
+    } else {
+        awards <- input
+    }
+
+    if (is.null(awards)) {
+        status <- "FAILURE"
+        output <- "No award numbers were found."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (length(awards) < 1) {
+        status <- "FAILURE"
+        output <- paste0("No award numbers were found when one or more were expected.")
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (all(nchar(awards) <= 0)) {
+        status <- "FAILURE"
+        output <- "Of the award numbers found, none were non-zero in length."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (all(sapply(awards, is_whitespace))) {
+        status <- "FAILURE"
+        output <- "Of the awards numbers found, none were non-whitespace."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else {
+        status <- "SUCCESS"
+        output <- "At least one award number was found."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    }
+    return(mdq_result)
+}
+
+# test both cases rangeOfDates beginDate and singleDateTime calendarDate
+qa_temporal_start_year <- function(input) {
+    if (methods::is(input, "eml")) {
+        date <- EML::eml_get(input, "calendarDate") %>%
+            lapply(function(x){x}) %>%
+            simplify2array()
+    } else {
+        date <- input
+    }
+}
+
+# helper function that checks if the input is whitespace
+is_whitespace <- function(input) {
+    input <- trimws(input, which = "both")
+    if (input == "") {
+        return(TRUE)
+    }
+    return(FALSE)
 }
