@@ -152,6 +152,7 @@ test_that("qa_abstract fails when < 100 words", {
     eml@dataset@abstract <- EML::read_eml("<abstract></abstract>")
     out <- qa_abstract(eml)
     expect_equal(out$status, "FAILURE")
+})
 
 test_that("keywords are present", {
     expect_error(qa_keywordSet(7))
@@ -237,7 +238,6 @@ test_that("creator is present", {
     expect_equal(out6$status, "FAILURE")
 })
 
-
 test_that("creator info is present", {
     expect_error(qa_creator_info(7))
 
@@ -271,7 +271,6 @@ test_that("creator info is present", {
     expect_equal(out7$status, "FAILURE")
 })
 
-
 test_that("contact is present", {
     expect_error(qa_contact(7))
 
@@ -297,7 +296,6 @@ test_that("contact is present", {
     out6 <- qa_contact(eml_test)
     expect_equal(out6$status, "FAILURE")
 })
-
 
 test_that("contact info is present", {
     expect_error(qa_contact_info(7))
@@ -327,19 +325,6 @@ test_that("contact info is present", {
     out6 <- qa_contact_info(eml_test)
     expect_equal(out6$status, "FAILURE")
 
-    cc_fail <- "This work has no license"
-    out <- qa_creative_commons(cc_fail)
-    expect_equal(out$status, "FAILURE")
-
-    eml <- eml_test
-    eml@dataset@intellectualRights <- read_eml("<intellectualRights><para></para></intellectualRights>")
-    out <- qa_creative_commons(eml)
-    expect_equal(out$status, "FAILURE")
-
-    # Test multiple intellectual rights
-    eml@dataset@intellectualRights <- read_eml("<intellectualRights><para>rights1</para><para>rights2</para></intellectualRights>")
-    out <- qa_creative_commons(eml)
-    expect_equal(out$status, "FAILURE")
     eml_test@dataset@contact[[4]] <- NULL
     eml_test@dataset@contact[[3]] <- NULL
     eml_test@dataset@contact[[2]] <- NULL

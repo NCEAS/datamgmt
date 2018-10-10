@@ -9,6 +9,7 @@
 #' to all elements of the data package.
 #'
 #' @importFrom methods is
+#' @importFrom methods slot
 #' @import crayon
 #' @import dataone
 #' @importFrom datapack hasAccessRule
@@ -1651,7 +1652,7 @@ qa_award_number_present <- function(input) {
         output <- paste0("No award numbers were found when one or more were expected.")
         mdq_result <- list(status = status,
                            output = list(list(value = output)))
-    } else if (!all(nchar(awards) <= 0)) {
+    } else if (all(nchar(awards) <= 0)) {
         status <- "FAILURE"
         output <- "Of the award numbers found, none were non-zero in length."
         mdq_result <- list(status = status,
