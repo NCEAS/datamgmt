@@ -4,58 +4,68 @@
 \alias{edit_attribute}
 \title{Edit a single attribute}
 \usage{
-edit_attribute(eml, dataTableNumber, attributeNumber,
-  attributeName = NULL, attributeDefinition = NULL, domain = NULL,
-  measurementScale = NULL, unit = NULL, numberType = NULL,
-  definition = NULL, formatString = NULL, missingValueCode = NULL,
+edit_attribute(attribute, attributeName = NULL, attributeLabel = NULL,
+  attributeDefinition = NULL, domain = NULL, measurementScale = NULL,
+  unit = NULL, numberType = NULL, definition = NULL,
+  formatString = NULL, missingValueCode = NULL,
   missingValueCodeExplanation = NULL)
 }
 \arguments{
-\item{eml}{The eml object containing the attributeList}
+\item{attribute}{(attribute) The attribute in the the attributeList of a data object.}
 
-\item{dataTableNumber}{The number of the dataTable containing the attributeList; in other words its position in the dataTable list.}
+\item{attributeName}{(character) The new name to give to the attribute.}
 
-\item{attributeNumber}{The number of the attribute of interest; in other words its position in the attributeList.}
+\item{attributeLabel}{(character) The new label to give to the attribute.}
 
-\item{attributeName}{The new name to give to the attribute}
+\item{attributeDefinition}{(character) The new attributeDefinition to give to the attribute.}
 
-\item{attributeDefinition}{The new attributeDefinition to give to the attribute}
+\item{domain}{(character) The new domain to give to the attribute.}
 
-\item{domain}{The new domain to give to the attribute}
+\item{measurementScale}{(character) The new measurementScale to give to the attribute.}
 
-\item{measurementScale}{The new measurementScale to give to the attribute}
+\item{unit}{(character) The new unit (for numericDomain) to give to the attribute.}
 
-\item{unit}{The new unit to give to the attribute}
+\item{numberType}{(character) The new numberType (for numericDomain) to give to the attribute.}
 
-\item{numberType}{The new numberType to give to the attribute}
+\item{definition}{(character) The new definition (for textDomain) to give to the attribute.}
 
-\item{definition}{The new definition (for textDomain) to give to the attribute}
+\item{formatString}{(character) The new formatString (for dateTime) to give to the attribute.}
 
-\item{formatString}{The new formatString to give to the attribute}
+\item{missingValueCode}{(character) The new missing value code to give to the attribute.}
 
-\item{missingValueCode}{The new missing value code to give to the attribute}
-
-\item{missingValueCodeExplanation}{The new missing value code explanation to give to the attribute}
+\item{missingValueCodeExplanation}{(character) The new missing value code explanation to give to the attribute.}
+}
+\value{
+(attribute) The modified attribute.
 }
 \description{
-This function edits the slots of a single attribute in an existing attribute table.
+This function edits the slots of a single attribute in an existing list of attributes for a data object.
 }
 \details{
-Can only be used on attributes entirely defined within the "attributes" slot of attributeList; it cannot be used to edit
-the factor table of an enumeratedDomain. In cases with very large attribute lists, user may want to use
-\code{\link[=which_in_eml]{which_in_eml()}} first to locate the attribute position.
+This function can only be used on attributes entirely defined within the 'attributes' slot of attributeList;
+it cannot be used to edit the factors table of an enumeratedDomain.
+
+In cases with very large attribute lists, use \code{\link[=which_in_eml]{which_in_eml()}} first to locate
+the attribute index number in the attributeList.
 }
 \examples{
 \dontrun{
-# To change an attribute's name and add a missing value code:
-new_eml <- edit_attribute(eml, 2, 8, attributeName = "new name", missingValueCode = "NA",
-                          missingValueCodeExplanation = "Data unavailable")
+# Change an attribute's name
+new_attribute <- edit_attribute(eml@dataset@dataTable[[1]]@attributeList@attribute[[8]],
+attributeName = "new name")
+eml@dataset@dataTable[[1]]@attributeList@attribute[[8]] <- new_attribute
 
-# To change an attribute's attributeDefinition, as well as change measurementScale
-# from nominal to ratio (requires also changing domain, unit, and numberType, as well
-# as setting definition to NA):
-new_eml <- edit_attribute(eml, 1, 2, attributeDefinition = "new definition",
+# Change an attribute's measurementScale from nominal to ratio
+# (also requires changing domain, unit, and numberType as well
+# as setting definition to NA)
+new_attribute <- edit_attribute(eml@dataset@otherEntity[[2]]@attributeList@attribute[[1]],
 domain = "numericDomain", measurementScale = "ratio", unit = "dimensionless",
 numberType = "whole", definition = NA)
+eml@dataset@otherEntity[[2]]@attributeList@attribute[[1]] <- new_attribute
+
+# Add the same missing value codes to all attributes for a data object
+new_attributes <- lapply(eml@dataset@dataTable[[1]]@attributeList@attribute, edit_attribute,
+missingValueCode = "NA", missingValueCodeExplanation = "data unavailable")
+eml@dataset@dataTable[[1]]@attributeList@attribute <- new_attributes
 }
 }
