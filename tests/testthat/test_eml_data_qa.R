@@ -144,6 +144,15 @@ test_that("abstract is present with sufficient length", {
     expect_equal(out10$status, "FAILURE")
 })
 
+test_that("qa_abstract fails when < 100 words", {
+    out <- qa_abstract(eml_test)
+    expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@abstract <- EML::read_eml("<abstract></abstract>")
+    out <- qa_abstract(eml)
+    expect_equal(out$status, "FAILURE")
+})
 
 test_that("keywords are present", {
     expect_error(qa_keywordSet(7))
@@ -229,7 +238,6 @@ test_that("creator is present", {
     expect_equal(out6$status, "FAILURE")
 })
 
-
 test_that("creator info is present", {
     expect_error(qa_creator_info(7))
 
@@ -263,7 +271,6 @@ test_that("creator info is present", {
     expect_equal(out7$status, "FAILURE")
 })
 
-
 test_that("contact is present", {
     expect_error(qa_contact(7))
 
@@ -289,7 +296,6 @@ test_that("contact is present", {
     out6 <- qa_contact(eml_test)
     expect_equal(out6$status, "FAILURE")
 })
-
 
 test_that("contact info is present", {
     expect_error(qa_contact_info(7))
@@ -616,6 +622,29 @@ test_that("qa_eml only accepts eml input", {
 
     expect_error(qa_eml(list("test")))
 
+    out <- qa_title(character(0))
+    expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@title[[1]] <- EML::read_eml("<title></title>")
+    out <- qa_title(eml)
+    expect_equal(out$status, "FAILURE")
+})
+
+test_that("we can check for funding numbers", {
+    out <- qa_award_number_present(eml_test)
+    expect_equal(out$status, "SUCCESS")
+
+    out <- qa_award_number_present("1234567")
+    expect_equal(out$status, "SUCCESS")
+
+    eml <- eml_test
+    eml@dataset@project@funding <- EML::read_eml("<funding></funding>")
+    out <- qa_award_number_present(eml)
+    expect_equal(out$status, "FAILURE")
+
+    out <- qa_award_number_present("")
+    expect_equal(out$status, "FAILURE")
     out1 <- qa_eml(eml_test)
     expect_equal(out1$qa_title$status, "FAILURE")
     expect_equal(out1$qa_abstract$status, "FAILURE")
