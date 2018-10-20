@@ -17,8 +17,8 @@ The *datamgmt* R package supports management of data packages on the [Arctic Dat
 You can install the development version from GitHub with:
 
 ```{r}
-# install.packages("devtools")
-devtools::install_github("NCEAS/datamgmt")
+# install.packages("remotes")
+remotes::install_github("NCEAS/datamgmt")
 ```
 
 
