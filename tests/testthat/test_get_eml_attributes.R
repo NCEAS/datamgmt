@@ -1,7 +1,7 @@
-context("unit tests for get_eml_attributes function")
+context("Get EML attributes")
 
-cn <- dataone::CNode('PROD')
-mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
+cn <- dataone::CNode("PROD")
+mn <- dataone::getMNode(cn,"urn:node:ARCTIC")
 eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
 
 # loads the correct output .rdata object for get_eml_attributes unit tests

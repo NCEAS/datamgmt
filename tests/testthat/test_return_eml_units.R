@@ -1,4 +1,4 @@
-context("Return EML Units")
+context("Return EML units")
 
 
 test_that("return_eml_units accepts multiple unit input formats", {

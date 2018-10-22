@@ -1,4 +1,4 @@
-context("test_guess_member_node")
+context("Guess member node")
 
 test_that("guess_member_node returns correct output", {
     mn_guess <- guess_member_node("doi:10.18739/A2G287", "PROD")

@@ -1,4 +1,4 @@
-context("which in eml")
+context("Search EML for index")
 
 test_that("Returns correct locations", {
 

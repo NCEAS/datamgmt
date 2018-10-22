@@ -1,4 +1,4 @@
-context("edit_attribute")
+context("Edit attributes")
 
 eml_path <- system.file("dummy_eml_w_attributes.xml", package = "datamgmt")
 eml <- EML::read_eml(eml_path)
