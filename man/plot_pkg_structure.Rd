@@ -7,20 +7,23 @@
 plot_pkg_structure(mn, parent_rm_pid)
 }
 \arguments{
-\item{mn}{The Member Node.}
+\item{mn}{(MNode) The Member Node to query.}
 
 \item{parent_rm_pid}{(character) The top-level PID in a data package family.}
 }
+\value{
+A visIgraph plot.
+}
 \description{
-This function allows you to quickly visualize how data packages
+This function visualizes how data packages in a data package family
 are related to each other.
 }
 \examples{
 \dontrun{
-cn <- dataone::CNode('PROD')
-mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
+cn <- CNode("PROD")
+mn <- getMNode(cn,"urn:node:ARCTIC")
 
-parent_rm_pid <- "resource_map_urn:uuid:2b5f44fc-810e-4c30-a63f-5bd2f3ff00a7"
+parent_rm_pid <- "resource_map_urn:uuid:..."
 
 plot_pkg_structure(mn, parent_rm_pid)
 }
