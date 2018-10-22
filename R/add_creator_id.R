@@ -18,6 +18,9 @@
 #' @param id (character) Reference ID for creators with additional roles (e.g., metadataProvider).
 #' @param surname (character) Creator surname. Defaults to first creator if not specified. Not case-sensitive.
 #'
+#' @importFrom crayon green red
+#' @importFrom methods is new
+#'
 #' @export
 #'
 #' @examples

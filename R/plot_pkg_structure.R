@@ -65,8 +65,8 @@ query_tree <- function(mn, parent_rm_pid) {
 #'
 #' @return A visIgraph plot.
 #'
-#' @import magrittr
 #' @importFrom dplyr mutate rename mutate_all funs distinct select
+#' @importFrom magrittr %>%
 #' @importFrom stringr str_split str_replace
 #' @importFrom tidyr unnest
 #'

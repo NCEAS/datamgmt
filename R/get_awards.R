@@ -21,9 +21,9 @@
 #' Additional field names can be found in the printFields description
 #' of the \href{https://www.research.gov/common/webapi/awardapisearch-v1.htm}{NSF API}.
 #'
-#' @import XML
-#' @import stringr
 #' @importFrom RCurl getURL
+#' @importFrom stringr str_detect
+#' @importFrom XML xmlToDataFrame
 #'
 #' @export
 #'
