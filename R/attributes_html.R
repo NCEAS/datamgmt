@@ -5,7 +5,7 @@
 #' @param df (data.frame) the data.frame of data that needs an attribute table
 #' @param type (character) either "attributes", "units", or "factors"
 #'
-#' @import htmlwidgets
+#' @importFrom htmlwidgets JS createWidget shinyWidgetOutput shinyRenderWidget
 #' @importFrom jsonlite toJSON
 #'
 #' @noRd

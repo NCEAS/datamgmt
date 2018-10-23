@@ -1,4 +1,4 @@
-context("test_clone_package")
+context("Clone package")
 
 # Set test node
 d1c_test <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")

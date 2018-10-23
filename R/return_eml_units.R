@@ -1,5 +1,9 @@
-# Copies udunits2 xml files to datamgmt/UDUNITS
-# Updates uduntis2-accepted.xml with units from EML-units.xml
+#' Copies udunits2 xml files to datamgmt/UDUNITS
+#' Updates udunits2-accepted.xml with units from EML-units.xml
+#'
+#' @importFrom xml2 read_xml xml_children xml_add_child write_html
+#'
+#' @noRd
 .onLoad <- function(libname, pkgname) {
 
     # Get directory for udunits files
@@ -45,13 +49,12 @@
 #'
 #' @return (logical) `TRUE`/`FALSE`
 #'
-#' @import gsubfn
 #' @import udunits2
-#' @import xml2
 #' @import units
-#' @importFrom stringi stri_reverse
 #' @importFrom compare compare
+#' @importFrom gsubfn strapply
 #' @importFrom memoise memoise
+#' @importFrom stringi stri_reverse
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @noRd
@@ -819,6 +822,8 @@ mem_load_EML_units <- memoise::memoise(load_EML_units)
 #' @param quiet (logical) If `TRUE`, will quiet console text.
 #'
 #' @return (data.frame) Custom unit data frame (will return a row of `NAs` if a unit cannot be formatted in an EML form).
+#'
+#' @importFrom utils txtProgressBar
 #'
 #' @export
 #'

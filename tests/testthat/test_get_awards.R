@@ -1,4 +1,4 @@
-context("Checks for get_awards function")
+context("Get NSF awards")
 
 test_that("get_awards runs with only from_date specified", {
     award_info <- get_awards(from_date = "11/01/2017")

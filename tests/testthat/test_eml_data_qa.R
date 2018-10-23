@@ -1,4 +1,4 @@
-context("eml_data_qa")
+context("QA metadata")
 
 eml_test <- EML::read_eml(system.file("dummy_meta_full.xml", package = "datamgmt"))
 eml_test2 <- EML::read_eml(system.file("dummy_eml_w_attributes.xml", package = "datamgmt"))

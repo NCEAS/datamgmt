@@ -1,7 +1,7 @@
-context("Obsolete a Package")
+context("Obsolete package")
 
-cn <- dataone::CNode('STAGING')
-mn <- dataone::getMNode(cn,'urn:node:mnTestARCTIC')
+cn <- dataone::CNode("STAGING")
+mn <- dataone::getMNode(cn, "urn:node:mnTestARCTIC")
 
 test_that("obsolete_package errors gracefully", {
     expect_error(obsolete_package(5))

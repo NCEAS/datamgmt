@@ -17,8 +17,8 @@ The *datamgmt* R package supports management of data packages on the [Arctic Dat
 You can install the development version from GitHub with:
 
 ```{r}
-# install.packages("devtools")
-devtools::install_github("NCEAS/datamgmt")
+# install.packages("remotes")
+remotes::install_github("NCEAS/datamgmt")
 ```
 
 
@@ -28,22 +28,22 @@ devtools::install_github("NCEAS/datamgmt")
 - For pull requests, target the `master` branch
 - Follow the [tidyverse style conventions](http://style.tidyverse.org/), with the following specific style preferences: 
     - use underscore for all variable names unless referring to an EML object (e.g., otherEntity, publicationDate, etc.)
-    - include argument checks in the form of `stopifnot` statements for all functions
-- Before submitting a pull request, please update documentation, check package, and run tests using:
-    - `devtools::check()`
-    - Fix any ERRORs and test failures to ensure the Travis CI build passes
+    - include argument checks in the form of `stopifnot()` statements for all functions
+- Before submitting a pull request, please update documentation, check package, and run tests:
+    - use `devtools::check()`
+    - fix any ERRORs and test failures to ensure the Travis CI build passes
 
 
 ## Errors
 
-The `datamgmt::create_attributes_table` function sometimes returns the following error:
+The `create_attributes_table()` function sometimes returns the following error:
 ```
 Warning: Error in safeFromJSON: Argument 'txt' is not a valid JSON string.
   [No stack trace available]
 Error in safeFromJSON(charData, simplifyVector = FALSE) : 
   Argument 'txt' is not a valid JSON string.
   ```  
-It's probably because your version of `httpuv` is incompatible.  Run `devtools::install_version("httpuv", "1.4.3")` and restart your R session and try running the code again.  Downgrading to version `1.4.3` usually solves the issue, however you can also try upgrading to the latest release of `httpuv`.  It's also possible that this is a browser issue - try switching your browser if this doesn't work
+It is probably because your version of `httpuv` is incompatible. Run `devtools::install_version("httpuv", "1.4.3")` and restart your R session and try running the code again. Downgrading to version `1.4.3` usually solves the issue. However, you can also try upgrading to the latest release of `httpuv`.  It is also possible that this is a browser issue. Try switching your browser if this does not work.
 
 
 ## Acknowledgements

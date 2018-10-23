@@ -1,4 +1,5 @@
-context("test_query_all_versions")
+context("Query all versions of a PID")
+
 cn <- dataone::CNode("PROD")
 mn <- dataone::getMNode(cn, "urn:node:ARCTIC")
 

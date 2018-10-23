@@ -4,6 +4,8 @@
 #'
 #' @return (character) A set of Solr fields.
 #'
+#' @importFrom stringr str_extract_all str_replace_all
+#'
 #' @noRd
 get_solr_fields <- function() {
     adc_solr <- httr::GET("https://arcticdata.io/metacat/d1/mn/v2/query/solr")
@@ -85,6 +87,10 @@ query_solr_metadata <- function(mn, object_pid, fields = "*") {
 #'   returns all non `NULL` fields.
 #'
 #' @return (data.frame) Data frame with rows for each version of the PID and columns with each query field.
+#'
+#' @import arcticdatautils
+#' @importFrom dplyr bind_rows
+#' @importFrom methods is
 #'
 #' @export
 #'
