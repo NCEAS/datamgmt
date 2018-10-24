@@ -34,6 +34,7 @@ Imports:
     htmlwidgets,
     httr,
     jsonlite,
+    listviewer,
     lubridate,
     memoise,
     metadig,

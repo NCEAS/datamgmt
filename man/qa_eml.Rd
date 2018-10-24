@@ -9,17 +9,29 @@ qa_eml(input, all_results = FALSE)
 \arguments{
 \item{input}{(eml) An EML object.}
 
-\item{all_results}{(logical) Return all results. If FALSE, only returns results with FAILURE status.}
+\item{all_results}{(logical) Return all results. If \code{FALSE}, only returns results with FAILURE or ERROR status.}
 }
 \value{
 (list) A list of results.
 }
 \description{
-This function checks EML fields for presence, completeness, correct formatting, etc.
+This function checks the quality of EML metadata, such as the presence and completeness
+of EML fields and correct formatting.
+}
+\details{
+Not all FAILURE messages necessarily indicate something wrong with the metadata. For example, missing project
+information will return a FAILURE status, but project information is not necessary if there is
+no affiliated project.
 }
 \examples{
 \dontrun{
-pkg <- get_package(adc_test, rm_pid, file_names = TRUE)
-eml <- read_eml(getObject(adc_test, pkg$metadata))
-results <- qa_eml(eml) }
+# Results with FAILURE or ERROR status
+qa_eml(eml)
+
+# All results
+qa_eml(eml, all_results = TRUE)
+}
+}
+\seealso{
+\code{\link[=qa_package]{qa_package()}}
 }
