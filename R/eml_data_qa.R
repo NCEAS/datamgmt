@@ -1503,6 +1503,7 @@ netcdf_to_dataframe <- function(nc) {
 #' @import arcticdatautils
 #' @import EML
 #' @importFrom lubridate parse_date_time
+#' @importFrom methods slot
 #' @importFrom stats na.omit
 #' @importFrom utils capture.output
 #' @importFrom utils head
@@ -1529,6 +1530,14 @@ qa_attributes <- function(entity, data) {
     messages <- c()
 
     attributeTable <- EML::get_attributes(entity@attributeList)
+    # Check for references
+    if (is.null(attributeTable$attributes)) {
+        ref_index <- match_reference_to_attributeList(eml, entity)
+        if (length(ref_index) > 0) {
+            entity2 <- methods::slot(eml@dataset, class(entity))[[ref_index]]
+            attributeTable <- EML::get_attributes(entity2@attributeList)
+        }
+    }
     attributeNames <- attributeTable$attributes$attributeName
 
     # Check if attributes are present
@@ -1667,6 +1676,24 @@ qa_attributes <- function(entity, data) {
 
     return(list(status = status,
                 output = messages))
+}
+
+
+# Helper function for matching a reference to an attributeList
+# Returns the index of the match
+match_reference_to_attributeList <- function(eml, entity) {
+    # Get list of 'dataTable', 'otherEntity', etc.
+    entity_list <- methods::slot(eml@dataset, class(entity))
+    # Get the ref we want to match
+    ref <- methods::slot(entity@attributeList, 'references')
+    # Get all of the references present
+    references <- entity_list %>%
+        purrr::map(methods::slot, 'attributeList') %>%
+        purrr::map(methods::slot, 'id') %>%  # two lists - so we need two map() calls
+        unlist()
+    # Get the index of the reference we want - use regex anchors to specify start and end of string
+    index <- which(stringr::str_detect(references, paste0('^', ref, '$')))
+    return(index)
 }
 
 
@@ -1950,4 +1977,68 @@ qa_view <- function(input) {
     stopifnot(is.list(input))
 
     listviewer::jsonedit(input, mode = "view")
+}
+
+
+qa_award_number_present <- function(input) {
+    if (methods::is(input, "eml")) {
+        awards <- EML::eml_get(input, "funding") %>%
+            utils::capture.output() %>%
+            stringr::str_extract(">.*<") %>%  # extract all text between <para> </para> tags
+            stringr::str_replace_all("<|>", "") %>%
+            stats::na.omit() %>%
+            as.character()
+    } else {
+        awards <- input
+    }
+
+    if (is.null(awards)) {
+        status <- "FAILURE"
+        output <- "No award numbers were found."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (length(awards) < 1) {
+        status <- "FAILURE"
+        output <- paste0("No award numbers were found when one or more were expected.")
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (all(nchar(awards) <= 0)) {
+        status <- "FAILURE"
+        output <- "Of the award numbers found, none were non-zero in length."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else if (all(sapply(awards, is_whitespace))) {
+        status <- "FAILURE"
+        output <- "Of the awards numbers found, none were non-whitespace."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    } else {
+        status <- "SUCCESS"
+        output <- "At least one award number was found."
+        mdq_result <- list(status = status,
+                           output = list(list(value = output)))
+    }
+    return(mdq_result)
+}
+
+
+# test both cases rangeOfDates beginDate and singleDateTime calendarDate
+qa_temporal_start_year <- function(input) {
+    if (methods::is(input, "eml")) {
+        date <- EML::eml_get(input, "calendarDate") %>%
+            lapply(function(x){x}) %>%
+            simplify2array()
+    } else {
+        date <- input
+    }
+}
+
+
+# helper function that checks if the input is whitespace
+is_whitespace <- function(input) {
+    input <- trimws(input, which = "both")
+    if (input == "") {
+        return(TRUE)
+    }
+    return(FALSE)
 }
