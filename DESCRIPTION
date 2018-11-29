@@ -19,8 +19,6 @@ URL: https://nceas.github.io/datamgmt/
 BugReports: https://github.com/NCEAS/datamgmt/issues
 Encoding: UTF-8
 LazyData: true
-Depends:
-    magrittr
 Imports:
     arcticdatautils,
     compare,
@@ -36,6 +34,7 @@ Imports:
     jsonlite,
     listviewer,
     lubridate,
+    magrittr,
     memoise,
     metadig,
     methods,
@@ -65,7 +64,7 @@ Suggests:
 Remotes:
     NCEAS/arcticdatautils,
     NCEAS/metadig-r,
-    ropensci/EML
+    ropensci/EML@1b3d0a2bd63e01a3af99c77aa6a0784c3da3ea06
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
