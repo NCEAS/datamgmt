@@ -19,8 +19,6 @@ URL: https://nceas.github.io/datamgmt/
 BugReports: https://github.com/NCEAS/datamgmt/issues
 Encoding: UTF-8
 LazyData: true
-Depends:
-    magrittr
 Imports:
     arcticdatautils,
     compare,
@@ -36,6 +34,7 @@ Imports:
     jsonlite,
     listviewer,
     lubridate,
+    magrittr,
     memoise,
     metadig,
     methods,
