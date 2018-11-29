@@ -2,41 +2,45 @@
 % Please edit documentation in R/eml_data_qa.R
 \name{qa_package}
 \alias{qa_package}
-\title{Check package including congruence of attributes and data}
+\title{Quality assurance for data package metadata}
 \usage{
-qa_package(node, pid, readAllData = TRUE, check_attributes = TRUE,
-  check_creators = FALSE, check_access = FALSE)
+qa_package(mn, resource_map_pid, congruence = FALSE,
+  read_all_data = TRUE, all_results = FALSE)
 }
 \arguments{
-\item{node}{(MNode) Member Node where the PID is located.}
+\item{mn}{(MNode) The Member Node to query.}
 
-\item{pid}{(character) The PID of a resource map.}
+\item{resource_map_pid}{(character) The PID for a resource map.}
 
-\item{readAllData}{(logical) Default TRUE. Read all data from remote and check that column types match attributes,
-otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
-If \code{check_attributes = FALSE}, no rows will be read.}
+\item{congruence}{(logical) Check congruence between data and and metadata attributes.}
 
-\item{check_attributes}{(logical) Default TRUE. Checks congruence of attributes and data.}
+\item{read_all_data}{(logical) Required if \code{congruence = TRUE}. Read all data from remote. If \code{FALSE}, only read first 10 rows.}
 
-\item{check_creators}{(logical) Default FALSE. Checks if each creator has an ORCID.
-Will also run if \code{check_access = TRUE}.}
-
-\item{check_access}{(logical) Default FALSE. Checks if each creator has full access to the
-metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.}
+\item{all_results}{(logical) Return all results. If \code{FALSE}, only returns results with FAILURE or ERROR status.}
 }
 \value{
-invisible
+(list) A list of results.
 }
 \description{
-This function checks that the attributes listed in the metadata match the values in the data for each
-tabular data object. It may also optionally check if all creators have ORCIDs and have full access
-to all elements of the data package.
+For a single data package, this function checks the quality of the EML metadata
+as well as the system metadata for all package elements, including
+the resource map, metadata, and all data objects.
+}
+\details{
+This function is a wrapper around \code{\link[=qa_eml]{qa_eml()}}, \code{\link[=qa_congruence]{qa_congruence()}}, and \code{\link[=qa_sysmeta]{qa_sysmeta()}}.
 }
 \examples{
 \dontrun{
-# Run QA checks
+# Results with FAILURE or ERROR status without checking congruence
+qa_package(knb_prod, "resource_map_urn:uuid:...")
 
-qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE,
-           check_creators = FALSE, check_access = FALSE)
+# All results without checking congruence
+qa_package(knb_prod, "resource_map_urn:uuid:...", all_results = TRUE)
+
+# Results with FAILURE or ERROR status and including congruence checks
+qa_package(knb_prod, "resource_map_urn:uuid:...", congruence = TRUE)
 }
+}
+\seealso{
+\code{\link[=qa_eml]{qa_eml()}} \code{\link[=qa_congruence]{qa_congruence()}} \code{\link[=qa_sysmeta]{qa_sysmeta()}}
 }

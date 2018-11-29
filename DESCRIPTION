@@ -34,6 +34,7 @@ Imports:
     htmlwidgets,
     httr,
     jsonlite,
+    listviewer,
     lubridate,
     memoise,
     metadig,
@@ -66,5 +67,5 @@ Remotes:
     NCEAS/metadig-r,
     ropensci/EML
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
