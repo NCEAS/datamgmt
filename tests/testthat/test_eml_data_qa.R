@@ -3,6 +3,8 @@ context("QA metadata")
 eml_test <- EML::read_eml(system.file("dummy_meta_full.xml", package = "datamgmt"))
 eml_test2 <- EML::read_eml(system.file("dummy_eml_w_attributes.xml", package = "datamgmt"))
 
+# TODO: add tests for qa_attributes and qa_package
+
 
 test_that("title is present with sufficient length", {
     expect_error(qa_title(7))
@@ -142,6 +144,15 @@ test_that("abstract is present with sufficient length", {
     expect_equal(out10$status, "FAILURE")
 })
 
+test_that("qa_abstract fails when < 100 words", {
+    out <- qa_abstract(eml_test)
+    expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@abstract <- EML::read_eml("<abstract></abstract>")
+    out <- qa_abstract(eml)
+    expect_equal(out$status, "FAILURE")
+})
 
 test_that("keywords are present", {
     expect_error(qa_keywordSet(7))
@@ -604,51 +615,39 @@ test_that("physical is present and complete", {
 })
 
 
-test_that("qa_congruence() accepts correct inputs", {
-    expect_error(qa_congruence(7, "test", FALSE))
-    expect_error(qa_congruence("test", "test", FALSE))
-    expect_error(qa_congruence(list("test"), "test", FALSE))
-})
-
-
-test_that("qa_attributes() accepts correct inputs", {
-    data <- data.frame(1, 2, 3)
-    entity <- new("dataTable")
-
-    expect_error(qa_attributes(7, data))
-    expect_error(qa_attributes("test", data))
-    expect_error(qa_attributes(list("test"), data))
-
-    expect_error(qa_attributes(entity, 7))
-    expect_error(qa_attributes(entity, "test"))
-    expect_error(qa_attributes(entity, list("test")))
-})
-
-
-test_that("qa_eml() only accepts eml input", {
+test_that("qa_eml only accepts eml input", {
     expect_error(qa_eml(7))
+
     expect_error(qa_eml("test"))
+
     expect_error(qa_eml(list("test")))
+
+    out <- qa_title(character(0))
+    expect_equal(out$status, "FAILURE")
+
+    eml <- eml_test
+    eml@dataset@title[[1]] <- EML::read_eml("<title></title>")
+    out <- qa_title(eml)
+    expect_equal(out$status, "FAILURE")
 })
 
+test_that("we can check for funding numbers", {
+    out <- qa_award_number_present(eml_test)
+    expect_equal(out$status, "SUCCESS")
 
-test_that("qa_sysmeta() accepts correct inputs", {
-    expect_error(qa_sysmeta(7))
-    expect_error(qa_sysmeta("test"))
-    expect_error(qa_sysmeta(list("test")))
-})
+    out <- qa_award_number_present("1234567")
+    expect_equal(out$status, "SUCCESS")
 
+    eml <- eml_test
+    eml@dataset@project@funding <- EML::read_eml("<funding></funding>")
+    out <- qa_award_number_present(eml)
+    expect_equal(out$status, "FAILURE")
 
-test_that("qa_package() accepts correct inputs", {
-    expect_error(qa_package(7))
-    expect_error(qa_package("test"))
-    expect_error(qa_package(list("test")))
-})
-
-
-test_that("qa_view() accepts correct inputs", {
-    expect_error(qa_view(7))
-    expect_error(qa_view("test"))
-
-    expect_silent(qa_view(list("test")))
+    out <- qa_award_number_present("")
+    expect_equal(out$status, "FAILURE")
+    out1 <- qa_eml(eml_test)
+    expect_equal(out1$qa_title$status, "FAILURE")
+    expect_equal(out1$qa_abstract$status, "FAILURE")
+    expect_equal(out1$qa_keywordSet$status, "FAILURE")
+    expect_equal(out1$qa_project$status, "FAILURE")
 })
