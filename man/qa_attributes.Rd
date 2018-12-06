@@ -2,57 +2,50 @@
 % Please edit documentation in R/eml_data_qa.R
 \name{qa_attributes}
 \alias{qa_attributes}
-\title{Check congruence of data and metadata attributes for a tabular data object}
+\title{Check congruence of attributes and data for a given dataset and dataTable}
 \usage{
-qa_attributes(entity, data)
+qa_attributes(eml, dataTable, data, checkEnumeratedDomains = TRUE)
 }
 \arguments{
-\item{entity}{(eml) An EML entity associated with a data object.}
+\item{eml}{(S4) The entire EML object.  This is necessary if attributes with references are being checked.}
 
-\item{data}{(data.frame) A data frame of the data object.}
-}
-\value{
-(list) A list of results.
+\item{dataTable}{(dataTable) EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
+
+\item{data}{(data.frame) Data frame of data object.}
+
+\item{checkEnumeratedDomains}{(logical) Default TRUE. Compare unique values in data to defined enumerated domains in EML.}
 }
 \description{
-This function checks the congruence of data and metadata attributes
-for a tabular data object. Supported objects include dataTable, otherEntity,
-and spatialVector entities. It can be used on its own but is also
-called by \code{\link[=qa_congruence]{qa_congruence()}} to check all tabular data objects in a data package.
+This function is called by \code{\link{qa_package}} but can be used on its own to test congruence
+between a dataTable and a data object (data.frame). See \code{\link{qa_package}} documentation for more details.
 }
 \details{
-This function checks the following:
+Purpose: QA function to check that attributes match values in the data
+
+Functions:
 \itemize{
 \item Names: Check that column names in attributes match column names in data frame. Possible conditions to check for:
 \itemize{
 \item attributeList does not exist for data frame
+\item Physical has not been set correctly
 \item Some of the attributes that exist in the data do not exist in the attributeList
 \item Some of the attributes that exist in the attributeList do not exist in the data
 \item Typos in attribute or column names resulting in nonmatches
 }
-\item Domains: Check that attribute types in EML match attribute types in data frame. Possible conditions to check for:
+\item Domains: Check that attribute types match attribute types in data frame. Possible conditions to check for:
 \itemize{
 \item nominal, ordinal, integer, ratio, dateTime
 \item If domain is enumerated domain, enumerated values in the data are accounted for in the enumerated definition
 \item If domain is enumerated domain, enumerated values in the enumerated definition are all represented in the data
 \item Type of data does not match attribute type
 }
-\item Values: Check that values in data are reasonable. Possible conditions to check for:
-\itemize{
-\item Accidental characters in the data (e.g., one character in a column of integers)
-\item If missing values are present, missing value codes are also present
-}
+\item Values: Check for accidental characters in the data frame (one character in a column of integers)
 }
 }
 \examples{
 \dontrun{
-# Checking a .csv file
-dataTable <- eml@dataset@dataTable[[1]]
-data <- readr::read_csv("https://cn.dataone.org/cn/v2/resolve/urn:uuid:...")
+# Run attribute checks on a data.frame and its associated EML dataTable
 
-qa_attributes(dataTable, data)
+qa_attributes(dataTable, dataObject)
 }
-}
-\seealso{
-\code{\link[=qa_congruence]{qa_congruence()}}
 }
