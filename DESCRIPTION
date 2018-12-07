@@ -32,10 +32,10 @@ Imports:
     htmlwidgets,
     httr,
     jsonlite,
+    listviewer,
     lubridate,
     magrittr,
     memoise,
-    metadig,
     methods,
     ncdf4,
     RCurl,
@@ -62,8 +62,7 @@ Suggests:
     visNetwork
 Remotes:
     NCEAS/arcticdatautils,
-    NCEAS/metadig-r,
     ropensci/EML@1b3d0a2bd63e01a3af99c77aa6a0784c3da3ea06
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr
