@@ -1,521 +1,8 @@
 # QA for metadata based on EML 2.1.1
-# See EML specs at https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/
-
-
-#' Check package including congruence of attributes and data
-#'
-#' This function checks that the attributes listed in the metadata match the values in the data for each
-#' tabular data object. It may also optionally check if all creators have ORCIDs and have full access
-#' to all elements of the data package.
-#'
-#' @importFrom methods is
-#' @importFrom methods slot
-#' @import crayon
-#' @import dataone
-#' @importFrom datapack hasAccessRule
-#' @import EML
-#' @import arcticdatautils
-#' @importFrom utils read.csv
-#' @importFrom utils read.delim
-#' @importFrom utils read.table
-#' @importFrom utils download.file
-#' @importFrom readxl read_excel
-#' @importFrom sf read_sf
-#' @importFrom sf st_set_geometry
-#'
-#' @param node (MNode) Member Node where the PID is located.
-#' @param pid (character) The PID of a resource map.
-#' @param readAllData (logical) Default TRUE. Read all data from remote and check that column types match attributes,
-#' otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
-#' If \code{check_attributes = FALSE}, no rows will be read.
-#' @param check_attributes (logical) Default TRUE. Checks congruence of attributes and data.
-#' @param check_creators (logical) Default FALSE. Checks if each creator has an ORCID.
-#' Will also run if \code{check_access = TRUE}.
-#' @param check_access (logical) Default FALSE. Checks if each creator has full access to the
-#' metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.
-#'
-#' @return invisible
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Run QA checks
-#'
-#' qa_package(mn, pid, readAllData = FALSE, check_attributes = TRUE,
-#'            check_creators = FALSE, check_access = FALSE)
-#' }
-qa_package <- function(node, pid, readAllData = TRUE, check_attributes = TRUE, check_creators = FALSE, check_access = FALSE) {
-    stopifnot(class(node) %in% c("MNode", "CNode"))
-    stopifnot(is.character(pid), nchar(pid) > 0)
-
-    supported_file_formats <- c("text/csv",
-                                "text/tsv",
-                                "text/plain",
-                                "application/vnd.ms-excel",
-                                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                "application/zip",
-                                "netCDF-4",
-                                "netCDF-3",
-                                "CF-1.4", "CF-1.3", "CF-1.2", "CF-1.1", "CF-1.0")
-
-    package <- tryCatch({
-        suppressWarnings(arcticdatautils::get_package(node, pid, file_names = TRUE))
-    },
-    error = function(e) {
-        stop("\nFailed to get package. Is your DataONE token set?")
-    })
-
-    eml <- EML::read_eml(rawToChar(dataone::getObject(node, package$metadata)))
-
-    cat(crayon::green(paste0("\n.............Processing package ", package$resource_map, "..................")))
-
-    # Check creators
-    if (check_creators || check_access) {
-        creator_ORCIDs <- qa_creator_ORCIDs(eml)
-    }
-
-    # Check access
-    if (check_access && length(creator_ORCIDs) > 0) {
-        # Check metadata
-        sysmeta <- dataone::getSystemMetadata(node, package$metadata)
-        qa_access(sysmeta, creator_ORCIDs)
-        # Check resource_map
-        sysmeta <- dataone::getSystemMetadata(node, package$resource_map)
-        qa_access(sysmeta, creator_ORCIDs)
-    }
-
-    urls_dataTable <- unique(unlist(EML::eml_get(eml@dataset@dataTable, "url"), recursive = TRUE))
-    urls_otherEntity <- unique(unlist(EML::eml_get(eml@dataset@otherEntity, "url"), recursive = TRUE))
-    urls_spatialVector <- unique(unlist(EML::eml_get(eml@dataset@spatialVector, "url"), recursive = TRUE))
-    urls <- unique(c(urls_dataTable, urls_otherEntity, urls_spatialVector))
-
-    # Check that each data object has a matching URL in the EML
-    wrong_URL <- FALSE
-    for (datapid in package$data) {
-        n <- which(grepl(paste0(datapid, "$"), urls))
-        if (length(n) != 1) {
-            cat(crayon::red(paste0("\nThe URL/distribution for ", datapid, " is missing/incongruent in the physical section of the EML.")))
-            wrong_URL <- TRUE
-        }
-    }
-
-    if (length(urls) != length(package$data) || wrong_URL) {
-        # Stop here to ensure proper ordering in the following loops
-        stop("\nAll distribution URLs in the EML must match the package's data URLs to continue.",
-             "\nPlease fix and try again.")
-    }
-
-    for (objectpid in package$data) {
-        n_dT <- which(grepl(paste0(objectpid, "$"), urls_dataTable))
-        n_oE <- which(grepl(paste0(objectpid, "$"), urls_otherEntity))
-        n_sV <- which(grepl(paste0(objectpid, "$"), urls_spatialVector))
-
-        if (length(n_dT) == 1) {
-            dataTable <- eml@dataset@dataTable[[n_dT]]
-            urls <- urls_dataTable
-            i <- n_dT
-        } else if (length(n_oE) == 1) {
-            dataTable <- eml@dataset@otherEntity[[n_oE]]
-            urls <- urls_otherEntity
-            i <- n_oE
-        } else if (length(n_sV) == 1) {
-            dataTable <- eml@dataset@spatialVector[[n_sV]]
-            urls <- urls_spatialVector
-            i <- n_sV
-        } else {
-            next
-        }
-
-        sysmeta <- dataone::getSystemMetadata(node, objectpid)
-
-        if (check_access && length(creator_ORCIDs) > 0) {
-            qa_access(sysmeta, creator_ORCIDs)
-        }
-
-        if (!check_attributes) next
-
-        # If object is not tabular data, skip to next object
-        format <- sysmeta@formatId
-        if (!format %in% supported_file_formats) next
-
-        cat(crayon::green(paste0("\n\n..................Processing object ", objectpid,
-                                 " (", dataTable@physical[[1]]@objectName, ").................")))
-
-        if (is.null(EML::get_attributes(dataTable@attributeList)$attributes) && length(slot(dataTable@attributeList, 'references')) == 0) {
-            cat(crayon::red(paste0("\nEmpty attribute table for object at", dataTable@physical[[1]]@distribution[[1]]@online@url)))
-            cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
-                                     " (", dataTable@physical[[1]]@objectName, ").................")))
-            next
-        }
-
-        # If package is public, read directly from the file; otherwise, use DataONE API
-        isPublic <- datapack::hasAccessRule(sysmeta, "public", "read")
-
-        if (readAllData) {
-            rowsToRead <- -1
-        } else {
-            rowsToRead <- 10
-        }
-
-        data <- tryCatch({
-            if (isPublic) {
-                if (format == "text/csv") {
-                    utils::read.csv(urls[i], nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
-                } else if (format == "text/tsv") {
-                    utils::read.delim(urls[i], nrows = rowsToRead)
-                } else if (format == "text/plain") {
-                    utils::read.table(urls[i], nrows = rowsToRead)
-                } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || format == "application/vnd.ms-excel") {
-                    tmp <- tempfile()
-                    utils::download.file(url = urls[i], destfile = tmp, mode = "wb", quiet = TRUE)
-                    data <- readxl::read_excel(tmp, n_max = ifelse(rowsToRead == -1, Inf, rowsToRead))
-                    unlink(tmp)
-                    data
-                } else if (format == "application/zip") {
-                    # Many formats can exist within a .zip file; skip if not spatial data
-                    tmp <- tempfile()
-                    utils::download.file(url = urls[i], destfile = tmp, quiet = TRUE)
-                    tmp2 <- tempfile()
-                    utils::unzip(tmp, exdir = tmp2)
-                    t <- list.files(tmp2, full.names = TRUE, recursive = TRUE)
-                    if (any(grep("*\\.shp", t))) {
-                        data <- suppressWarnings(sf::read_sf(t[grep("*\\.shp", t)]) %>% sf::st_set_geometry(NULL))
-                        cat(crayon::yellow("\nNote: Shapefiles have attribute name limits of 10 characters."))
-                    } else if (any(grep("*\\.gdb", t))) {
-                        data <- suppressWarnings(sf::read_sf(list.dirs(tmp2)[2]) %>% sf::st_set_geometry(NULL))
-                    } else {
-                        cat(crayon::yellow("\nSpatial data not present within .zip file."))
-                        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
-                                                 " (", dataTable@physical[[1]]@objectName, ").................")))
-                        next
-                    }
-                    unlink(c(tmp, tmp2), recursive = TRUE)
-                    data
-                } else if (format == "netCDF-4" || format == "netCDF-3" || format == "CF-1.4" || format == "CF-1.3" ||
-                           format == "CF-1.2" || format == "CF-1.1" || format == "CF-1.0") {
-                    tmp <- tempfile()
-                    utils::download.file(url = urls[i], destfile = tmp, mode = "wb", quiet = TRUE)
-                    nc <- ncdf4::nc_open(tmp)
-                    data <- netcdf_to_dataframe(nc)
-                    unlink(tmp)
-                    rm(nc) # clean up now because many netCDF files are large
-                    data
-                }
-            } else {
-                if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || format == "application/vnd.ms-excel") {
-                    cat(crayon::yellow("This function uses the DataONE API to get objects and currently cannot read private .xls or .xlsx files. Check attributes manually."))
-                    cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
-                                             " (", dataTable@physical[[1]]@objectName, ").................")))
-                    next
-                } else if (format == "netCDF-4" || format == "netCDF-3" || format == "CF-1.4" || format == "CF-1.3" ||
-                           format == "CF-1.2" || format == "CF-1.1" || format == "CF-1.0") {
-                    tmp <- tempfile()
-                    writeBin(dataone::getObject(node, objectpid), tmp)
-                    nc <- ncdf4::nc_open(tmp)
-                    data <- netcdf_to_dataframe(nc)
-                    unlink(tmp)
-                    rm(nc) # clean up now because many netCDF files are large
-                    data
-                } else {
-                    utils::read.csv(textConnection(rawToChar(dataone::getObject(node, objectpid))),
-                                    nrows = rowsToRead, check.names = FALSE, stringsAsFactors = FALSE)
-                }
-            }
-        },
-        error = function(e) {
-            stop(paste0("\nFailed to read file at ", urls[i]))
-        })
-
-        qa_attributes(eml, dataTable, data, readAllData)
-
-        cat(crayon::green(paste0("\n..................Processing complete for object ", objectpid,
-                                 " (", dataTable@physical[[1]]@objectName, ").................")))
-    }
-
-    cat(crayon::green(paste0("\n\n.............Processing complete for package ",
-                             package$resource_map, "..................")))
-
-    return(invisible())
-}
-
-
-#' Check the ORCIDs of creators in a given EML
-#'
-#' This function is called by \code{\link{qa_package}}.
-#' See \code{\link{qa_package}} documentation for more details.
-#'
-#' @param eml (eml) Package metadata.
-#'
-#' @return creator_ORCIDs (character) Returns \code{character(0)} if any tests fail.
-qa_creator_ORCIDs <- function(eml) {
-    # Check creators
-    creators <- eml@dataset@creator
-    creator_ORCIDs <- unlist(eml_get(creators, "userId"))
-    isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", creator_ORCIDs)
-    creator_ORCIDs <- sub("^https://", "http://", creator_ORCIDs)
-
-    if (length(isORCID) != length(creators) || !all(isORCID)) {
-        cat(crayon::red("\nEach creator needs to have a proper ORCID."))
-        return(character(0))
-    } else {
-        return(creator_ORCIDs)
-    }
-}
-
-
-#' Check rights and access for creators in sysmeta
-#'
-#' This function is called by \code{\link{qa_package}}.
-#' See \code{\link{qa_package}} documentation for more details.
-#'
-#' @param sysmeta (sysmeta)  Sysmeta of a given object.
-#' @param creator_ORCIDs (character) ORCIDs of creators. Result of \code{\link{qa_creator_ORCIDs}}.
-qa_access <- function(sysmeta, creator_ORCIDs) {
-    # Check rightsHolder
-    if (!(sysmeta@rightsHolder %in% creator_ORCIDs)) {
-        cat(crayon::yellow("\nThe rightsHolder for", sysmeta@identifier, "is not set to one of the creators."))
-    }
-
-    # Check creator access
-    for (creator in creator_ORCIDs) {
-        creator_read <- datapack::hasAccessRule(sysmeta, creator, "read")
-        creator_write <- datapack::hasAccessRule(sysmeta, creator, "write")
-        creator_changePermission <- datapack::hasAccessRule(sysmeta, creator, "changePermission")
-        access <- c(creator_read, creator_write, creator_changePermission)
-
-        if (!all(access)) {
-            cat(crayon::yellow("\nFull access for", sysmeta@identifier, "is not set for creator with ORCID", creator))
-        }
-    }
-}
-
-
-#' Check congruence of attributes and data for a given dataset and dataTable
-#'
-#' This function is called by \code{\link{qa_package}} but can be used on its own to test congruence
-#' between a dataTable and a data object (data.frame). See \code{\link{qa_package}} documentation for more details.
-#'
-#' Purpose: QA function to check that attributes match values in the data
-#'
-#' Functions:
-#' \itemize{
-#'     \item Names: Check that column names in attributes match column names in data frame. Possible conditions to check for:
-#'     \itemize{
-#'         \item attributeList does not exist for data frame
-#'         \item Physical has not been set correctly
-#'         \item Some of the attributes that exist in the data do not exist in the attributeList
-#'         \item Some of the attributes that exist in the attributeList do not exist in the data
-#'         \item Typos in attribute or column names resulting in nonmatches
-#'     }
-#'     \item Domains: Check that attribute types match attribute types in data frame. Possible conditions to check for:
-#'     \itemize{
-#'         \item nominal, ordinal, integer, ratio, dateTime
-#'         \item If domain is enumerated domain, enumerated values in the data are accounted for in the enumerated definition
-#'         \item If domain is enumerated domain, enumerated values in the enumerated definition are all represented in the data
-#'         \item Type of data does not match attribute type
-#'     }
-#'     \item Values: Check for accidental characters in the data frame (one character in a column of integers)
-#' }
-#'
-#' @param eml (S4) The entire EML object.  This is necessary if attributes with references are being checked.
-#' @param dataTable (dataTable) EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.
-#' @param data (data.frame) Data frame of data object.
-#' @param checkEnumeratedDomains (logical) Default TRUE. Compare unique values in data to defined enumerated domains in EML.
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Run attribute checks on a data.frame and its associated EML dataTable
-#'
-#' qa_attributes(dataTable, dataObject)
-#' }
-qa_attributes <- function(eml, dataTable, data, checkEnumeratedDomains = TRUE) {
-    attributeTable <- EML::get_attributes(dataTable@attributeList)
-    # Check for references
-    if (is.null(attributeTable$attributes)) {
-        ref_index <- match_reference_to_attributeList(eml, dataTable)
-        if (length(ref_index) > 0) {
-            entity <- methods::slot(eml@dataset, class(dataTable))[[ref_index]]
-            attributeTable <- EML::get_attributes(entity@attributeList)
-        }
-    }
-    attributeNames <- attributeTable$attributes$attributeName
-
-    if (is.null(attributeNames)) {
-        cat(crayon::red(paste0("\nEmpty attribute table for object at ", dataTable@physical[[1]]@distribution[[1]]@online@url)))
-    }
-
-    header <- as.numeric(dataTable@physical[[1]]@dataFormat@textFormat@numHeaderLines)
-
-    if (length(header) > 0 && !is.na(header) && header > 1) {
-        names(data) <- NULL
-        names(data) <- data[(header - 1), ]
-    }
-
-    dataCols <- colnames(data)
-
-    # Check for attribute correctness according to the EML schema using arcticdatautils::eml_validate_attributes
-    attOutput <- utils::capture.output(arcticdatautils::eml_validate_attributes(dataTable@attributeList))
-    attErrors <- which(grepl("FALSE", utils::head(attOutput, -2)))
-
-    if (length(attErrors) > 0) {
-        print(attOutput[attErrors])
-    }
-
-    # Check that attribute names match column names
-    allequal <- isTRUE(all.equal(dataCols, attributeNames))
-
-    if (allequal == FALSE) {
-        intersection <- intersect(attributeNames, dataCols)
-        nonmatcheml <- attributeNames[!attributeNames %in% intersection]
-        nonmatchdata <- dataCols[!dataCols %in% intersection]
-
-        # EML has values that data does not have
-        if (length(nonmatcheml) > 0) {
-            cat(crayon::red(paste0("\nThe EML dataTable includes attributes '", toString(nonmatcheml, sep = ", "), "' that are not present in the data.")))
-            cat(crayon::yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
-        }
-
-        # Data has values that EML does not have
-        if (length(nonmatchdata) > 0) {
-            cat(crayon::red(paste0("\nThe data includes attributes '", toString(nonmatchdata, sep = ", "), "' that are not present in the EML.")))
-            cat(crayon::yellow("\nContinuing attribute and data matching WITHOUT mismatched attributes - fix issues and re-run the function after first round completion."))
-        }
-
-        # Values match but are not ordered correctly
-        if (length(nonmatcheml) == 0 && length(nonmatchdata) == 0 && allequal == FALSE) {
-            cat(crayon::yellow("\nAttributes in the attribute table match column names but are incorrectly ordered."))
-        }
-
-        data <- data[ , which(colnames(data) %in% intersection)]
-        attributeTable$attributes <- attributeTable$attributes[which(attributeTable$attributes$attributeName %in% intersection), ]
-        attributeTable$attributes <- attributeTable$attributes[order(match(attributeTable$attributes$attributeName, colnames(data))), ]
-    }
-
-    # Check that type of column matches type of data based on acceptable DataONE formats
-    for (i in seq_along(data)) {
-        matchingAtt <- attributeTable$attributes[i, ]
-        attClass <- class(data[ , i])
-
-        # TODO: If matching Att has a datetime domain, try coercing the column in R based on the date time format
-        # if (matchingAtt$measurementScale == "dateTime") {
-        #
-        # }
-
-        if (attClass == "numeric" || attClass == "integer" || attClass == "double") {
-            if (matchingAtt$measurementScale != "ratio" && matchingAtt$measurementScale != "interval" && matchingAtt$measurementScale != "dateTime") {
-                cat(crayon::yellow(paste0(c("\nWarning: Mismatch in attribute type for the attribute '", matchingAtt$attributeName,
-                                            "'. Type of data is ", attClass, " which should probably have interval or ratio measurementScale in EML, not ",
-                                            matchingAtt$measurementScale, "."), collapse = "")))
-            }
-        } else if (attClass == "character" || attClass == "logical") {
-            if (matchingAtt$measurementScale != "nominal" && matchingAtt$measurementScale != "ordinal") {
-                cat(crayon::yellow(paste0(c("\nWarning: Mismatch in attribute type for the attribute '", matchingAtt$attributeName,
-                                            "'. Type of data is ", attClass, " which should probably have nominal or ordinal measurementScale in EML, not ",
-                                            matchingAtt$measurementScale, "."), collapse = "")))
-            }
-        }
-    }
-
-    # Check that enumerated domains match values in data
-    if (checkEnumeratedDomains == TRUE) {
-        if (length(attributeTable$factors) > 0) {
-            for (i in seq_along(unique(attributeTable$factors$attributeName))) {
-                emlAttName <- unique(attributeTable$factors$attributeName)[i]
-                emlUniqueValues <- attributeTable$factors[attributeTable$factors$attributeName == emlAttName, "code"]
-
-                dataUniqueValues <- unique(data[[which(colnames(data) == emlAttName)]])
-
-                intersection <- intersect(dataUniqueValues, emlUniqueValues)
-                nonmatcheml <- emlUniqueValues[!emlUniqueValues %in% intersection]
-                nonmatchdata <- dataUniqueValues[!dataUniqueValues %in% intersection]
-
-                if (length(nonmatcheml) > 0) {
-                    cat(crayon::red(paste("\nThe EML contains the following enumerated domain values for the attribute",
-                                          paste0("'", as.character(emlAttName), "'"),
-                                          "that do not appear in the data: ", toString(nonmatcheml, sep = ", "))))
-                }
-
-                if (length(nonmatchdata) > 0) {
-                    cat(crayon::red(paste("\nThe data contains the following enumerated domain values for the attribute",
-                                          paste0("'", as.character(emlAttName), "'"),
-                                          "that do not appear in the EML: ", toString(nonmatchdata, sep = ", "))))
-                }
-            }
-        }
-        # If there are any missing values in the data, check that there is an associated missing value code in the EML
-        for (i in which(colSums(is.na(data)) > 0)) {
-            attribute <- attributeTable$attributes[i, ]
-            if (is.na(attribute$missingValueCode)) {
-                cat(crayon::red(paste0("\nThe attribute '", attribute$attributeName, "' contains missing values but does not have a missing value code.")))
-            }
-        }
-    }
-}
-
-
-# Helper function for converting 2-D data from a netCDF to a data.frame object
-netcdf_to_dataframe <- function(nc) {
-    att_names <- names(nc$var)
-    dims <- nc$dim
-    dim_names <- c()
-    for (i in 1:length(dims)) {
-        dim_names[i] <- dims[[i]]$name
-    }
-
-    var_names <- c(att_names, dim_names)
-    # remove duplicates
-    dup_indices <- which(duplicated(tolower(var_names)))
-    if (length(dup_indices) > 0) {
-        var_names <- var_names[-dup_indices]
-    }
-
-    data <- lapply(var_names, function(x) ncdf4::ncvar_get(nc, x))
-    max_length <- max(unlist(lapply(data, function(x) length(x))))
-
-    results <- data.frame(matrix(ncol = length(data), nrow = max_length))
-    names(results) <- var_names
-    for (i in seq_along(results)) {
-        results[,i] <- rep_len(data[[i]], length.out = max_length)
-    }
-
-    return(results)
-}
-
-# Helper function for matching a reference to an attributeList
-# Returns the index of the match
-match_reference_to_attributeList <- function(eml, entity) {
-    # Get list of 'dataTable', 'otherEntity', etc.
-    entity_list <- methods::slot(eml@dataset, class(entity))
-    # Get the ref we want to match
-    ref <- methods::slot(entity@attributeList, 'references')
-    # Get all of the references present
-    references <- entity_list %>%
-        purrr::map(methods::slot, 'attributeList') %>%
-        purrr::map(methods::slot, 'id') %>%  # two lists - so we need two map() calls
-        unlist()
-    # Get the index of the reference we want - use regex anchors to specify start and end of string
-    index <- which(stringr::str_detect(references, paste0('^', ref, '$')))
-    return(index)
-}
-
-
-# Check if rights holder is present in creators
-qa_rightsHolder <- function(eml, system_metadata) {
-    rightsHolder <- system_metadata@rightsHolder
-    creators <- paste0(eml@dataset@creator, collapse = "")
-    creator_orcids <- stringr::str_extract_all(creators, "http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}")
-
-    if (!(rightsHolder %in% creator_orcids)) {
-        return(list(status = "FAILURE",
-                    output = sprintf("rightsHolder: %s is present in the metadata creators", rightsHolder)))
-    } else {
-        return(list(status = "SUCCESS",
-                    output = sprintf("rightsHolder: %s is not present in the metadata creators", rightsHolder)))
-    }
-}
+# See EML specs at:
+# https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/
+# Also based on the MetaDIG checks found at:
+# https://github.com/NCEAS/metadig-engine/tree/master/src/main/resources/checks
 
 
 #' Check if title is present with sufficient length
@@ -523,11 +10,12 @@ qa_rightsHolder <- function(eml, system_metadata) {
 #' This function checks if a title is present with the sufficient length.
 #' A title should be between 7 and 20 words.
 #'
-#' @importFrom stringr str_split
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @importFrom methods is
+#' @importFrom stringr str_split
 #'
 #' @noRd
 # TODO: check number of words in multiple titles (title[[i]])
@@ -589,11 +77,12 @@ qa_title <- function(input) {
 #' This function checks if a publication date is present with the
 #' correct format (YYYY or YYYY-MM-DD).
 #'
-#' @importFrom lubridate ymd
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @importFrom lubridate ymd
+#' @importFrom methods is
 #'
 #' @noRd
 qa_pubDate <- function(input) {
@@ -637,31 +126,45 @@ qa_pubDate <- function(input) {
 #' This function checks if an abstract is present with sufficient length.
 #' At least 100 words are required.
 #'
-#' importFrom stringr str_split
-#' importFrom xml2 as_list
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#' @importFrom stringr str_split
+#' @importFrom xml2 as_list
+#'
 #' @noRd
 qa_abstract <- function(input) {
     if (methods::is(input, "eml")) {
-        # Usually 'abstract' has a 'para' slot but sometimes not
-        if (length(input@dataset@abstract@para) == 0) {
-            abstract <- input@dataset@abstract@.Data
+        # Usually abstract has a 'para' slot but sometimes not
+        if (length(input@dataset@abstract@section) > 0) {
+            # There can be multiple 'section' but this code only extracts the first
+            text <- xml2::as_list(input@dataset@abstract@section[[1]]@.Data[[1]])
+            abstract <- paste(text, collapse = " ")
+            length_abstract <- length(abstract)
+        } else if (length(input@dataset@abstract@para) > 0) {
+            # There can be multiple 'para' but this code only extracts the first
+            text <- xml2::as_list(input@dataset@abstract@para[[1]]@.Data[[1]])
+            abstract <- paste(text, collapse = " ")
             length_abstract <- length(abstract)
         } else {
-            # There can be multiple 'para' but this code only extracts the first
-            abstract <- unlist(xml2::as_list(input@dataset@abstract@para[[1]]@.Data[[1]]))
+            abstract <- input@dataset@abstract@.Data
             length_abstract <- length(abstract)
         }
     } else if (methods::is(input, "abstract")) {
-        if (length(input@para) == 0) {
-            abstract <- input@.Data
+        if (length(input@section) > 0) {
+            # There can be multiple 'section' but this code only extracts the first
+            text <- xml2::as_list(input@section[[1]]@.Data[[1]])
+            abstract <- paste(text, collapse = " ")
+            length_abstract <- length(abstract)
+        } else if (length(input@para) > 0) {
+            # There can be multiple 'para' but this code only extracts the first
+            text <- xml2::as_list(input@para[[1]]@.Data[[1]])
+            abstract <- paste(text, collapse = " ")
             length_abstract <- length(abstract)
         } else {
-            abstract <- unlist(xml2::as_list(input@para[[1]]@.Data[[1]]))
+            abstract <- input@.Data
             length_abstract <- length(abstract)
         }
     } else if (methods::is(input, "character")) {
@@ -703,6 +206,8 @@ qa_abstract <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#'
 #' @noRd
 qa_keywordSet <- function(input) {
     if (methods::is(input, "eml")) {
@@ -739,17 +244,18 @@ qa_keywordSet <- function(input) {
 #'
 #' This function checks if data usage rights are present and are either CC-BY or CC-0.
 #'
-#' @importFrom stringr str_detect
-#' @importFrom xml2 as_list
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#' @importFrom stringr str_detect
+#' @importFrom xml2 as_list
+#'
 #' @noRd
 qa_intellectualRights <- function(input) {
     if (methods::is(input, "eml")) {
-        # Usually 'intellectualRights' has a 'para' slot but sometimes not
+        # Usually intellectualRights has a 'para' slot but sometimes not
         if (length(input@dataset@intellectualRights@para) == 0) {
             rights <- input@dataset@intellectualRights@.Data
             length_rights <- length(rights)
@@ -805,6 +311,8 @@ qa_intellectualRights <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#'
 #' @noRd
 qa_creator <- function(input) {
     if (methods::is(input, "eml")) {
@@ -834,11 +342,12 @@ qa_creator <- function(input) {
 #'
 #' This function checks if creator information is present, including an ID, email, and address.
 #'
-#' @import EML
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
 #'
 #' @noRd
 qa_creator_info <- function(input) {
@@ -857,11 +366,11 @@ qa_creator_info <- function(input) {
 
     # Assume that the check will succeed, until proven otherwise
     status <- "SUCCESS"
-    # Output messages will be stored in a vector
+    # Store output messages in a vector
     messages <- c()
 
     # There could be multiple creators, but just one creator with an ID will satisfy this check
-    userId <- lapply(c(1:length(creators)), function(i) {length(creators[[i]]@userId@.Data)})
+    userId <- lapply(c(1:length(creators)), function(i) length(creators[[i]]@userId@.Data))
     if (all(userId == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "A user identifier for any creator is not present. Unable to check for an ORCID."
@@ -877,7 +386,7 @@ qa_creator_info <- function(input) {
     }
 
     # There could be multiple creators, but just one creator with an email will satisfy this check
-    email <- lapply(c(1:length(creators)), function(i) {length(creators[[i]]@electronicMailAddress@.Data)})
+    email <- lapply(c(1:length(creators)), function(i) length(creators[[i]]@electronicMailAddress@.Data))
     if (all(email == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An email address for any creator is not present."
@@ -893,7 +402,7 @@ qa_creator_info <- function(input) {
     }
 
     # There could be multiple creators, but just one creator with an address will satisfy this check
-    address <- lapply(c(1:length(creators)), function(i) {length(creators[[i]]@address@.Data)})
+    address <- lapply(c(1:length(creators)), function(i) length(creators[[i]]@address@.Data))
     if (all(address == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An address for any creator is not present."
@@ -914,6 +423,8 @@ qa_creator_info <- function(input) {
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @importFrom methods is
 #'
 #' @noRd
 qa_contact <- function(input) {
@@ -944,11 +455,12 @@ qa_contact <- function(input) {
 #'
 #' This function checks if contact information is present, including an ID, email, and address.
 #'
-#' @import EML
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
 #'
 #' @noRd
 qa_contact_info <- function(input) {
@@ -967,11 +479,11 @@ qa_contact_info <- function(input) {
 
     # Assume that the check will succeed, until proven otherwise
     status <- "SUCCESS"
-    # Output messages will be stored in a vector
+    # Store output messages in a vector
     messages <- c()
 
     # There could be multiple contacts, but just one contact with an ID will satisfy this check
-    userId <- lapply(c(1:length(contacts)), function(i) {length(contacts[[i]]@userId@.Data)})
+    userId <- lapply(c(1:length(contacts)), function(i) length(contacts[[i]]@userId@.Data))
     if (all(userId == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "A user identifier for any contact is not present. Unable to check for an ORCID."
@@ -987,7 +499,7 @@ qa_contact_info <- function(input) {
     }
 
     # There could be multiple contacts, but just one contact with an email will satisfy this check
-    email <- lapply(c(1:length(contacts)), function(i) {length(contacts[[i]]@electronicMailAddress@.Data)})
+    email <- lapply(c(1:length(contacts)), function(i) length(contacts[[i]]@electronicMailAddress@.Data))
     if (all(email == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An email address for any contact is not present."
@@ -1003,7 +515,7 @@ qa_contact_info <- function(input) {
     }
 
     # There could be multiple contacts, but just one contact with an address will satisfy this check
-    address <- lapply(c(1:length(contacts)), function(i) {length(contacts[[i]]@address@.Data)})
+    address <- lapply(c(1:length(contacts)), function(i) length(contacts[[i]]@address@.Data))
     if (all(address == 0)) {
         status <- "FAILURE"
         messages[[length(messages) + 1]] <- "An address for any contact is not present."
@@ -1021,11 +533,12 @@ qa_contact_info <- function(input) {
 #'
 #' This function checks if geographic coverage is present with a description.
 #'
-#' @import EML
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
 #'
 #' @noRd
 qa_geographic <- function(input) {
@@ -1064,11 +577,12 @@ qa_geographic <- function(input) {
 #'
 #' This function checks if geographic coverage bounding coordinates are present.
 #'
-#' @import EML
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
 #'
 #' @noRd
 qa_geographic_coord <- function(input) {
@@ -1120,11 +634,12 @@ qa_geographic_coord <- function(input) {
 #'
 #' This function checks if geographic coverage intersects with the Arctic.
 #'
-#' @import EML
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
 #'
 #' @noRd
 qa_geographic_arctic <- function(input) {
@@ -1165,18 +680,19 @@ qa_geographic_arctic <- function(input) {
 }
 
 
-#' Check if temporal coverage is present with correct format
+#' Check if temporal coverage is present
 #'
-#' This function checks if temporal coverage is present
-#' and in the correct format (YYYY or YYYY-MM-DD).
-#'
-#' @import EML
+#' This function checks if temporal coverage is present.
 #'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
 #'
+#' @import EML
+#' @importFrom methods is
+#'
 #' @noRd
+# TODO: check for correct formatting of dates (YYYY or YYYY-MM-DD)
 qa_temporal <- function(input) {
     if (methods::is(input, "eml")) {
         temp <- input@dataset@coverage@temporalCoverage
@@ -1209,11 +725,12 @@ qa_temporal <- function(input) {
 #'
 #' This function checks if taxonomic coverage is present.
 #'
-#' @import EML
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
 #'
 #' @noRd
 qa_taxonomic <- function(input) {
@@ -1250,6 +767,8 @@ qa_taxonomic <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#'
 #' @noRd
 # TODO: account for more than one sampling step (sampling[[i]])
 qa_methods <- function(input) {
@@ -1273,9 +792,9 @@ qa_methods <- function(input) {
         ((length(methods@methodStep) > 0 && length(methods@sampling) > 0) &&
          length(methods@sampling[[1]]@studyExtent@description) == 0 ||
          (length(methods@sampling[[1]]@samplingDescription) == 0 &&
-         length(methods@sampling[[1]]@samplingDescription@para) == 0))) {
+          length(methods@sampling[[1]]@samplingDescription@para) == 0))) {
         status <- "FAILURE"
-        # Output messages will be stored in a vector
+        # Store output messages in a vector
         messages <- c()
 
         if (length(methods@methodStep) == 0) {
@@ -1288,7 +807,7 @@ qa_methods <- function(input) {
             if (length(methods@sampling[[1]]@studyExtent@description) == 0) {
                 messages[[length(messages) + 1]] <- "Methods are present but do not include the sampling area and frequency (studyExtent)."
             }
-            # Usually 'samplingDescription' has a 'para' slot but sometimes not
+            # Usually samplingDescription has a 'para' slot but sometimes not
             if (length(methods@sampling[[1]]@samplingDescription) == 0 &&
                 length(methods@sampling[[1]]@samplingDescription@para) == 0) {
                 messages[[length(messages) + 1]] <- "Methods are present but do not include a description of the sampling procedures (samplingDescription)."
@@ -1319,6 +838,8 @@ qa_methods <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#'
 #' @noRd
 qa_project <- function(input) {
     if (methods::is(input, "eml")) {
@@ -1337,8 +858,13 @@ qa_project <- function(input) {
         # Minimum recommended fields
         title <- length(project@title)
         personnel <- length(project@personnel)
-        abstract <- length(project@abstract@para) # usually 'abstract' has a 'para' slot but sometimes not
-        funding <- length(project@funding@para) # usually 'funding' has a 'para' slot but sometimes not
+        abstract <- length(project@abstract@para) # usually abstract has a 'para' slot but sometimes not
+        funding <- length(project@funding@para) # usually funding has a 'para' slot but sometimes not
+
+        missing <- append(c(), c(if (title == 0) "title" else {},
+                                 if (personnel == 0) "personnel" else {},
+                                 if (abstract == 0) "abstract" else {},
+                                 if (funding == 0) "funding" else {}))
 
         if (title > 0 && personnel > 0 && abstract > 0 && funding > 0) {
             return(list(status = "SUCCESS",
@@ -1346,11 +872,7 @@ qa_project <- function(input) {
         } else {
             return(list(status = "FAILURE",
                         output = paste0("Project information is present but not complete. ",
-                                        "The following are missing: ",
-                                        if (title == 0) {"'title' "} else {},
-                                        if (personnel == 0) {"'personnel' "} else {},
-                                        if (abstract == 0) {"'abstract' "} else {},
-                                        if (funding == 0) {"'funding' "} else {}, ".")))
+                                        "The following are missing: ", paste(missing, collapse = ", "), ".")))
         }
     }
 }
@@ -1365,6 +887,8 @@ qa_project <- function(input) {
 #'
 #' @return (list) A list of results.
 #'
+#' @importFrom methods is
+#'
 #' @noRd
 qa_entity <- function(input) {
     if (methods::is(input, "eml")) {
@@ -1376,12 +900,13 @@ qa_entity <- function(input) {
     } else if (any(c("dataTable", "otherEntity", "spatialVector") %in% class(input))) {
         entity <- list(list(input))
     } else {
-        stop("Input should be of class 'eml', 'ListOfdataTable', 'ListOfotherEntity', 'ListOfspatialVector', 'dataTable', 'otherEntity', or 'spatialVector'.")
+        stop("Input should be of class 'eml', 'ListOfdataTable', 'ListOfotherEntity',
+             'ListOfspatialVector', 'dataTable', 'otherEntity', or 'spatialVector'.")
     }
 
     # Assume that the check will succeed, until proven otherwise
     status <- "SUCCESS"
-    # Output messages will be stored in a vector
+    # Store output messages in a vector
     messages <- c()
 
     for (i in seq_along(entity)) { # each data type
@@ -1389,24 +914,24 @@ qa_entity <- function(input) {
             if (length(entity[[i]]) == 0) {
                 next
             } else {
+                object <-
+                    if (!is.null(EML::eml_get(entity[[i]][[j]], "objectName"))) {
+                        EML::eml_get(entity[[i]][[j]], "objectName")
+                    } else {
+                        EML::eml_get(entity[[i]][[j]], "entityName")
+                    }
                 if (length(entity[[i]][[j]]@entityName@.Data) == 0) {
                     status <- "FAILURE"
-                    messages[[length(messages) + 1]] <- paste0("The entity name for ",
-                                                               class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                               " is missing.")
+                    messages[[length(messages) + 1]] <- paste("The entity name for", object, "is missing.")
                 } else if (nchar(entity[[i]][[j]]@entityName@.Data) > 100) {
                     status <- "FAILURE"
-                    messages[[length(messages) + 1]] <- paste0("The entity name for ",
-                                                               class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                               " is present but greater than 100 characters.")
+                    messages[[length(messages) + 1]] <- paste("The entity name for", object, "is present but greater than 100 characters.",
+                                                              "Shorter names are recommended.")
                 } else if (length(entity[[i]][[j]]@entityDescription@.Data) == 0) {
                     status <- "FAILURE"
-                    messages[[length(messages) + 1]] <- paste0("The entity description for ",
-                                                               class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                               " is missing.")
+                    messages[[length(messages) + 1]] <- paste("The entity description for", object, "is missing.")
                 } else {
-                    messages[[length(messages) + 1]] <- paste0("The entity name and description are present for ",
-                                                               class(entity[[i]][[j]])[[1]],"[[", j, "]]", ".")
+                    messages[[length(messages) + 1]] <- paste0("The entity name and description are present for ", object, ".")
                 }
             }
         }
@@ -1414,7 +939,7 @@ qa_entity <- function(input) {
 
     return(list(status = status,
                 output = messages))
-}
+    }
 
 
 #' Check for duplicated data entities
@@ -1425,6 +950,8 @@ qa_entity <- function(input) {
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @importFrom methods is
 #'
 #' @noRd
 qa_entity_dup <- function(input) {
@@ -1443,7 +970,7 @@ qa_entity_dup <- function(input) {
     pids <- character()
     for (i in seq_along(entity)) { # each data type
         for (j in seq_along(entity[[i]])) { # each entity of a data type
-            if (length(entity[[i]]) == 0 || length(entity[[i]][[j]]@id@.Data) == 0) {
+            if (length(entity[[i]]) == 0 || length(entity[[i]][[j]]@id@.Data) == 0) { # id is often missing
                 next
             } else {
                 pids[[length(pids) + 1]] <- entity[[i]][[j]]@id@.Data
@@ -1457,7 +984,7 @@ qa_entity_dup <- function(input) {
                                     paste0(pids[which(duplicated(pids))], collapse = " + "))))
     } else {
         return(list(status = "SUCCESS",
-                    output = "No entities are duplicated."))
+                    output = "No data entities are duplicated based on matching PIDs."))
     }
 }
 
@@ -1466,13 +993,13 @@ qa_entity_dup <- function(input) {
 #'
 #' This function checks the physical of a data entity for presence, completeness, and mismatches.
 #'
-#' @import EML
-#' @importFrom methods is
-#' @importFrom stringr str_detect str_subset str_split
-#'
 #' @param input (eml) An EML object.
 #'
 #' @return (list) A list of results.
+#'
+#' @import EML
+#' @importFrom methods is
+#' @importFrom stringr str_detect str_split
 #'
 #' @noRd
 qa_physical <- function(input) {
@@ -1490,7 +1017,7 @@ qa_physical <- function(input) {
 
     # Assume that the check will succeed, until proven otherwise
     status <- "SUCCESS"
-    # Output messages will be stored in a vector
+    # Store output messages in a vector
     messages <- c()
 
     for (i in seq_along(entity)) { # each data type
@@ -1498,58 +1025,41 @@ qa_physical <- function(input) {
             if (length(entity[[i]]) == 0) {
                 next
             } else {
+                object <-
+                    if (!is.null(EML::eml_get(entity[[i]][[j]], "objectName"))) {
+                        EML::eml_get(entity[[i]][[j]], "objectName")
+                    } else {
+                        EML::eml_get(entity[[i]][[j]], "entityName")
+                    }
                 if (length(entity[[i]][[j]]@physical@.Data) == 0) {
                     status <- "FAILURE"
-                    messages[[length(messages) + 1]] <- paste0("The physical for ",
-                                                               class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                               " is missing.")
+                    messages[[length(messages) + 1]] <- paste("The physical for", object, "is missing.")
                 } else {
                     # Check for presence and completeness of elements in physical
-                    result <- character(5)
                     elements <- c("objectName", "size", "authentication", "formatName", "url")
+                    missing <- character()
                     for (x in elements) {
-                        result[which(elements == x)] <- if (length(EML::eml_get(entity[[i]][[j]], x)) == 1)
-                                                                {paste(x, "exists")} else {paste(x, "does not exist")}
+                        if (length(EML::eml_get(entity[[i]][[j]], x)) == 0) missing[[length(missing) + 1]] <- x else {}
                     }
-                    if (any(stringr::str_detect(result, "not"))) {
+                    if (length(missing > 0)) {
                         status <- "FAILURE"
-                        messages[[length(messages) + 1]] <- paste0("The physical for ", class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                                   " is present but not complete: ",
-                                                                   paste0(stringr::str_subset(result, "not"), collapse = " + "), ".")
+                        messages[[length(messages) + 1]] <- paste0("The physical for ", object, " is present but not complete. ",
+                                                                   "The following are missing: ", paste0(missing, collapse = ", "), ".")
                     } else {
-                        messages[[length(messages) + 1]] <- paste0("The physical for ", class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                                   " is present and complete.")
-                    }
-
-                    # Check if entityName matches objectName
-                    if (entity[[i]][[j]]@entityName@.Data != entity[[i]][[j]]@physical[[1]]@objectName@.Data) {
-                        status <- "FAILURE"
-                        messages[[length(messages) + 1]] <- paste0("The names for ",
-                                                                   class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                                   " do not match.")
-                    } else {
-                        messages[[length(messages) + 1]] <- paste0("The names for ",
-                                                                   class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                                   " match.")
+                        messages[[length(messages) + 1]] <- paste("The physical for", object, "is present and complete.")
                     }
 
                     # Check if entity PID matches PID in URL in physical
                     if (!stringr::str_detect(entity[[i]][[j]]@physical[[1]]@distribution[[1]]@online@url@.Data, "urn") ||
-                        length(entity[[i]][[j]]@id@.Data) == 0) {
-                        messages[[length(messages) + 1]] <- paste0("Unable to check if entity PID and URL PID match for ",
-                                                                   class(entity[[i]][[j]])[[1]],"[[", j, "]]", ".")
-                        next
+                        length(entity[[i]][[j]]@id@.Data) == 0) { # id is often missing
+                        # skip
                     } else {
                         url_pid <- stringr::str_split(entity[[i]][[j]]@physical[[1]]@distribution[[1]]@online@url@.Data, "(?=urn.)", simplify = TRUE)[[2]]
                         if (entity[[i]][[j]]@id@.Data != url_pid) {
                             status <- "FAILURE"
-                            messages[[length(messages) + 1]] <- paste0("The entity PID and URL PID for ",
-                                                                       class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                                       " do not match.")
+                            messages[[length(messages) + 1]] <- paste("The entity PID and URL PID for", object, "do not match.")
                         } else {
-                            messages[[length(messages) + 1]] <- paste0("The entity PID and URL PID for ",
-                                                                       class(entity[[i]][[j]])[[1]],"[[", j, "]]",
-                                                                       " match.")
+                            messages[[length(messages) + 1]] <- paste("The entity PID and URL PID for", object, "match.")
                         }
                     }
                 }
@@ -1564,69 +1074,107 @@ qa_physical <- function(input) {
 
 #' Quality assurance for EML metadata
 #'
-#' This function checks EML fields for presence, completeness, correct formatting, etc.
+#' This function checks the quality of EML metadata, such as the presence and completeness
+#' of EML fields and correct formatting.
+#'
+#' Not all FAILURE messages necessarily indicate something wrong with the metadata. For example, missing project
+#' information will return a FAILURE status, but project information is not necessary if there is
+#' no affiliated project.
+#'
+#' @param input (eml) An EML object.
+#' @param all_results (logical) Return all results. If `FALSE`, only returns results with FAILURE or ERROR status.
+#'
+#' @return (list) A list of results.
 #'
 #' @import EML
 #' @importFrom methods is
 #' @importFrom stringr str_detect
 #'
-#' @param input (eml) An EML object.
-#' @param all_results (logical) Return all results. If FALSE, only returns results with FAILURE status.
-#'
-#' @return (list) A list of results.
-#'
 #' @export
+#'
+#' @seealso [qa_sysmeta()]
 #'
 #' @examples
 #' \dontrun{
-#' pkg <- get_package(adc_test, rm_pid, file_names = TRUE)
-#' eml <- read_eml(getObject(adc_test, pkg$metadata))
-#' results <- qa_eml(eml) }
+#' # Results with FAILURE or ERROR status
+#' qa_eml(eml)
+#'
+#' # All results
+#' qa_eml(eml, all_results = TRUE)
+#' }
 qa_eml <- function(input, all_results = FALSE) {
     if (!methods::is(input, "eml")) {
         stop("Input should be of class 'eml'.")
     }
+    stopifnot(is.logical(all_results))
 
     val <- EML::eml_validate(input)
-    val_results <- list(status = if (length(attr(val, "errors")) == 0) {"SUCCESS"} else {"FAILURE"},
+    val_results <- list(status = if (length(attr(val, "errors")) == 0) "SUCCESS" else "FAILURE",
                         output = attr(val, "errors"))
 
     # Use tryCatch to return ERROR status if error is encountered
-    err <- function(e) {list(status = "ERROR")}
+    err <- function(e) list(status = "ERROR")
 
-    results <- list("qa_title" = tryCatch(qa_title(input), error = err),
-                    "qa_pubDate" = tryCatch(qa_pubDate(input), error = err),
-                    "qa_abstract" = tryCatch(qa_abstract(input), error = err),
-                    "qa_keywordSet" = tryCatch(qa_keywordSet(input), error = err),
-                    "qa_intellectualRights" = tryCatch(qa_intellectualRights(input), error = err),
-                    "qa_creator" = tryCatch(qa_creator(input), error = err),
-                    "qa_creator_info" = tryCatch(qa_creator_info(input), error = err),
-                    "qa_contact" = tryCatch(qa_contact(input), error = err),
-                    "qa_contact_info" = tryCatch(qa_contact_info(input), error = err),
-                    "qa_geographic" = tryCatch(qa_geographic(input), error = err),
-                    "qa_geographic_coord" = tryCatch(qa_geographic_coord(input), error = err),
-                    "qa_geographic_arctic" = tryCatch(qa_geographic_arctic(input), error = err),
-                    "qa_temporal" = tryCatch(qa_temporal(input), error = err),
-                    "qa_taxonomic" = tryCatch(qa_taxonomic(input), error = err),
-                    "qa_methods" = tryCatch(qa_methods(input), error = err),
-                    "qa_project" = tryCatch(qa_project(input), error = err),
-                    "qa_entity" = tryCatch(qa_entity(input), error = err),
-                    "qa_entity_dup" = tryCatch(qa_entity_dup(input), error = err),
-                    "qa_physical" = tryCatch(qa_physical(input), error = err),
-                    "eml_validate" = val_results)
+    results <- list("Title" = tryCatch(qa_title(input), error = err),
+                    "Publication_Date" = tryCatch(qa_pubDate(input), error = err),
+                    "Abstract" = tryCatch(qa_abstract(input), error = err),
+                    "Keywords" = tryCatch(qa_keywordSet(input), error = err),
+                    "Intellectual_Rights" = tryCatch(qa_intellectualRights(input), error = err),
+                    "Creator" = tryCatch(qa_creator(input), error = err),
+                    "Creator_Info" = tryCatch(qa_creator_info(input), error = err),
+                    "Contact" = tryCatch(qa_contact(input), error = err),
+                    "Contact_Info" = tryCatch(qa_contact_info(input), error = err),
+                    "Geographic_Coverage" = tryCatch(qa_geographic(input), error = err),
+                    "Geographic_Coordinates" = tryCatch(qa_geographic_coord(input), error = err),
+                    "Arctic_Coverage" = tryCatch(qa_geographic_arctic(input), error = err),
+                    "Temporal_Coverage" = tryCatch(qa_temporal(input), error = err),
+                    "Taxonomic_Coverage" = tryCatch(qa_taxonomic(input), error = err),
+                    "Methods" = tryCatch(qa_methods(input), error = err),
+                    "Project" = tryCatch(qa_project(input), error = err),
+                    "Entity" = tryCatch(qa_entity(input), error = err),
+                    "Entity_Duplication" = tryCatch(qa_entity_dup(input), error = err),
+                    "Physical" = tryCatch(qa_physical(input), error = err),
+                    "EML_Validation" = val_results)
 
     # Default to only return results with FAILURE or ERROR status
     if (all_results) {
         return(results)
     } else {
-        results <- Filter(function(x) {stringr::str_detect(x$status, "FAILURE|ERROR")}, results)
+        results <- Filter(function(x) stringr::str_detect(x$status, "FAILURE|ERROR"), results)
         if (length(results) > 0) {
             return(results)
         } else {
-            return(list("qa" = list(status = "SUCCESS",
-                                    output = "All QA functions were successful.")))
+            return(list("EML" = list(status = "SUCCESS",
+                                     output = "All QA checks were successful.")))
         }
     }
+}
+
+
+#' View QA results in viewer
+#'
+#' This is a convenience function for pretty output of QA results,
+#' using [listviewer::jsonedit()].
+#'
+#' @param input (list) A list of QA results.
+#'
+#' @importFrom listviewer jsonedit
+#'
+#' @export
+#'
+#' @seealso [qa_eml()] [qa_sysmeta()]
+#'
+#' @examples
+#' \dontrun{
+#' qa_view(qa_eml(eml))
+#'
+#' results <- qa_eml(eml)
+#' qa_view(results)
+#' }
+qa_view <- function(input) {
+    stopifnot(is.list(input))
+
+    listviewer::jsonedit(input, mode = "view")
 }
 
 
@@ -1671,6 +1219,7 @@ qa_award_number_present <- function(input) {
     return(mdq_result)
 }
 
+
 # test both cases rangeOfDates beginDate and singleDateTime calendarDate
 qa_temporal_start_year <- function(input) {
     if (methods::is(input, "eml")) {
@@ -1681,6 +1230,7 @@ qa_temporal_start_year <- function(input) {
         date <- input
     }
 }
+
 
 # helper function that checks if the input is whitespace
 is_whitespace <- function(input) {

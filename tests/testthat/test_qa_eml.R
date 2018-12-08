@@ -3,8 +3,6 @@ context("QA metadata")
 eml_test <- EML::read_eml(system.file("dummy_meta_full.xml", package = "datamgmt"))
 eml_test2 <- EML::read_eml(system.file("dummy_eml_w_attributes.xml", package = "datamgmt"))
 
-# TODO: add tests for qa_attributes and qa_package
-
 
 test_that("title is present with sufficient length", {
     expect_error(qa_title(7))
@@ -144,6 +142,7 @@ test_that("abstract is present with sufficient length", {
     expect_equal(out10$status, "FAILURE")
 })
 
+
 test_that("qa_abstract fails when < 100 words", {
     out <- qa_abstract(eml_test)
     expect_equal(out$status, "FAILURE")
@@ -153,6 +152,7 @@ test_that("qa_abstract fails when < 100 words", {
     out <- qa_abstract(eml)
     expect_equal(out$status, "FAILURE")
 })
+
 
 test_that("keywords are present", {
     expect_error(qa_keywordSet(7))
@@ -238,6 +238,7 @@ test_that("creator is present", {
     expect_equal(out6$status, "FAILURE")
 })
 
+
 test_that("creator info is present", {
     expect_error(qa_creator_info(7))
 
@@ -271,6 +272,7 @@ test_that("creator info is present", {
     expect_equal(out7$status, "FAILURE")
 })
 
+
 test_that("contact is present", {
     expect_error(qa_contact(7))
 
@@ -296,6 +298,7 @@ test_that("contact is present", {
     out6 <- qa_contact(eml_test)
     expect_equal(out6$status, "FAILURE")
 })
+
 
 test_that("contact info is present", {
     expect_error(qa_contact_info(7))
@@ -615,21 +618,11 @@ test_that("physical is present and complete", {
 })
 
 
-test_that("qa_eml only accepts eml input", {
+test_that("qa_eml() accepts correct inputs", {
     expect_error(qa_eml(7))
-
-    expect_error(qa_eml("test"))
-
-    expect_error(qa_eml(list("test")))
-
-    out <- qa_title(character(0))
-    expect_equal(out$status, "FAILURE")
-
-    eml <- eml_test
-    eml@dataset@title[[1]] <- EML::read_eml("<title></title>")
-    out <- qa_title(eml)
-    expect_equal(out$status, "FAILURE")
+    expect_error(qa_eml(eml_test, all_results = 7))
 })
+
 
 test_that("we can check for funding numbers", {
     out <- qa_award_number_present(eml_test)
@@ -645,9 +638,4 @@ test_that("we can check for funding numbers", {
 
     out <- qa_award_number_present("")
     expect_equal(out$status, "FAILURE")
-    out1 <- qa_eml(eml_test)
-    expect_equal(out1$qa_title$status, "FAILURE")
-    expect_equal(out1$qa_abstract$status, "FAILURE")
-    expect_equal(out1$qa_keywordSet$status, "FAILURE")
-    expect_equal(out1$qa_project$status, "FAILURE")
 })
