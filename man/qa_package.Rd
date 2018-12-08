@@ -11,22 +11,21 @@ qa_package(mn, resource_map_pid, read_all_data = TRUE,
 \arguments{
 \item{mn}{(MNode) The Member Node to query.}
 
-\item{resource_map_pid}{(character) The PID of a resource map.}
+\item{resource_map_pid}{(character) The PID for a resource map.}
 
-\item{read_all_data}{(logical) Default TRUE. Read all data from remote and check that column types match attributes,
-otherwise only pull first 10 rows. Only applicable to public packages (private packages will read complete dataset).
+\item{read_all_data}{(logical) Read all data from remote and check that column types match attributes. If \code{FALSE},
+only read first 10 rows. Only applicable to public packages (private packages will read complete dataset).
 If \code{check_attributes = FALSE}, no rows will be read.}
 
-\item{check_attributes}{(logical) Default TRUE. Checks congruence of attributes and data.}
+\item{check_attributes}{(logical) Check congruence of attributes and data.}
 
-\item{check_creators}{(logical) Default FALSE. Checks if each creator has an ORCID.
-Will also run if \code{check_access = TRUE}.}
+\item{check_creators}{(logical) Check if each creator has an ORCID. Will also run if \code{check_access = TRUE}.}
 
-\item{check_access}{(logical) Default FALSE. Checks if each creator has full access to the
-metadata, resource map, and data objects. Will not run if the checks associated with \code{check_creators} fail.}
+\item{check_access}{(logical) Check if each creator has full access to the metadata, resource map, and data objects.
+Will not run if the checks associated with \code{check_creators} fail.}
 }
 \value{
-invisible
+\code{NULL}
 }
 \description{
 This function checks that the attributes listed in the metadata match the values in the data for each
@@ -35,9 +34,9 @@ to all elements of the data package.
 }
 \examples{
 \dontrun{
-# Run QA checks
+# Run all QA checks
 
-qa_package(mn, pid, read_all_data = FALSE, check_attributes = TRUE,
-           check_creators = FALSE, check_access = FALSE)
+qa_package(mn, pid, read_all_data = TRUE, check_attributes = TRUE,
+           check_creators = TRUE, check_access = TRUE)
 }
 }
