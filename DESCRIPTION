@@ -4,15 +4,14 @@ Title: Data Management Utilities for Curating, Documenting, and Publishing Data
 Version: 0.1.0
 Authors@R: c(
   person("Matt", "Jones", email = "jones@nceas.ucsb.edu", role = "cre"),
-  person("Dominic", "Mullen", email = "dmullen17@gmail.com", role = c("aut")),
-  person("Irene", "Steves", comment = "https://github.com/isteves", role = c("aut")),
-  person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = c("aut")),
-  person("Emily", "O'Dean", email = "eodean10@gmail.com", role = c("aut")),
-  person("Stephanie", "Freund", email = "smfreu@gmail.com", role = c("aut")),
-  person("Sharis", "Ochs", email = "sharisnochs@gmail.com", role = c("aut")),
-  person("Derek", "Strong", email = "dstrong@nceas.ucsb.edu", role = c("aut"))
+  person("Dominic", "Mullen", email = "dmullen17@gmail.com", role = "aut"),
+  person("Irene", "Steves", comment = "https://github.com/isteves", role = "aut"),
+  person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = "aut"),
+  person("Emily", "O'Dean", email = "eodean10@gmail.com", role = "aut"),
+  person("Stephanie", "Freund", email = "smfreu@gmail.com", role = "aut"),
+  person("Sharis", "Ochs", email = "sharisnochs@gmail.com", role = "aut"),
+  person("Derek", "Strong", email = "dstrong@nceas.ucsb.edu", role = "aut")
   )
-Maintainer: The package maintainer <dmullen17@gmail.com>
 Description: Data management utilities for curating, documenting, and publishing data.
 License: Apache License (== 2.0)
 URL: https://nceas.github.io/datamgmt/

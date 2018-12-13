@@ -22,8 +22,10 @@ reference:
 
   - title: Quality assurance
     contents:
-    - qa_eml
     - qa_package
+    - qa_attributes
+    - qa_sysmeta
+    - qa_eml
 
   - title: Miscellaneous
     contents:
