@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Obsolete a DataONE Package with a new version — obsolete_package • datamgmt</title>
+<title>View QA results in viewer — qa_view • datamgmt</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,13 +30,10 @@
 
 
 
-<meta property="og:title" content="Obsolete a DataONE Package with a new version — obsolete_package" />
+<meta property="og:title" content="View QA results in viewer — qa_view" />
 
-<meta property="og:description" content="This function obsoletes a DataONE package with a newer version
-by merging the two version chains. The ideal use case for this function is
-when the only option to fix a broken package is by re-uploading a previous
-version and merging the two version chains. In other cases
-arcticdatautils::publish_update() should be used." />
+<meta property="og:description" content="This is a convenience function for pretty output of QA results,
+using listviewer::jsonedit()." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -124,58 +121,40 @@ arcticdatautils::publish_update() should be used." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Obsolete a DataONE Package with a new version</h1>
+    <h1>View QA results in viewer</h1>
     
-    <div class="hidden name"><code>obsolete_package.Rd</code></div>
+    <div class="hidden name"><code>qa_view.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>This function obsoletes a DataONE package with a newer version
-by merging the two version chains. The ideal use case for this function is
-when the only option to fix a broken package is by re-uploading a previous
-version and merging the two version chains. In other cases
-<code><a href='https://www.rdocumentation.org/packages/arcticdatautils/topics/publish_update'>arcticdatautils::publish_update()</a></code> should be used.</p>
+    <p>This is a convenience function for pretty output of QA results,
+using <code><a href='https://www.rdocumentation.org/packages/listviewer/topics/jsonedit'>listviewer::jsonedit()</a></code>.</p>
     
     </div>
 
-    <pre class="usage"><span class='fu'>obsolete_package</span>(<span class='no'>mn</span>, <span class='no'>metadata_obsolete</span>, <span class='no'>metadata_new</span>)</pre>
+    <pre class="usage"><span class='fu'>qa_view</span>(<span class='no'>input</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mn</th>
-      <td><p>(MNode) The DataONE member node.</p></td>
-    </tr>
-    <tr>
-      <th>metadata_obsolete</th>
-      <td><p>(character) The metadata PID of the old, or broken, version. Any
-metadata PID from the obsolete version chain can be used - sets the PID to the
-end of the version chain.</p></td>
-    </tr>
-    <tr>
-      <th>metadata_new</th>
-      <td><p>(character) The metadata PID of the new version. Any metadata
-PID from the new version chain can be used - sets the PID to the beginning of
-the version chain.</p></td>
+      <th>input</th>
+      <td><p>(list) A list of QA results.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>(logical) <code>TRUE</code>/<code>FALSE</code></p>
+    <div class='dont-index'><p><code><a href='qa_eml.html'>qa_eml()</a></code> <code><a href='qa_sysmeta.html'>qa_sysmeta()</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='no'>cn</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dataone</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/dataone/topics/CNode'>CNode</a></span>(<span class='st'>"STAGING"</span>)
-<span class='no'>mn</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>dataone</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/dataone/topics/getMNode'>getMNode</a></span>(<span class='no'>cn</span>,<span class='st'>"urn:node:mnTestARCTIC"</span>)
+<span class='fu'>qa_view</span>(<span class='fu'><a href='qa_eml.html'>qa_eml</a></span>(<span class='no'>eml</span>))
 
-<span class='no'>pkg_old</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>arcticdatautils</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/arcticdatautils/topics/create_dummy_package'>create_dummy_package</a></span>(<span class='no'>mn</span>)
-<span class='no'>pkg_new</span> <span class='kw'>&lt;-</span> <span class='kw pkg'>arcticdatautils</span><span class='kw ns'>::</span><span class='fu'><a href='https://www.rdocumentation.org/packages/arcticdatautils/topics/create_dummy_package'>create_dummy_package</a></span>(<span class='no'>mn</span>)
-
-<span class='fu'>obsolete_package</span>(<span class='no'>mn</span>, <span class='no'>pkg_old</span>$<span class='no'>metadata</span>, <span class='no'>pkg_new</span>$<span class='no'>metadata</span>)
+<span class='no'>results</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='qa_eml.html'>qa_eml</a></span>(<span class='no'>eml</span>)
+<span class='fu'>qa_view</span>(<span class='no'>results</span>)
 <span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -183,13 +162,11 @@ the version chain.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>
 
-    <h2>Author</h2>
-    <p>Dominic Mullen, <a href='mailto:dmullen17@gmail.com'>dmullen17@gmail.com</a></p>
   </div>
 </div>
 
