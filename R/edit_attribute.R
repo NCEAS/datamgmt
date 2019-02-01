@@ -68,7 +68,15 @@ edit_attribute <- function(attribute, attributeName = NULL, attributeLabel = NUL
     # Assign attribute to attributeList in order to convert attribute slots to data.frame
     attList <- methods::new("attributeList")
     attList@attribute[[1]] <- attribute
-    data <- EML::get_attributes(attList)$attributes
+    data <- EML::get_attributes(attList)
+
+    # enumeratedDomain does not contain the following fields
+    if (!is.null(data$factors)) {
+        fields <-c(unit, numberType, definition, formatString)
+        if (!is.null(fields)) {
+            stop('enumeratedDomain attributes cannot contain "unit", "numberType", "definition", or "formatString"')
+        }
+    }
 
     attribute_edits <- cbind(attributeName, attributeLabel, attributeDefinition, domain,
                              measurementScale, unit, numberType, definition, formatString,
@@ -79,6 +87,6 @@ edit_attribute <- function(attribute, attributeName = NULL, attributeLabel = NUL
     }
 
     # Set edits to attributeList in order to convert data.frame to new attribute
-    new_attribute <- EML::set_attributes(data)@attribute[[1]]
+    new_attribute <- EML::set_attributes(data$attributes, data$factors)@attribute[[1]]
     new_attribute
 }
