@@ -83,7 +83,7 @@ edit_attribute <- function(attribute, attributeName = NULL, attributeLabel = NUL
                              missingValueCode, missingValueCodeExplanation)
 
     for (i in colnames(attribute_edits)) {
-        data[ , i] <- attribute_edits[ , i]
+        data$attributes[ , i] <- attribute_edits[ , i]
     }
 
     # Set edits to attributeList in order to convert data.frame to new attribute
