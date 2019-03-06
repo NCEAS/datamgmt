@@ -638,13 +638,20 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
 
     # Get EML Standard units
     unitList <- EML::get_unitList()
-    units <- unitList$units
+    units <- as.data.frame(unitList$units)
     unitTypes <- unitList$unitTypes
 
     # Get EML Non Standard units
-    unitList_nS <- EML::get_unitList(x = EML::read_eml(system.file("share/EML-nS-unitDictionary.xml",
-                                                                   package = "datamgmt")))
-    units_nS <- unitList_nS$units
+    unitList_nS <- EML::read_eml(system.file("share/EML-nS-unitDictionary.xml",
+                                                                   package = "datamgmt"))
+    units_nS <- lapply(unitList_nS$unit, function(x) {
+        as.data.frame(x, stringsAsFactors = FALSE)
+    })
+    units_nS <- do.call(dplyr::bind_rows, units_nS)
+    units_nS$parentSI <- NA
+    units_nS$multiplierToSI <- NA
+    units_nS$constantToSI <- NA
+
     unitTypes_nS <- unitList_nS$unitTypes
 
     units <- rbind(units, units_nS)
@@ -655,7 +662,7 @@ load_EML_units <- function(all_units = mem_load_all_units()) {
 
     # Get EML SI units
     SI_units <- units[grepl("^SI unit", units$description) | units$id == "dimensionless", ]
-    EML_SI_units <- units[(!is.na(units$multiplierToSI) & units$multiplierToSI == 1), ]
+    EML_SI_units <- units[(!is.na(units$multiplierToSI) & units$multiplierToSI == "1"), ]
     EML_SI_units <- rbind(EML_SI_units, units[units$id == "dimensionless",])
 
     # Exceptions
