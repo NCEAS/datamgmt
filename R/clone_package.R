@@ -345,9 +345,6 @@ copy_package <- function(resource_map_pid,
                          to,
                          public = FALSE,
                          clone_children = FALSE) {
-    if (!arcticdatautils::is_token_set(from@mn)) {
-        stop("No token is set for member node: ", from@mn@identifier)
-    }
     if (!arcticdatautils::is_token_set(to@mn)) {
         stop("No token is set for member node: ", to@mn@identifier)
     }
