@@ -13,7 +13,18 @@
 #' @param check_creators (logical) Check if each creator has an ORCID. Will also run if `check_access = TRUE`.
 #' @param check_access (logical) Check if each creator has full access to the metadata, resource map, and data objects.
 #'   Will not run if the checks associated with `check_creators` fail.
-#'
+#' @param check_attribute_classes (logical) Check if column types match attribute measurementscale.  For example "ratio"
+#' measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
+#' in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
+#' these checks.
+#' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data
+#' contain fewer columns than the data.  Skip these rows to avoid an error reading in tabular data.
+#' @param delimiter (character) the field separator character. Values on each line of the file are separated by this character.
+#'  If delimiter = "" (the default for read.table) the separator is ‘white space’, that is one or more spaces, tabs, newlines or carriage returns.
+#'  Remember to escape special characters with \
+#' @param header_row_number (integer) The row number of the data column headers.  If it's the first line then leave
+#' this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
+#' This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.
 #' @return `NULL`
 #'
 #' @import arcticdatautils
@@ -36,7 +47,9 @@
 #' qa_package(mn, pid, read_all_data = TRUE, check_attributes = TRUE,
 #'            check_creators = TRUE, check_access = TRUE)
 #' }
-qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attributes = TRUE, check_creators = FALSE, check_access = FALSE) {
+qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attributes = TRUE,
+                       check_creators = FALSE, check_access = FALSE, check_attribute_classes = TRUE,
+                       skip = 0, delimiter = "", header_row_number = NULL) {
     stopifnot(class(mn) %in% c("MNode", "CNode"))
     stopifnot(is.character(resource_map_pid), nchar(resource_map_pid) > 0)
     stopifnot(is.logical(read_all_data))
@@ -93,7 +106,7 @@ qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attribu
                                        EML::eml_get(eml@dataset@spatialVector, "entityName")))
     }
 
-    data_objects <- dl_and_read_all_data(mn, package, eml, read_all_data)
+    data_objects <- dl_and_read_all_data(mn, package, eml, read_all_data, skip, delimiter)
 
     # If missing fileName, assign name to data objects
     for (i in seq_along(data_objects)) {
@@ -125,7 +138,7 @@ qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attribu
     eml_objects <- eml_objects[order(names(eml_objects))]
     data_objects <- data_objects[order(names(data_objects))]
 
-    if (check_attributes) mapply(qa_attributes, eml_objects, data_objects, MoreArgs = list(eml = eml))
+    if (check_attributes) mapply(qa_attributes, eml_objects, data_objects, MoreArgs = list(eml = eml), check_attribute_classes)
 
     cat(crayon::green(paste0("\n\n.....Processing complete for package ",
                              package$resource_map, "...............")))
@@ -133,7 +146,7 @@ qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attribu
 
 
 # Helper function for downloading and reading all data objects in a data package
-dl_and_read_all_data <- function(mn, package, eml, read_all_data) {
+dl_and_read_all_data <- function(mn, package, eml, read_all_data, skip, delimiter) {
     stopifnot(class(mn) %in% c("MNode", "CNode"))
     stopifnot(is.list(package), length(package) > 0)
     stopifnot(methods::is(eml, "eml"))
@@ -162,14 +175,14 @@ dl_and_read_all_data <- function(mn, package, eml, read_all_data) {
         rows_to_read <- 10
     }
 
-    objects <- lapply(package$data, dl_and_read_data, eml, mn, rows_to_read)
+    objects <- lapply(package$data, dl_and_read_data, eml, mn, rows_to_read, skip, delimiter)
 
     return(objects)
 }
 
 
 # Helper function for downloading and reading a data object
-dl_and_read_data <- function(objectpid, eml, mn, rows_to_read) {
+dl_and_read_data <- function(objectpid, eml, mn, rows_to_read, skip, delimiter) {
     supported_file_formats <- c("text/csv",
                                 "text/tsv",
                                 "text/plain",
@@ -213,6 +226,9 @@ dl_and_read_data <- function(objectpid, eml, mn, rows_to_read) {
     # If object is not tabular data, skip to next object
     format <- EML::eml_get(entity, "formatName")
     if (length(format) == 0) {
+        format <- dataone::getSystemMetadata(mn, objectpid)@formatId
+    }
+    if (length(format) == 0) {
         cat(crayon::red("\nData object has no given format ID in EML. Unable to check if supported format. Skipped"))
         cat(crayon::green("\n..........Object not downloaded.............................."))
         return(list(status = "SKIP"))
@@ -235,11 +251,11 @@ dl_and_read_data <- function(objectpid, eml, mn, rows_to_read) {
     tryCatch({
         if (isPublic) {
             if (format == "text/csv") {
-                data <- utils::read.csv(urls[i], nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE)
+                data <- utils::read.csv(urls[i], nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE, skip = skip)
             } else if (format == "text/tsv") {
-                data <- utils::read.delim(urls[i], nrows = rows_to_read)
+                data <- utils::read.delim(urls[i], nrows = rows_to_read, skip = skip)
             } else if (format == "text/plain") {
-                data <- utils::read.table(urls[i], nrows = rows_to_read)
+                data <- utils::read.table(urls[i], nrows = rows_to_read, skip = skip, sep = delimiter)
             } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || format == "application/vnd.ms-excel") {
                 tmp <- tempfile()
                 utils::download.file(url = urls[i], destfile = tmp, mode = "wb", quiet = TRUE)
@@ -290,9 +306,22 @@ dl_and_read_data <- function(objectpid, eml, mn, rows_to_read) {
                 unlink(tmp)
                 rm(nc) # clean up now because many netCDF files are large
                 data
+            } else if (format == "text/csv") {
+                data <- utils::read.csv(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
+                                        nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
+                                        skip = skip)
+            } else if (format == "text/tsv") {
+                data <- utils::read.delim(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
+                                          nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
+                                          skip = skip)
+            } else if (format == "text/plain") {
+                data <- utils::read.table(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
+                                          nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
+                                          skip = skip, sep = delimiter)
             } else {
                 data <- utils::read.csv(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
-                                        nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE)
+                                        nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
+                                        skip = skip)
             }
         }
 
@@ -361,6 +390,10 @@ netcdf_to_dataframe <- function(nc) {
 #' @param entity (eml) An EML `dataTable`, `otherEntity`, or `spatialVector` associated with the data object.
 #' @param data (data.frame) A data frame of the data object.
 #' @param eml (S4) The entire EML object. This is necessary if attributes with references are being checked.
+#' @param check_attribute_classes (logical) Check if column types match attribute measurementscale.  For example "ratio"
+#' measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
+#' in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
+#' these checks.
 #'
 #' @return `NULL`
 #'
@@ -385,7 +418,7 @@ netcdf_to_dataframe <- function(nc) {
 #'
 #' qa_attributes(dataTable, data)
 #' }
-qa_attributes <- function(entity, data, eml = NULL) {
+qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes) {
     stopifnot(any(c("dataTable", "otherEntity", "spatialVector") %in% class(entity)))
     stopifnot(is.data.frame(data))
     if (!is.null(eml) && !methods::is(eml, "eml")) {
@@ -419,11 +452,15 @@ qa_attributes <- function(entity, data, eml = NULL) {
             cat(crayon::red(paste("\nThere are duplicated attribute names in the EML.")))
         }
 
-        header <- as.numeric(entity@physical[[1]]@dataFormat@textFormat@numHeaderLines)
-
-        if (length(header) > 0 && !is.na(header) && header > 1) {
+        if (is.null(header_row_number)) {
+            header <- as.numeric(entity@physical[[1]]@dataFormat@textFormat@numHeaderLines)
+            if (length(header) > 0 && !is.na(header) && header > 1) {
+                names(data) <- NULL
+                names(data) <- data[(header - 1 - skip), ]
+            }
+        } else {
             names(data) <- NULL
-            names(data) <- data[(header - 1), ]
+            names(data) <- data[(header_row_number - skip), ]
         }
 
         data_cols <- colnames(data)
@@ -466,62 +503,63 @@ qa_attributes <- function(entity, data, eml = NULL) {
             attributeTable$attributes <- attributeTable$attributes[order(match(attributeTable$attributes$attributeName, colnames(data))), ]
         }
 
-        # Check that type of column matches type of data based on acceptable DataONE formats
-        for (i in seq_along(data)) {
-            matchingAtt <- attributeTable$attributes[i, ]
-            attClass <- class(data[ , i])
-            # If matchingAtt has a dateTime domain, coerce the column based on the date/time format
-            if (matchingAtt$measurementScale == "dateTime") {
-                attClass <- class(suppressWarnings(lubridate::parse_date_time(data[ , i], orders = c("ymd", "HMS", "ymd HMS", "y", "m", "d", "ym", "md", "m/d/y",
-                                                                                                     "d/m/y", "ymd HM", "yq",  "j", "H", "M", "S", "MS", "HM", "I",
-                                                                                                     "a", "A", "U", "w", "W"))))
+        if (check_attribute_classes) {
+            # Check that type of column matches type of data based on acceptable DataONE formats
+            for (i in seq_along(data)) {
+                matchingAtt <- attributeTable$attributes[i, ]
+                attClass <- class(data[ , i])
+                # If matchingAtt has a dateTime domain, coerce the column based on the date/time format
+                if (matchingAtt$measurementScale == "dateTime") {
+                    attClass <- class(suppressWarnings(lubridate::parse_date_time(data[ , i], orders = c("ymd", "HMS", "ymd HMS", "y", "m", "d", "ym", "md", "m/d/y",
+                                                                                                         "d/m/y", "ymd HM", "yq",  "j", "H", "M", "S", "MS", "HM", "I",
+                                                                                                         "a", "A", "U", "w", "W"))))
+                }
+
+                if (attClass == "numeric" || attClass == "integer" || attClass == "double") {
+                    if (matchingAtt$measurementScale != "ratio" && matchingAtt$measurementScale != "interval" && matchingAtt$measurementScale != "dateTime") {
+                        cat(crayon::yellow(paste0("\nMismatch in attribute type for the attribute '", matchingAtt$attributeName,
+                                                  "'. Type of data is ", attClass, " which should probably have interval or ratio measurementScale in EML, not ",
+                                                  matchingAtt$measurementScale, ".")))
+                    }
+                } else if (attClass == "character" || attClass == "logical") {
+                    if (matchingAtt$measurementScale != "nominal" && matchingAtt$measurementScale != "ordinal") {
+                        cat(crayon::yellow(paste0("\nMismatch in attribute type for the attribute '", matchingAtt$attributeName,
+                                                  "'. Type of data is ", attClass, " which should probably have nominal or ordinal measurementScale in EML, not ",
+                                                  matchingAtt$measurementScale, ".")))
+                    }
+                } else if (any(attClass %in% c("POSIXct", "POSIXt", "Date", "Period"))) {
+                    if (matchingAtt$measurementScale != "dateTime") {
+                        cat(crayon::yellow(paste0("\nMismatch in attribute type for the attribute '", matchingAtt$attributeName,
+                                                  "'. Type of data is ", attClass, " which should probably have dateTime measurementScale in EML, not ",
+                                                  matchingAtt$measurementScale, ".")))
+                    }
+                }
             }
 
-            if (attClass == "numeric" || attClass == "integer" || attClass == "double") {
-                if (matchingAtt$measurementScale != "ratio" && matchingAtt$measurementScale != "interval" && matchingAtt$measurementScale != "dateTime") {
-                    cat(crayon::yellow(paste0("\nMismatch in attribute type for the attribute '", matchingAtt$attributeName,
-                                              "'. Type of data is ", attClass, " which should probably have interval or ratio measurementScale in EML, not ",
-                                              matchingAtt$measurementScale, ".")))
-                }
-            } else if (attClass == "character" || attClass == "logical") {
-                if (matchingAtt$measurementScale != "nominal" && matchingAtt$measurementScale != "ordinal") {
-                    cat(crayon::yellow(paste0("\nMismatch in attribute type for the attribute '", matchingAtt$attributeName,
-                                              "'. Type of data is ", attClass, " which should probably have nominal or ordinal measurementScale in EML, not ",
-                                              matchingAtt$measurementScale, ".")))
-                }
-            } else if (any(attClass %in% c("POSIXct", "POSIXt", "Date", "Period"))) {
-                if (matchingAtt$measurementScale != "dateTime") {
-                    cat(crayon::yellow(paste0("\nMismatch in attribute type for the attribute '", matchingAtt$attributeName,
-                                              "'. Type of data is ", attClass, " which should probably have dateTime measurementScale in EML, not ",
-                                              matchingAtt$measurementScale, ".")))
+            # Check that enumerated domains match values in data
+            if (length(attributeTable$factors) > 0) {
+                for (i in seq_along(unique(attributeTable$factors$attributeName))) {
+                    emlAttName <- unique(attributeTable$factors$attributeName)[i]
+                    emlUniqueValues <- attributeTable$factors[attributeTable$factors$attributeName == emlAttName, "code"]
+
+                    dataUniqueValues <- unique(stats::na.omit(data[[which(colnames(data) == emlAttName)]])) # omit NAs in unique values
+
+                    intersection <- intersect(dataUniqueValues, emlUniqueValues)
+                    nonmatcheml <- emlUniqueValues[!emlUniqueValues %in% intersection]
+                    nonmatchdata <- dataUniqueValues[!dataUniqueValues %in% intersection]
+
+                    if (length(nonmatcheml) > 0) {
+                        cat(crayon::yellow(paste0("\nThe EML contains the following enumerated domain values for the attribute '",
+                                                  as.character(emlAttName), "' that do not appear in the data: ", toString(nonmatcheml, sep = ", "))))
+                    }
+
+                    if (length(nonmatchdata) > 0) {
+                        cat(crayon::yellow(paste0("\nThe data contains the following enumerated domain values for the attribute '",
+                                                  as.character(emlAttName), "' that do not appear in the EML: ", toString(nonmatchdata, sep = ", "))))
+                    }
                 }
             }
         }
-
-        # Check that enumerated domains match values in data
-        if (length(attributeTable$factors) > 0) {
-            for (i in seq_along(unique(attributeTable$factors$attributeName))) {
-                emlAttName <- unique(attributeTable$factors$attributeName)[i]
-                emlUniqueValues <- attributeTable$factors[attributeTable$factors$attributeName == emlAttName, "code"]
-
-                dataUniqueValues <- unique(stats::na.omit(data[[which(colnames(data) == emlAttName)]])) # omit NAs in unique values
-
-                intersection <- intersect(dataUniqueValues, emlUniqueValues)
-                nonmatcheml <- emlUniqueValues[!emlUniqueValues %in% intersection]
-                nonmatchdata <- dataUniqueValues[!dataUniqueValues %in% intersection]
-
-                if (length(nonmatcheml) > 0) {
-                    cat(crayon::yellow(paste0("\nThe EML contains the following enumerated domain values for the attribute '",
-                                              as.character(emlAttName), "' that do not appear in the data: ", toString(nonmatcheml, sep = ", "))))
-                }
-
-                if (length(nonmatchdata) > 0) {
-                    cat(crayon::yellow(paste0("\nThe data contains the following enumerated domain values for the attribute '",
-                                              as.character(emlAttName), "' that do not appear in the EML: ", toString(nonmatchdata, sep = ", "))))
-                }
-            }
-        }
-
         # If there are any missing values in the data, check that there is an associated missing value code in the EML
         for (i in which(colSums(is.na(data)) > 0)) { # only checks for NA values but others like -99 or -999 could be present
             attribute <- attributeTable$attributes[i, ]
