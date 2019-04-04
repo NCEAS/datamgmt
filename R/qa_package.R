@@ -14,17 +14,15 @@
 #' @param check_access (logical) Check if each creator has full access to the metadata, resource map, and data objects.
 #'   Will not run if the checks associated with `check_creators` fail.
 #' @param check_attribute_classes (logical) Check if column types match attribute measurementscale.  For example "ratio"
-#' measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
-#' in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
-#' these checks.
+#'   measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
+#'   in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
+#'   these checks.
 #' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data
-#' contain fewer columns than the data.  Skip these rows to avoid an error reading in tabular data.
+#'   contain fewer columns than the data.  Skip these rows to avoid an error reading in tabular data.
 #' @param delimiter (character) the field separator character. Values on each line of the file are separated by this character.
-#'  If delimiter = "" (the default for read.table) the separator is ‘white space’, that is one or more spaces, tabs, newlines or carriage returns.
-#'  Remember to escape special characters with \
 #' @param header_row_number (integer) The row number of the data column headers.  If it's the first line then leave
-#' this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
-#' This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.
+#'  this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
+#'  This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.
 #' @return `NULL`
 #'
 #' @import arcticdatautils
@@ -138,7 +136,8 @@ qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attribu
     eml_objects <- eml_objects[order(names(eml_objects))]
     data_objects <- data_objects[order(names(data_objects))]
 
-    if (check_attributes) mapply(qa_attributes, eml_objects, data_objects, MoreArgs = list(eml = eml), check_attribute_classes)
+    if (check_attributes) mapply(qa_attributes, eml_objects, data_objects, MoreArgs = list(eml = eml),
+                                 check_attribute_classes, skip, header_row_number)
 
     cat(crayon::green(paste0("\n\n.....Processing complete for package ",
                              package$resource_map, "...............")))
@@ -394,6 +393,11 @@ netcdf_to_dataframe <- function(nc) {
 #' measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
 #' in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
 #' these checks.
+#' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data
+#' @param header_row_number (integer) The row number of the data column headers.  If it's the first line then leave
+#' this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
+#' This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.
+#'
 #'
 #' @return `NULL`
 #'
@@ -418,7 +422,7 @@ netcdf_to_dataframe <- function(nc) {
 #'
 #' qa_attributes(dataTable, data)
 #' }
-qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes) {
+qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes, skip, header_row_number) {
     stopifnot(any(c("dataTable", "otherEntity", "spatialVector") %in% class(entity)))
     stopifnot(is.data.frame(data))
     if (!is.null(eml) && !methods::is(eml, "eml")) {
@@ -452,15 +456,17 @@ qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes) {
             cat(crayon::red(paste("\nThere are duplicated attribute names in the EML.")))
         }
 
+        # If we specified a header row number then skip this step, if not then it will attempt to skip
+        # '@numberHeaderLines' from the EML field and set the subsequent row as the column names
         if (is.null(header_row_number)) {
             header <- as.numeric(entity@physical[[1]]@dataFormat@textFormat@numHeaderLines)
             if (length(header) > 0 && !is.na(header) && header > 1) {
                 names(data) <- NULL
-                names(data) <- data[(header - 1 - skip), ]
+                names(data) <- data[(header - 1), ]
             }
         } else {
             names(data) <- NULL
-            names(data) <- data[(header_row_number - skip), ]
+            names(data) <- data[header_row_number, ]
         }
 
         data_cols <- colnames(data)
