@@ -7,7 +7,7 @@
 qa_package(mn, resource_map_pid, read_all_data = TRUE,
   check_attributes = TRUE, check_creators = FALSE,
   check_access = FALSE, check_attribute_classes = TRUE, skip = 0,
-  delimiter = "", header_row_number = NULL)
+  delimiter = "")
 }
 \arguments{
 \item{mn}{(MNode) The Member Node to query.}
@@ -25,19 +25,16 @@ If \code{check_attributes = FALSE}, no rows will be read.}
 \item{check_access}{(logical) Check if each creator has full access to the metadata, resource map, and data objects.
 Will not run if the checks associated with \code{check_creators} fail.}
 
-\item{check_attribute_classes}{(logical) Check if column types match attribute measurementscale.  For example "ratio"
-measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
-in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
+\item{check_attribute_classes}{(logical) Check if column types match attribute measurementscale.  For example, a column with "ratio"
+measurementScale should contain integer or numeric data.  However, these checks often fail, as read.table will read
+columns in as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
 these checks.}
 
-\item{skip}{(integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data
-contain fewer columns than the data.  Skip these rows to avoid an error reading in tabular data.}
+\item{skip}{(integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above
+tabular have a different number of columns - resulting in an error reading in the file. Skip these lines but do not
+skip column headers.}
 
 \item{delimiter}{(character) the field separator character. Values on each line of the file are separated by this character.}
-
-\item{header_row_number}{(integer) The row number of the data column headers.  If it's the first line then leave
-this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
-This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.}
 }
 \value{
 \code{NULL}
