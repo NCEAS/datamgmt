@@ -13,16 +13,15 @@
 #' @param check_creators (logical) Check if each creator has an ORCID. Will also run if `check_access = TRUE`.
 #' @param check_access (logical) Check if each creator has full access to the metadata, resource map, and data objects.
 #'   Will not run if the checks associated with `check_creators` fail.
-#' @param check_attribute_classes (logical) Check if column types match attribute measurementscale.  For example "ratio"
-#'   measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
-#'   in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
+#' @param check_attribute_classes (logical) Check if column types match attribute measurementscale.  For example, a column with "ratio"
+#'   measurementScale should contain integer or numeric data.  However, these checks often fail, as read.table will read
+#'   columns in as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
 #'   these checks.
-#' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data
-#'   contain fewer columns than the data.  Skip these rows to avoid an error reading in tabular data.
+#' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above
+#' tabular have a different number of columns - resulting in an error reading in the file. Skip these lines but do not
+#' skip column headers.
 #' @param delimiter (character) the field separator character. Values on each line of the file are separated by this character.
-#' @param header_row_number (integer) The row number of the data column headers.  If it's the first line then leave
-#'  this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
-#'  This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.
+#'
 #' @return `NULL`
 #'
 #' @import arcticdatautils
@@ -47,7 +46,7 @@
 #' }
 qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attributes = TRUE,
                        check_creators = FALSE, check_access = FALSE, check_attribute_classes = TRUE,
-                       skip = 0, delimiter = "", header_row_number = NULL) {
+                       skip = 0, delimiter = "") {
     stopifnot(class(mn) %in% c("MNode", "CNode"))
     stopifnot(is.character(resource_map_pid), nchar(resource_map_pid) > 0)
     stopifnot(is.logical(read_all_data))
@@ -137,7 +136,7 @@ qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attribu
     data_objects <- data_objects[order(names(data_objects))]
 
     if (check_attributes) mapply(qa_attributes, eml_objects, data_objects, MoreArgs = list(eml = eml),
-                                 check_attribute_classes, skip, header_row_number)
+                                 check_attribute_classes, skip)
 
     cat(crayon::green(paste0("\n\n.....Processing complete for package ",
                              package$resource_map, "...............")))
@@ -250,11 +249,13 @@ dl_and_read_data <- function(objectpid, eml, mn, rows_to_read, skip, delimiter) 
     tryCatch({
         if (isPublic) {
             if (format == "text/csv") {
-                data <- utils::read.csv(urls[i], nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE, skip = skip)
+                data <- utils::read.csv(urls[i], nrows = rows_to_read, check.names = FALSE,
+                                        stringsAsFactors = FALSE, skip = skip, header = TRUE)
             } else if (format == "text/tsv") {
-                data <- utils::read.delim(urls[i], nrows = rows_to_read, skip = skip)
+                data <- utils::read.delim(urls[i], nrows = rows_to_read, skip = skip, header = TRUE)
             } else if (format == "text/plain") {
-                data <- utils::read.table(urls[i], nrows = rows_to_read, skip = skip, sep = delimiter)
+                data <- utils::read.table(urls[i], nrows = rows_to_read, skip = skip, sep = delimiter,
+                                          header = TRUE)
             } else if (format == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || format == "application/vnd.ms-excel") {
                 tmp <- tempfile()
                 utils::download.file(url = urls[i], destfile = tmp, mode = "wb", quiet = TRUE)
@@ -308,19 +309,19 @@ dl_and_read_data <- function(objectpid, eml, mn, rows_to_read, skip, delimiter) 
             } else if (format == "text/csv") {
                 data <- utils::read.csv(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
                                         nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
-                                        skip = skip)
+                                        skip = skip, header = TRUE)
             } else if (format == "text/tsv") {
                 data <- utils::read.delim(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
                                           nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
-                                          skip = skip)
+                                          skip = skip, header = TRUE)
             } else if (format == "text/plain") {
                 data <- utils::read.table(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
                                           nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
-                                          skip = skip, sep = delimiter)
+                                          skip = skip, sep = delimiter, header = TRUE)
             } else {
                 data <- utils::read.csv(textConnection(rawToChar(dataone::getObject(mn, objectpid))),
                                         nrows = rows_to_read, check.names = FALSE, stringsAsFactors = FALSE,
-                                        skip = skip)
+                                        skip = skip, header = TRUE)
             }
         }
 
@@ -393,11 +394,10 @@ netcdf_to_dataframe <- function(nc) {
 #' measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
 #' in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
 #' these checks.
-#' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data
-#' @param header_row_number (integer) The row number of the data column headers.  If it's the first line then leave
-#' this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
-#' This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.
-#'
+#' @param skip (integer) If \code{qa_package} has a \code{skip} argument that does not equal zero we need to pass it into
+#' this function. This function will check the "numHeaderLines" slot to find out how many lines to skip before it finds the
+#' header row.  However, if we use \code{skip} to read in data, this will be the incorrect line.  Therefore if skip != 0 we
+#' need to ignore the code block that checks "numHeaderLines" in the \code{entity} physical.
 #'
 #' @return `NULL`
 #'
@@ -422,7 +422,7 @@ netcdf_to_dataframe <- function(nc) {
 #'
 #' qa_attributes(dataTable, data)
 #' }
-qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes, skip, header_row_number) {
+qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes, skip) {
     stopifnot(any(c("dataTable", "otherEntity", "spatialVector") %in% class(entity)))
     stopifnot(is.data.frame(data))
     if (!is.null(eml) && !methods::is(eml, "eml")) {
@@ -456,17 +456,14 @@ qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes, ski
             cat(crayon::red(paste("\nThere are duplicated attribute names in the EML.")))
         }
 
-        # If we specified a header row number then skip this step, if not then it will attempt to skip
-        # '@numberHeaderLines' from the EML field and set the subsequent row as the column names
-        if (is.null(header_row_number)) {
+        # If rows were skipped when reading in data then this will return the incorrect header line
+        # Only run when skip is 0.
+        if (skip == 0) {
             header <- as.numeric(entity@physical[[1]]@dataFormat@textFormat@numHeaderLines)
             if (length(header) > 0 && !is.na(header) && header > 1) {
                 names(data) <- NULL
-                names(data) <- data[(header - 1), ]
+                names(data) <- data[(header), ]
             }
-        } else {
-            names(data) <- NULL
-            names(data) <- data[header_row_number, ]
         }
 
         data_cols <- colnames(data)
