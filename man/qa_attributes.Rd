@@ -4,7 +4,8 @@
 \alias{qa_attributes}
 \title{Check congruence of data and metadata attributes for a tabular data object}
 \usage{
-qa_attributes(entity, data, eml = NULL)
+qa_attributes(entity, data, eml = NULL, check_attribute_classes, skip,
+  header_row_number)
 }
 \arguments{
 \item{entity}{(eml) An EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
@@ -12,6 +13,17 @@ qa_attributes(entity, data, eml = NULL)
 \item{data}{(data.frame) A data frame of the data object.}
 
 \item{eml}{(S4) The entire EML object. This is necessary if attributes with references are being checked.}
+
+\item{check_attribute_classes}{(logical) Check if column types match attribute measurementscale.  For example "ratio"
+measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
+in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
+these checks.}
+
+\item{skip}{(integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above the data}
+
+\item{header_row_number}{(integer) The row number of the data column headers.  If it's the first line then leave
+this parameter as \code{NULL}.  If you also set a value for the \code{skip} parameter do not take that into account.
+This should be the line where the headers appear in the original file, regardless of lines skipped when reading it in.}
 }
 \value{
 \code{NULL}
