@@ -32,11 +32,14 @@ the package that they used to create the copy using \code{\link[=obsolete_packag
 # First set up the member nodes we're copying between
 # (in this example they are the same but could be different)
 to <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
-from <- to
+from <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 
 # Choose a package to copy (here a new one is created)
 package <- arcticdatautils::create_dummy_package(to@mn)
 
+copied_package <- clone_package(resource_map_pid = package$resource_map,
+                                from = from,
+                                to = to)
 }
 }
 \seealso{
