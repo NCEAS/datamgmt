@@ -13,14 +13,15 @@
 #' @param check_creators (logical) Check if each creator has an ORCID. Will also run if `check_access = TRUE`.
 #' @param check_access (logical) Check if each creator has full access to the metadata, resource map, and data objects.
 #'   Will not run if the checks associated with `check_creators` fail.
-#' @param check_attribute_classes (logical) Check if column types match attribute measurementscale.  For example, a column with "ratio"
+#' @param check_attribute_classes (logical) Check if column types match attribute measurementScales.  For example, a column with "ratio"
 #'   measurementScale should contain integer or numeric data.  However, these checks often fail, as read.table will read
 #'   columns in as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
 #'   these checks.
 #' @param skip (integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above
-#' tabular have a different number of columns - resulting in an error reading in the file. Skip these lines but do not
+#' tabular data have a different number of columns - resulting in an error reading in the file. Skip these lines but do not
 #' skip column headers.
 #' @param delimiter (character) the field separator character. Values on each line of the file are separated by this character.
+#' Defaults to "".  This should only be used for the plain text files.
 #'
 #' @return `NULL`
 #'
@@ -438,7 +439,20 @@ qa_attributes <- function(entity, data, eml = NULL, check_attribute_classes, ski
         attributeTable <- EML::get_attributes(entity@attributeList)
         # Check for references
         if (is.null(attributeTable$attributes)) {
-            ref_index <- match_reference_to_attributeList(eml, entity)
+            #ref_index <- match_reference_to_attributeList(eml, entity)
+            entity_list <- methods::slot(eml@dataset, class(entity))
+            # Get the ref we want to match
+            ref <- methods::slot(entity@attributeList, 'references')
+            # Get all of the references present
+            references <- entity_list %>%
+                purrr::map(methods::slot, 'attributeList') %>%
+                purrr::map(methods::slot, 'id') %>%  # two lists - so we need two map() calls
+                unlist()
+            # Get the index of the reference we want - use regex anchors to specify start and end of string
+            index <- which(stringr::str_detect(references, paste0('^', ref, '$')))
+            return(index)
+
+
             if (length(ref_index) > 0) {
                 entity2 <- methods::slot(eml@dataset, class(entity))[[ref_index]]
                 attributeTable <- EML::get_attributes(entity2@attributeList)

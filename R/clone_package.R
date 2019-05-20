@@ -225,7 +225,7 @@ clone_package <- function(resource_map_pid,
              from@mn@identifier,
              "\nor the cn:\n",
              from@cn@identifier,
-             "\nThis can be caused by a mis-typed PID, the resource map not existing, or by not having appropriate access to read the resource map.")
+             "\nThis can be caused by a mis-typed PID, the resource map not existing, the resource map not being synced with the mn or cn, or by not having appropriate access to read the resource map.  ")
     }))
 
     # Clone metadata:
@@ -331,14 +331,14 @@ clone_package <- function(resource_map_pid,
 #' # First set up the member nodes we're copying between
 #' # (in this example they are the same but could be different)
 #' to <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
-#' from <- to
+#' from <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 #'
 #' # Choose a package to copy (here a new one is created)
 #' package <- arcticdatautils::create_dummy_package(to@@mn)
 #'
-# copied_package <- clone_package(resource_map_pid = package$resource_map,
-#                                 from = from,
-#                                 to = to)
+#' copied_package <- clone_package(resource_map_pid = package$resource_map,
+#'                                 from = from,
+#'                                 to = to)
 #' }
 copy_package <- function(resource_map_pid,
                          from,

@@ -25,16 +25,17 @@ If \code{check_attributes = FALSE}, no rows will be read.}
 \item{check_access}{(logical) Check if each creator has full access to the metadata, resource map, and data objects.
 Will not run if the checks associated with \code{check_creators} fail.}
 
-\item{check_attribute_classes}{(logical) Check if column types match attribute measurementscale.  For example, a column with "ratio"
+\item{check_attribute_classes}{(logical) Check if column types match attribute measurementScales.  For example, a column with "ratio"
 measurementScale should contain integer or numeric data.  However, these checks often fail, as read.table will read
 columns in as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
 these checks.}
 
 \item{skip}{(integer) The number of rows to skip when reading in data files.  This is useful when any metadata lines above
-tabular have a different number of columns - resulting in an error reading in the file. Skip these lines but do not
+tabular data have a different number of columns - resulting in an error reading in the file. Skip these lines but do not
 skip column headers.}
 
-\item{delimiter}{(character) the field separator character. Values on each line of the file are separated by this character.}
+\item{delimiter}{(character) the field separator character. Values on each line of the file are separated by this character.
+Defaults to "".  This should only be used for the plain text files.}
 }
 \value{
 \code{NULL}
