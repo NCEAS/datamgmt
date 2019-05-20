@@ -18,3 +18,4 @@ addons:
       - libgeos-dev # for sf
       - libproj-dev # for sf
       - libgdal-dev # for sf
+      - libjq-dev # dependency of jqr (json parser), dependency of EML
