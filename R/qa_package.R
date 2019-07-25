@@ -60,11 +60,11 @@ qa_package <- function(mn, resource_map_pid, read_all_data = TRUE, check_attribu
 
     cat(crayon::green(paste0("\n.....Processing package ", package$resource_map, "...............")))
 
-    eml <- EML::read_eml(dataone::getObject(mn, package$metadata))
+    doc <- EML::read_eml(dataone::getObject(mn, package$metadata))
 
     # Check creators
     if (check_creators || check_access) {
-        creator_ORCIDs <- qa_creator_ORCIDs(eml)
+        creator_ORCIDs <- qa_creator_ORCIDs(doc)
     }
 
     # Check access
@@ -620,14 +620,16 @@ match_reference_to_attributeList <- function(eml, entity) {
 #' @return creator_ORCIDs (character) Returns \code{character(0)} if any tests fail.
 #'
 #' @noRd
-qa_creator_ORCIDs <- function(eml) {
+qa_creator_ORCIDs <- function(doc) {
     # Check creators
-    creators <- eml@dataset@creator
-    creator_ORCIDs <- unlist(EML::eml_get(creators, "userId"))
+    creators <- doc$dataset$creator
+    creator_ORCIDs <- convert_eml_fields_to_list(creators) %>%
+        lapply(function(x) x$userId$userId) %>%
+        unlist()
     isORCID <-  grepl("http[s]?:\\/\\/orcid.org\\/[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}-[[:alnum:]]{4}", creator_ORCIDs)
     creator_ORCIDs <- sub("^https://", "http://", creator_ORCIDs)
 
-    if (length(isORCID) != length(creators) || !all(isORCID)) {
+    if (!all(isORCID) || identical(creator_ORCIDs, character(0))) {
         cat(crayon::red("\nEach creator needs to have a proper ORCID."))
         return(character(0))
     } else {
@@ -661,5 +663,22 @@ qa_access <- function(sysmeta, creator_ORCIDs) {
         if (!all(access)) {
             cat(crayon::yellow("\nFull access for", sysmeta@identifier, "is not set for creator with ORCID", creator))
         }
+    }
+}
+
+
+#' Convert EML fields to lists
+#'
+#' This function is called by \code{\link{qa_package}}.
+#' See \code{\link{qa_package}} documentation for more details.
+#'
+#' @param eml_field (list)  Sysmeta of a given object.
+#'
+#' @noRd
+convert_eml_fields_to_list <- function(eml_field) {
+    if (!all(is.null(names(eml_field)))) {
+        return(list(eml_field))
+    }  else {
+        return(eml_field)
     }
 }

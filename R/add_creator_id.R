@@ -26,7 +26,7 @@
 #' @examples
 #' \dontrun{
 #' eml_path <- file.path(system.file(package = "datamgmt"), "dummy_meta_full.xml")
-#' eml <- EML::read_eml(eml_path_original)
+#' eml <- EML::read_eml(eml_path)
 #' add_creator_id(eml, orcid = "https://orcid.org/WWWW-XXXX-YYYY-ZZZZ")
 #'
 #' eml <- eml %>%
@@ -39,10 +39,7 @@
 #' eml@dataset@metadataProvider[[1]] <- new('metadataProvider', reference = "henrietta")
 #' }
 add_creator_id <- function(eml, orcid = NULL, id = NULL, surname = NULL) {
-    if (!methods::is(eml, "eml")) {
-        stop("Input should be of class 'eml'.")
-    }
-
+    stopifnot(methods::is(eml, c("emld", "list")))
     for (args in c(orcid, id, surname)) {
         if (!(is.null(args) | is.character(args))) {
             stop(paste(args, "must be a character string."))
@@ -53,7 +50,7 @@ add_creator_id <- function(eml, orcid = NULL, id = NULL, surname = NULL) {
         stop("Need either an ORCID or ID.")
     }
 
-    creatorList <- eml@dataset@creator
+    creatorList <- eml$dataset$creator
 
     # Determine surname position to access correct creator
     # If none are specified, the first creator will be modified
