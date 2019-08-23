@@ -9,13 +9,13 @@ obsolete_package(mn, metadata_obsolete, metadata_new)
 \arguments{
 \item{mn}{(MNode) The DataONE member node.}
 
-\item{metadata_obsolete}{(character) The metadata PID of the old, or broken, version. Any
-metadata PID from the obsolete version chain can be used - sets the PID to the
-end of the version chain.}
+\item{metadata_obsolete}{(character) The metadata PID of the old, or broken, version.
+Sets the PID to the beginning of the version chain (the entry at index=1 of the vector
+returned by \code{arcticdatautils::get_all_versions}.}
 
-\item{metadata_new}{(character) The metadata PID of the new version. Any metadata
-PID from the new version chain can be used - sets the PID to the beginning of
-the version chain.}
+\item{metadata_new}{(character) The metadata PID of the new version. Sets the PID to
+the end of the version chain (the last item in the vector returned by
+\code{arcticdatautils::get_all_versions}).}
 }
 \value{
 (logical) \code{TRUE}/\code{FALSE}

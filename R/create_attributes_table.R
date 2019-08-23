@@ -553,8 +553,8 @@ table_to_r <- function(table) {
     table_colnames <- table$colnames
     out <- do.call(rbind, lapply(table_data, rbind))
 
-    # Change NULL to NA in list
-    out[sapply(out, is.null)] <- NA
+    # Change NULL to empty string in list
+    out[sapply(out, is.null)] <- ""
 
     if (nrow(out) > 1) {
         out <- as.data.frame(apply(out, 2, unlist), stringsAsFactors = FALSE)
@@ -565,6 +565,9 @@ table_to_r <- function(table) {
     }
 
     colnames(out) <- table_colnames
+    # Convert empty strings to missing values
+    out[sapply(out, function(f){(f == '')})] <- NA
+
     out
 }
 
@@ -621,7 +624,7 @@ build_factors <- function(att_table, data) {
         en_data <- lapply(seq_along(en_data), function(i) {
             attributeName <- colnames(en_data)[i]
             code <- unique(en_data[, i])
-            definition <- NA
+            definition <- ""
             out <- data.frame(attributeName, code, definition, stringsAsFactors = FALSE)
             colnames(out) <- c("attributeName", "code", "definition")
             out <- out[!is.na(code),]
