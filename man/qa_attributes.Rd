@@ -4,14 +4,14 @@
 \alias{qa_attributes}
 \title{Check congruence of data and metadata attributes for a tabular data object}
 \usage{
-qa_attributes(entity, data, eml = NULL)
+qa_attributes(entity, data, doc = NULL)
 }
 \arguments{
-\item{entity}{(eml) An EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
+\item{entity}{(emld) An EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
 
 \item{data}{(data.frame) A data frame of the data object.}
 
-\item{eml}{(S4) The entire EML object. This is necessary if attributes with references are being checked.}
+\item{doc}{(emld) The entire EML object. This is necessary if attributes with references are being checked.}
 }
 \value{
 \code{NULL}
@@ -49,7 +49,7 @@ This function checks the following:
 \examples{
 \dontrun{
 # Checking a .csv file
-dataTable <- eml@dataset@dataTable[[1]]
+dataTable <- doc$dataset$dataTable[[1]]
 data <- readr::read_csv("https://cn.dataone.org/cn/v2/resolve/urn:uuid:...")
 
 qa_attributes(dataTable, data)
