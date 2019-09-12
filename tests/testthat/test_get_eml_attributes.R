@@ -17,7 +17,7 @@ test_that("download_eml_attributes functions correctly", {
     expect_true(file.exists(file_path))
 
     att <- read.csv(file_path, stringsAsFactors = FALSE)
-    expect_equivalent(dim(att), c(5,13))
+    expect_equivalent(dim(att), c(5,8))
 
     expect_equal(att$attributeName[2], "3.3")
 })

@@ -4,10 +4,10 @@
 \alias{get_eml_attributes}
 \title{Return attribute (column) metadata from a DataONE metadata object}
 \usage{
-get_eml_attributes(eml)
+get_eml_attributes(doc)
 }
 \arguments{
-\item{eml}{(S4) EML object.}
+\item{doc}{(emld) EML object.}
 }
 \value{
 (list) A list of all attribute metadata from the EML in data.frame objects
@@ -20,13 +20,13 @@ wrapper for the function \code{\link[EML:get_attributes]{EML::get_attributes()}}
 \dontrun{
 cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
-eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-attributes <- datamgmt::get_eml_attributes(eml)
+doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
+attributes <- datamgmt::get_eml_attributes(doc)
 
 # switch nodes
 cn <- dataone::CNode('PROD')
 knb <- dataone::getMNode(cn,"urn:node:KNB")
-eml <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
+doc <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
 attributes <- get_eml_attributes("doi:10.5063/F1639MWV")
 }
 }

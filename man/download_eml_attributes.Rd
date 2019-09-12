@@ -4,11 +4,11 @@
 \alias{download_eml_attributes}
 \title{Download attribute (column) metadata from a DataONE metadata object to csv files}
 \usage{
-download_eml_attributes(eml, download_directory,
+download_eml_attributes(doc, download_directory,
   prefix_file_names = FALSE)
 }
 \arguments{
-\item{eml}{(S4) EML object.}
+\item{doc}{(emld) EML object.}
 
 \item{download_directory}{(character) Directory to download attribute metadata csvs to.}
 
@@ -23,8 +23,8 @@ This can be prepended with the package identifier by setting \code{prefix_file_n
 \examples{
 \dontrun{
 mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
-eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-attributes <- datamgmt::download_eml_attributes(eml, download_directory = tempdir(),
+doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
+attributes <- datamgmt::download_eml_attributes(doc, download_directory = tempdir(),
 prefix_file_names = TRUE)
 }
 }
