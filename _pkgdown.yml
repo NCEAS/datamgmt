@@ -5,11 +5,7 @@ navbar:
 reference:
   - title: Editing EML
     contents:
-    - add_creator_id
-    - create_attributes_table
     - edit_attribute
-    - return_eml_units
-    - which_in_eml
 
   - title: Working with data packages
     contents:
@@ -23,9 +19,7 @@ reference:
   - title: Quality assurance
     contents:
     - qa_package
-    - qa_attributes
-    - qa_sysmeta
-    - qa_eml
+
 
   - title: Miscellaneous
     contents:
