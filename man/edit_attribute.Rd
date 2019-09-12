@@ -51,21 +51,21 @@ the attribute index number in the attributeList.
 \examples{
 \dontrun{
 # Change an attribute's name
-new_attribute <- edit_attribute(eml@dataset@dataTable[[1]]@attributeList@attribute[[8]],
+new_attribute <- edit_attribute(doc$dataset$dataTable[[1]]$attributeList$attribute[[8]],
 attributeName = "new name")
-eml@dataset@dataTable[[1]]@attributeList@attribute[[8]] <- new_attribute
+doc$dataset$dataTable[[1]]$attributeList$attribute[[8]] <- new_attribute
 
 # Change an attribute's measurementScale from nominal to ratio
 # (also requires changing domain, unit, and numberType as well
 # as setting definition to NA)
-new_attribute <- edit_attribute(eml@dataset@otherEntity[[2]]@attributeList@attribute[[1]],
+new_attribute <- edit_attribute(doc$dataset$otherEntity[[2]]$attributeList$attribute[[1]],
 domain = "numericDomain", measurementScale = "ratio", unit = "dimensionless",
 numberType = "whole", definition = NA)
-eml@dataset@otherEntity[[2]]@attributeList@attribute[[1]] <- new_attribute
+doc$dataset$otherEntity[[2]]$attributeList$attribute[[1]] <- new_attribute
 
 # Add the same missing value codes to all attributes for a data object
-new_attributes <- lapply(eml@dataset@dataTable[[1]]@attributeList@attribute, edit_attribute,
+new_attributes <- lapply(doc$dataset$dataTable[[1]]$attributeList$attribute, edit_attribute,
 missingValueCode = "NA", missingValueCodeExplanation = "data unavailable")
-eml@dataset@dataTable[[1]]@attributeList@attribute <- new_attributes
+doc$dataset$dataTable[[1]]$attributeList$attribute <- new_attributes
 }
 }
