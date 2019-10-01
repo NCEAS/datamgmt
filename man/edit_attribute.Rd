@@ -45,27 +45,30 @@ This function edits the slots of a single attribute in an existing list of attri
 This function can only be used on attributes entirely defined within the 'attributes' slot of attributeList;
 it cannot be used to edit the factors table of an enumeratedDomain.
 
-In cases with very large attribute lists, use \code{\link[=which_in_eml]{which_in_eml()}} first to locate
+In cases with very large attribute lists, use \code{\link[arcticdatautils:which_in_eml]{arcticdatautils::which_in_eml()}} first to locate
 the attribute index number in the attributeList.
 }
 \examples{
 \dontrun{
-# Change an attribute's name
-new_attribute <- edit_attribute(doc$dataset$dataTable[[1]]$attributeList$attribute[[8]],
-attributeName = "new name")
-doc$dataset$dataTable[[1]]$attributeList$attribute[[8]] <- new_attribute
+cn <- dataone::CNode('PROD')
+mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
+doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
+new_attribute <- edit_attribute(doc$dataset$dataTable[[1]]$attributeList$attribute[[1]],
+                                attributeName = "new name")
+doc$dataset$dataTable[[1]]$attributeList$attribute[[1]] <- new_attribute
 
-# Change an attribute's measurementScale from nominal to ratio
-# (also requires changing domain, unit, and numberType as well
-# as setting definition to NA)
-new_attribute <- edit_attribute(doc$dataset$otherEntity[[2]]$attributeList$attribute[[1]],
-domain = "numericDomain", measurementScale = "ratio", unit = "dimensionless",
-numberType = "whole", definition = NA)
-doc$dataset$otherEntity[[2]]$attributeList$attribute[[1]] <- new_attribute
+# Change an attribute's measurementScale from ratio to nominal
+# (requires updating domain to textDomain or enumeratedDomain, setting unit and numberType
+# to NA and adding a setting definition
+new_attribute <- edit_attribute(doc$dataset$dataTable[[1]]$attributeList$attribute[[1]],
+                                domain = "textDomain", measurementScale = "nominal", unit = NA,
+                                numberType = NA, definition = 'new definition')
+doc$dataset$dataTable[[1]]$attributeList$attribute[[1]] <- new_attribute
+EML::eml_validate(doc) # validating complex EML changes is usually a good idea
 
 # Add the same missing value codes to all attributes for a data object
 new_attributes <- lapply(doc$dataset$dataTable[[1]]$attributeList$attribute, edit_attribute,
-missingValueCode = "NA", missingValueCodeExplanation = "data unavailable")
+                         missingValueCode = "NA", missingValueCodeExplanation = "data unavailable")
 doc$dataset$dataTable[[1]]$attributeList$attribute <- new_attributes
 }
 }

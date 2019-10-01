@@ -21,13 +21,13 @@ wrapper for the function \code{\link[EML:get_attributes]{EML::get_attributes()}}
 cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
 doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-attributes <- datamgmt::get_eml_attributes(doc)
+attributes <- get_eml_attributes(doc)
 
 # switch nodes
 cn <- dataone::CNode('PROD')
 knb <- dataone::getMNode(cn,"urn:node:KNB")
 doc <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
-attributes <- get_eml_attributes("doi:10.5063/F1639MWV")
+attributes <- get_eml_attributes(doc)
 }
 }
 \author{
