@@ -434,13 +434,16 @@ qa_attributes <- function(entity, data, doc = NULL) {
     cat(crayon::green(paste0("\n\n..........Processing object ", objectpid,
                              " (", entity$physical$objectName, ")...............")))
 
+    entity_list <- doc$dataset[names(doc$dataset) %in% c("dataTable", "otherEntity", "spatialVector")]
+    names(entity_list) <- 'entity'
+
     tryCatch({
-        attributeTable <- EML::get_attributes(entity$attributeList)
+        suppressWarnings(attributeTable <- EML::get_attributes(entity$attributeList))
         # Check for references
-        if (is.null(attributeTable$attributes)) {
+        if (nrow(attributeTable$attributes) == 0) {
             ref_index <- match_reference_to_attributeList(doc, entity)
             if (length(ref_index) > 0) {
-                entity2 <- methods::slot(doc$dataset, class(entity))[[ref_index]]
+                entity2 <- entity_list$entity[[ref_index]]
                 attributeTable <- EML::get_attributes(entity2$attributeList)
             }
         }
@@ -579,13 +582,15 @@ qa_attributes <- function(entity, data, doc = NULL) {
 match_reference_to_attributeList <- function(doc, entity) {
     # Get list of 'dataTable', 'otherEntity', etc.
     entity_list <- doc$dataset[names(doc$dataset) %in% c("dataTable", "otherEntity", "spatialVector")]
+    names(entity_list) <- 'entity'
     # Get the ref we want to match
     ref <- eml_get_simple(entity, "references")
     # Get all of the references present
     att_lists <- eml_get(entity_list, "attributeList")
     # Get the index of the reference we want
-    ids <- lapply(att_lists, eml_get, "id")
-    ids <- index[!names(ids) == "@context"]
+    ids <- lapply(att_lists, eml_get_simple, "id")
+    ids <- ids[!names(ids) == "@context"]
+    ids <- lapply(ids, function(x){if (length(x > 1)) x[!(x == "@id")]})
     suppressWarnings(
         index <- which(str_detect(ids, paste0('^', ref, '$')) == T))
 
