@@ -12,7 +12,7 @@ list_depth <- function(input_list) {
 #' Return attribute metadata from an EML object. This is largely a
 #' wrapper for the function [EML::get_attributes()].
 #'
-#' @param eml (S4) EML object.
+#' @param doc (emld) EML object.
 #'
 #' @return (list) A list of all attribute metadata from the EML in data.frame objects
 #'
@@ -24,30 +24,36 @@ list_depth <- function(input_list) {
 #' \dontrun{
 #' cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
-#' eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-#' attributes <- datamgmt::get_eml_attributes(eml)
+#' doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
+#' attributes <- get_eml_attributes(doc)
 #'
 #' # switch nodes
 #' cn <- dataone::CNode('PROD')
 #' knb <- dataone::getMNode(cn,"urn:node:KNB")
-#' eml <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
-#' attributes <- get_eml_attributes("doi:10.5063/F1639MWV")
+#' doc <- EML::read_eml(rawToChar(dataone::getObject(knb, "doi:10.5063/F1639MWV")))
+#' attributes <- get_eml_attributes(doc)
 #' }
-get_eml_attributes <- function(eml) {
+get_eml_attributes <- function(doc) {
     # TODO - make sure it works for otherEntities
-    stopifnot(isS4(eml))
+    stopifnot(methods::is(doc, "emld"))
 
-    indices <- vector("numeric")
-    indices <- which_in_eml(eml@dataset@dataTable,
-                            "attributeList",
-                            function(x) {length(x) > 0})
+    if (!is.null(names(doc$dataset$dataTable))){
+        doc$dataset$dataTable <- list(doc$dataset$dataTable)
+    }
+    # add this in when otherEntity functionality is added
+    # indices <- vector("numeric")
+    # indices <- arcticdatautils::which_in_eml(doc$dataset$dataTable,
+    #                         "attributeList",
+    #                         function(x) {length(x) > 0})
+
+    indices <- 1:length(doc$dataset$dataTable) # all dataTable have attributeLists so this is fine for now
 
     names <- vector("character", length = length(indices))
     results <- vector("list", length = length(indices))
 
     for (i in seq_along(indices)) {
-        results[[i]] <- EML::get_attributes(eml@dataset@dataTable[[i]]@attributeList)
-        names[i] <- eml@dataset@dataTable[[i]]@entityName
+        results[[i]] <- EML::get_attributes(doc$dataset$dataTable[[i]]$attributeList)
+        names[i] <- doc$dataset$dataTable[[i]]$entityName
     }
 
     names(results) <- names
@@ -67,7 +73,7 @@ get_eml_attributes <- function(eml) {
 #' of each csv corresponds to the file name of the Data Object it describes.
 #' This can be prepended with the package identifier by setting \code{prefix_file_names = TRUE} (recommended).
 #'
-#' @param eml (S4) EML object.
+#' @param doc (emld) EML object.
 #' @param download_directory (character) Directory to download attribute metadata csvs to.
 #' @param prefix_file_names (logical) Optional. Whether to prefix file names with the package metadata identifier.
 #'   This is useful when downloading files from multiple packages to one directory.
@@ -80,23 +86,23 @@ get_eml_attributes <- function(eml) {
 #' \dontrun{
 #  cn <- dataone::CNode('PROD')
 #' mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
-#' eml <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
-#' attributes <- datamgmt::download_eml_attributes(eml, download_directory = tempdir(),
+#' doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
+#' attributes <- datamgmt::download_eml_attributes(doc, download_directory = tempdir(),
 #' prefix_file_names = TRUE)
 #'}
-download_eml_attributes <- function(eml,
+download_eml_attributes <- function(doc,
                                     download_directory,
                                     prefix_file_names = FALSE) {
-    stopifnot(isS4(eml))
+    stopifnot(methods::is(doc, "emld"))
     stopifnot(file.exists(download_directory))
     stopifnot(is.logical(prefix_file_names))
 
 
-    attributes <- get_eml_attributes(eml)
+    attributes <- get_eml_attributes(doc)
 
     prefix <- character(0)
     if (prefix_file_names == TRUE) {
-        prefix <- EML::eml_get(eml, "packageId") %>%
+        prefix <- EML::eml_get(doc, "packageId") %>%
             as.character() %>%
             remove_special_characters() %>%
             paste0("_")
@@ -168,13 +174,13 @@ get_eml_attributes_url <- function(mn,
     }
 
     pid <- unlist(strsplit(url_path, "view/"))[[2]]
-    eml <- EML::read_eml(rawToChar(dataone::getObject(mn, pid)))
+    doc <- EML::read_eml(rawToChar(dataone::getObject(mn, pid)))
 
     if (write_to_csv == TRUE) {
-        download_eml_attributes(eml, download_directory, prefix_file_names)
+        download_eml_attributes(doc, download_directory, prefix_file_names)
     }
 
-    results <- get_eml_attributes(eml)
+    results <- get_eml_attributes(doc)
 
     return(results)
 }

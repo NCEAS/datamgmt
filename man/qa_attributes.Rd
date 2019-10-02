@@ -4,24 +4,14 @@
 \alias{qa_attributes}
 \title{Check congruence of data and metadata attributes for a tabular data object}
 \usage{
-qa_attributes(entity, data, eml = NULL, check_attribute_classes, skip)
+qa_attributes(entity, data, doc = NULL)
 }
 \arguments{
-\item{entity}{(eml) An EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
+\item{entity}{(emld) An EML \code{dataTable}, \code{otherEntity}, or \code{spatialVector} associated with the data object.}
 
 \item{data}{(data.frame) A data frame of the data object.}
 
-\item{eml}{(S4) The entire EML object. This is necessary if attributes with references are being checked.}
-
-\item{check_attribute_classes}{(logical) Check if column types match attribute measurementscale.  For example "ratio"
-measurementScale should contain integer or numeric data.  These checks often fail, for example read.table will often read
-in dateTime formats as character values - which triggers a warning.  Set \code{check_attribute_classes = FALSE} to skip
-these checks.}
-
-\item{skip}{(integer) If \code{qa_package} has a \code{skip} argument that does not equal zero we need to pass it into
-this function. This function will check the "numHeaderLines" slot to find out how many lines to skip before it finds the
-header row.  However, if we use \code{skip} to read in data, this will be the incorrect line.  Therefore if skip != 0 we
-need to ignore the code block that checks "numHeaderLines" in the \code{entity} physical.}
+\item{doc}{(emld) The entire EML object. This is necessary if attributes with references are being checked.}
 }
 \value{
 \code{NULL}
@@ -59,7 +49,7 @@ This function checks the following:
 \examples{
 \dontrun{
 # Checking a .csv file
-dataTable <- eml@dataset@dataTable[[1]]
+dataTable <- doc$dataset$dataTable[[1]]
 data <- readr::read_csv("https://cn.dataone.org/cn/v2/resolve/urn:uuid:...")
 
 qa_attributes(dataTable, data)

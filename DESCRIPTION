@@ -26,28 +26,21 @@ Imports:
     datapack,
     digest,
     dplyr,
-    EML,
+    EML (>= 2.0),
     gsubfn,
-    htmlwidgets,
     httr,
     jsonlite,
     listviewer,
     lubridate,
     magrittr,
-    memoise,
     methods,
     ncdf4,
     RCurl,
     readxl,
-    rhandsontable,
     sf,
-    shiny,
-    shinyjs,
     stringi,
     stringr,
     tidyr,
-    udunits2,
-    units,
     utils,
     uuid,
     XML,
@@ -60,8 +53,7 @@ Suggests:
     rmarkdown,
     visNetwork
 Remotes:
-    NCEAS/arcticdatautils,
-    ropensci/EML@1b3d0a2bd63e01a3af99c77aa6a0784c3da3ea06
+    NCEAS/arcticdatautils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr

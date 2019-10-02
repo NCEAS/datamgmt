@@ -30,7 +30,7 @@ mn <- guess_member_node("doi:10.18739/A2G287", "PROD")
 Use a DataONE package URL
 mn <- guess_member_node("https://arcticdata.io/catalog/#view/doi:10.18739/A2TX35587")
 Search all coordinating nodes:
-cn = c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")
+cn <- c("PROD", "STAGING", "STAGING2", "SANDBOX", "SANDBOX2", "DEV", "DEV2")
 mn <- guess_member_node("doi:10.18739/A2G287", cn)
 }
 

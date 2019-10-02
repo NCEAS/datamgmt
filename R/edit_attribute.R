@@ -5,7 +5,7 @@
 #' This function can only be used on attributes entirely defined within the 'attributes' slot of attributeList;
 #' it cannot be used to edit the factors table of an enumeratedDomain.
 #'
-#' In cases with very large attribute lists, use [which_in_eml()] first to locate
+#' In cases with very large attribute lists, use [arcticdatautils::which_in_eml()] first to locate
 #' the attribute index number in the attributeList.
 #'
 #' @param attribute (attribute) The attribute in the the attributeList of a data object.
@@ -30,28 +30,31 @@
 #'
 #' @examples
 #' \dontrun{
-#' # Change an attribute's name
-#' new_attribute <- edit_attribute(eml@dataset@dataTable[[1]]@attributeList@attribute[[8]],
-#' attributeName = "new name")
-#' eml@dataset@dataTable[[1]]@attributeList@attribute[[8]] <- new_attribute
+#' cn <- dataone::CNode('PROD')
+#' mn <- dataone::getMNode(cn, 'urn:node:ARCTIC')
+#' doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))
+#' new_attribute <- edit_attribute(doc$dataset$dataTable[[1]]$attributeList$attribute[[1]],
+#'                                 attributeName = "new name")
+#' doc$dataset$dataTable[[1]]$attributeList$attribute[[1]] <- new_attribute
 #'
-#' # Change an attribute's measurementScale from nominal to ratio
-#' # (also requires changing domain, unit, and numberType as well
-#' # as setting definition to NA)
-#' new_attribute <- edit_attribute(eml@dataset@otherEntity[[2]]@attributeList@attribute[[1]],
-#' domain = "numericDomain", measurementScale = "ratio", unit = "dimensionless",
-#' numberType = "whole", definition = NA)
-#' eml@dataset@otherEntity[[2]]@attributeList@attribute[[1]] <- new_attribute
+#' # Change an attribute's measurementScale from ratio to nominal
+#' # (requires updating domain to textDomain or enumeratedDomain, setting unit and numberType
+#' # to NA and adding a setting definition
+#' new_attribute <- edit_attribute(doc$dataset$dataTable[[1]]$attributeList$attribute[[1]],
+#'                                 domain = "textDomain", measurementScale = "nominal", unit = NA,
+#'                                 numberType = NA, definition = 'new definition')
+#' doc$dataset$dataTable[[1]]$attributeList$attribute[[1]] <- new_attribute
+#' EML::eml_validate(doc) # validating complex EML changes is usually a good idea
 #'
 #' # Add the same missing value codes to all attributes for a data object
-#' new_attributes <- lapply(eml@dataset@dataTable[[1]]@attributeList@attribute, edit_attribute,
-#' missingValueCode = "NA", missingValueCodeExplanation = "data unavailable")
-#' eml@dataset@dataTable[[1]]@attributeList@attribute <- new_attributes
+#' new_attributes <- lapply(doc$dataset$dataTable[[1]]$attributeList$attribute, edit_attribute,
+#'                          missingValueCode = "NA", missingValueCodeExplanation = "data unavailable")
+#' doc$dataset$dataTable[[1]]$attributeList$attribute <- new_attributes
 #' }
 edit_attribute <- function(attribute, attributeName = NULL, attributeLabel = NULL, attributeDefinition = NULL, domain = NULL,
                            measurementScale = NULL, unit = NULL, numberType = NULL, definition = NULL, formatString = NULL,
                            missingValueCode = NULL, missingValueCodeExplanation = NULL) {
-    stopifnot(methods::is(attribute, "attribute"))
+    stopifnot(methods::is(attribute, "list"))
     if (!is.null(attributeName)) stopifnot(is.character(attributeName) && nchar(attributeName) > 0)
     if (!is.null(attributeLabel) && !is.na(attributeLabel)) stopifnot(is.character(attributeLabel) && nchar(attributeLabel) > 0)
     if (!is.null(attributeDefinition)) stopifnot(is.character(attributeDefinition) && nchar(attributeDefinition) > 0)
@@ -66,8 +69,8 @@ edit_attribute <- function(attribute, attributeName = NULL, attributeLabel = NUL
     if (length(c(missingValueCode, missingValueCodeExplanation)) == 1) stop("Need both missingValueCode and missingValueCodeExplanation.")
 
     # Assign attribute to attributeList in order to convert attribute slots to data.frame
-    attList <- methods::new("attributeList")
-    attList@attribute[[1]] <- attribute
+    attList <- list()
+    attList$attribute[[1]] <- attribute
     data <- EML::get_attributes(attList)
 
     # enumeratedDomain does not contain the following fields
@@ -87,6 +90,6 @@ edit_attribute <- function(attribute, attributeName = NULL, attributeLabel = NUL
     }
 
     # Set edits to attributeList in order to convert data.frame to new attribute
-    new_attribute <- EML::set_attributes(data$attributes, data$factors)@attribute[[1]]
+    new_attribute <- EML::set_attributes(data$attributes, data$factors)$attribute[[1]]
     new_attribute
 }
