@@ -3,6 +3,9 @@ context("Download package")
 cn <- dataone::CNode('PROD')
 mn <- dataone::getMNode(cn,'urn:node:ARCTIC')
 
+cn_t <- dataone::CNode('STAGING')
+mn_t <- dataone::getMNode(cn_t,'urn:node:mnTestARCTIC')
+
 package <- list()
 package$metadata <- c(N2_2014metadata.xml = "doi:10.18739/A23W02")
 package$resource_map <- "resource_map_doi:10.18739/A23W02"
@@ -22,7 +25,7 @@ test_that("download_data_objects works", {
 
     expect_true(file.exists(out_path))
     data <- read.csv(out_path)
-    expect_equal(round(data$DOY[1], digits = 4), 172.4953)
+    expect_equal(round(data$DOY[1], digits = 4), 264.4583)
 })
 
 test_that("All package contents download to a directory", {
@@ -31,11 +34,11 @@ test_that("All package contents download to a directory", {
     }
 
     # Create dummy package
-    package <- arcticdatautils::create_dummy_package(mn)
+    package <- arcticdatautils::create_dummy_package(mn_t)
 
     # Download dummy package
     directory <- tempdir()
-    download_packages(mn,
+    download_packages(mn_t,
                       package$resource_map,
                       directory,
                       check_download_size = FALSE)
@@ -49,22 +52,22 @@ test_that("Contents of child packages download correctly", {
     }
 
     # Create dummy packages
-    parent <- arcticdatautils::create_dummy_metadata(mn)
-    package1 <- arcticdatautils::create_dummy_package(mn)
-    package2 <- arcticdatautils::create_dummy_package(mn)
-    resource_map_pid <- arcticdatautils::create_resource_map(mn,
+    parent <- arcticdatautils::create_dummy_metadata(mn_t)
+    package1 <- arcticdatautils::create_dummy_package(mn_t)
+    package2 <- arcticdatautils::create_dummy_package(mn_t)
+    resource_map_pid <- arcticdatautils::create_resource_map(mn_t,
                                                              metadata_pid = parent,
                                                              child_pids = c(package1$resource_map,
                                                                             package2$resource_map))
     # Update fileName
-    sys_meta <- dataone::getSystemMetadata(mn, package2$data)
+    sys_meta <- dataone::getSystemMetadata(mn_t, package2$data)
     sys_meta@fileName <- "dummy_object2"
-    dataone::updateSystemMetadata(mn, package2$data, sys_meta)
+    dataone::updateSystemMetadata(mn_t, package2$data, sys_meta)
 
     # Download dummy package
     directory <- tempdir()
-    package <- arcticdatautils::get_package(mn, resource_map_pid)
-    download_packages(mn,
+    package <- arcticdatautils::get_package(mn_t, resource_map_pid)
+    download_packages(mn_t,
                       package$resource_map,
                       directory,
                       check_download_size = FALSE)
