@@ -468,14 +468,6 @@ qa_attributes <- function(entity, data, doc = NULL) {
 
         data_cols <- colnames(data)
 
-        # Check for attribute correctness according to the EML schema
-        att_output <- utils::capture.output(arcticdatautils::eml_validate_attributes(entity$attributeList))
-        att_errors <- which(grepl("FALSE", utils::head(att_output, length(attributeNames))))
-
-        if (length(att_errors) > 0) {
-            print(att_output[att_errors])
-        }
-
         # Check that attribute names match column names
         allequal <- isTRUE(all.equal(data_cols, attributeNames))
 
