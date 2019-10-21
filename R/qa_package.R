@@ -557,12 +557,16 @@ qa_attributes <- function(entity, data, doc = NULL) {
         # If there are any missing values in the data, check that there is an associated missing value code in the EML
         for (i in which(colSums(is.na(data)) > 0)) { # only checks for NA values but others like -99 or -999 could be present
             attribute <- attributeTable$attributes[i, ]
-            if (is.na(attribute$missingValueCode)) {
+            if (is.null(attribute$missingValueCode)) {
                 cat(crayon::red(paste0("\nThe attribute '", attribute$attributeName, "' contains missing values but does not have a missing value code.")))
             }
         }
     },
-    error = function(e) cat(crayon::red("\nError. Processing for object stopped."))
+    error = function(e){
+        cat(crayon::red("\nError. Processing for object stopped. "))
+        cat(crayon::red("Here's the original error message: "))
+        cat(crayon::red(message(e)))
+    }
     )
 
     cat(crayon::green("\n..........Processing complete.............................."))
