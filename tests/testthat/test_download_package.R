@@ -84,6 +84,9 @@ test_that("remove_special_characters works correctly", {
 })
 
 test_that("download_all_files downloads all data objects to computer", {
+    cn <- dataone::CNode('PROD')
+    adc <- dataone::getMNode(cn,'urn:node:ARCTIC')
+
     pids <- dataone::query(adc, list(q = "title:**",
                             fl="resourceMap",
                             rows="10"))
