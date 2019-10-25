@@ -464,3 +464,52 @@ download_packages <- function(mn, resource_map_pids, download_directory, ...) {
 #         stop("Download cancelled by user")
 #     }
 # }
+
+
+#' Download multiple data objects
+#'
+#' This function outputs a shell script containing lines of wget commands. Executing them in the terminal will download all of the data objects in a data package to the local filesystem. This function is especially helpful when a data package contains too many data objects to download through the web interface.
+#'
+#' @param node (MNode) The Member Node to download data objects from.
+#'
+#' @param resource_map_pid (character) The identifier of the data package's resource map.
+#'
+#' @param path Path to write the shell script to.
+#'
+#' @return Outputs a shell script to the indicated path
+#'
+#' @export
+#'
+#' @author Rachel Sun rachelsun@ucsb.edu
+#'
+#' @examples
+#' \dontrun{
+#' # Set environment
+#' cn <- dataone::CNode('PROD')
+#' adc <- dataone::getMNode(cn,'urn:node:ARCTIC')
+#'
+#' resource_map_pid <- 'resource_map_doi:10.18739/A2PG3B'
+#' path = tempfile(fileext = '.sh')
+#'
+#' download_all_files(adc, resource_map_pid, path)
+#' expect_true(file.exists(path))
+#'}
+#'
+
+download_all_files <- function(node, resource_map_pid, path){
+    stopifnot(methods::is(node, "MNode"))
+    stopifnot(all(is.character(resource_map_pid)))
+    stopifnot(length(resource_map_pid) > 0)
+
+    list_of_pids <- arcticdatautils::get_package(node, resource_map_pid, file_names = TRUE)
+    data_pids <- list_of_pids$data
+    metadata_pid <- list_of_pids$metadata
+    pids <- c(metadata_pid, data_pids)
+    text <- vector('character', length(pids))
+    for(i in 1:length(pids)){
+        pid <- pids[i]
+        text[i] <- paste0('wget --no-check-certificate https://arcticdata.io/metacat/d1/mn/v2/object/', pid, ' -O ', names(pid), '\n')
+    }
+    formatted_text <- paste0(text, collapse = '')
+    write(formatted_text, file = path)
+}
