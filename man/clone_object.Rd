@@ -4,8 +4,15 @@
 \alias{clone_object}
 \title{Clone objects between DataONE Member Nodes}
 \usage{
-clone_object(pid, from, to, add_access_to, change_auth_node,
-  public = FALSE, new_pid = TRUE)
+clone_object(
+  pid,
+  from,
+  to,
+  add_access_to,
+  change_auth_node,
+  public = FALSE,
+  new_pid = TRUE
+)
 }
 \arguments{
 \item{pid}{(character) Object PID.}

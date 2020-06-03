@@ -4,8 +4,13 @@
 \alias{copy_package}
 \title{Copy packages between DataONE Member Nodes with new identifiers}
 \usage{
-copy_package(resource_map_pid, from, to, public = FALSE,
-  clone_children = FALSE)
+copy_package(
+  resource_map_pid,
+  from,
+  to,
+  public = FALSE,
+  clone_children = FALSE
+)
 }
 \arguments{
 \item{resource_map_pid}{(character) Object pid}
