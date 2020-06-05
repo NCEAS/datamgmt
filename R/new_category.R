@@ -12,17 +12,15 @@
 #'
 #' @examples #new_category("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name")
 new_category <- function(doi, themes, coder) {
-    doi <- "doi:10.18739/A2QJ77Z09"
-    themes <- c("biology", "oceanography")
-    coder <- "jasmine"
+
+    #for using google sheets on the server - prompts user to copy id into command prompt
+    googlesheets4::gs4_auth(use_oob = T)
 
     stopifnot(length(themes) > 0)
 
     #test sheet
     ss <- "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118"
-    #ss <-  "https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118"
-    #classify <- googlesheets4::read_sheet(ss)
-    df_empty <- classify[FALSE,]
+    ss <-  "https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118"
 
     cn <- dataone::CNode("PROD")
     adc <- dataone::getMNode(cn, "urn:node:ARCTIC")
@@ -45,5 +43,5 @@ new_category <- function(doi, themes, coder) {
                       coder = coder)
 
     #write to google sheet add
-    googlesheets4::sheets_append(df_query, ss, sheet = 1)
+    googlesheets4::sheet_append(ss, df_query, sheet = 1)
 }
