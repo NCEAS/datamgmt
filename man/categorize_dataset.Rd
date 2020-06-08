@@ -22,7 +22,7 @@ NULL the result wil be written to an external google sheet
 Please ask Jeanette or Jasmine to grant you access to the google sheet (https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 }
 \examples{
-# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name")
+# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
 }
 \author{
 Jasmine Lai

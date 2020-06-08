@@ -11,12 +11,12 @@
 #' @return NULL the result wil be written to an external google sheet
 
 #' @examples
-#' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name")
+#' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
 #' @author Jasmine Lai
 #' @export
 categorize_dataset <- function(doi, themes, coder, test = F) {
   stopifnot(length(themes) > 0 & length(themes) < 5)
-  stopifnot(grepl(doi, "doi"))
+  stopifnot(grepl("doi", doi))
 
   # for using google sheets on the server - prompts user to copy id into command prompt
   googlesheets4::gs4_auth(use_oob = T)
@@ -29,7 +29,7 @@ categorize_dataset <- function(doi, themes, coder, test = F) {
   }
 
   #checking for valid themes
-  accepted_themes <- googlesheets4::read_sheet(ss, sheet = "categories", col_names = F)
+  accepted_themes <- suppressMessages(googlesheets4::read_sheet(ss, sheet = "categories", col_names = F))
   check_themes <- themes %in% accepted_themes$...1
   problem_themes <- which(check_themes == F)
   stopifnot(all(themes %in% accepted_themes$...1) == T)
