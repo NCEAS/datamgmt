@@ -7,7 +7,7 @@
 categorize_dataset(doi, themes, coder, test = F)
 }
 \arguments{
-\item{doi}{(character) the doi}
+\item{doi}{(character) the doi formatted as doi:10.#####/#########}
 
 \item{themes}{(list) themes of the dataset, can classify up to 5 - definition of the themes can be found here: https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}
 
@@ -19,10 +19,10 @@ categorize_dataset(doi, themes, coder, test = F)
 NULL the result wil be written to an external google sheet
 }
 \description{
-Please ask Jeanette or Jasmine to grant you access to the google sheet
+Please ask Jeanette or Jasmine to grant you access to the google sheet (https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 }
 \examples{
-#categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name")
+# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name")
 }
 \author{
 Jasmine Lai
