@@ -16,6 +16,7 @@
 #' @export
 categorize_dataset <- function(doi, themes, coder, test = F) {
   stopifnot(length(themes) > 0 & length(themes) < 5)
+  stopifnot(grepl(doi, "doi"))
 
   # for using google sheets on the server - prompts user to copy id into command prompt
   googlesheets4::gs4_auth(use_oob = T)
@@ -49,7 +50,7 @@ categorize_dataset <- function(doi, themes, coder, test = F) {
   ), as = "data.frame")
 
   df_query <- latest %>%
-    dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", identifier)) %>%
+    dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", latest$identifier)) %>%
     dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
     dplyr::mutate(
       theme1 = themes[1],
