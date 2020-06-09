@@ -4,9 +4,14 @@
 \alias{qa_package}
 \title{Check package including congruence of attributes and data}
 \usage{
-qa_package(mn, resource_map_pid, read_all_data = TRUE,
-  check_attributes = TRUE, check_creators = FALSE,
-  check_access = FALSE)
+qa_package(
+  mn,
+  resource_map_pid,
+  read_all_data = TRUE,
+  check_attributes = TRUE,
+  check_creators = FALSE,
+  check_access = FALSE
+)
 }
 \arguments{
 \item{mn}{(MNode) The Member Node to query.}

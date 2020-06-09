@@ -4,10 +4,16 @@
 \alias{download_package}
 \title{Download a data package (optionally with child packages)}
 \usage{
-download_package(mn, resource_map_pid, download_directory,
-  prefix_file_names = TRUE, download_column_metadata = FALSE,
-  convert_excel_to_csv = FALSE, download_child_packages = TRUE,
-  check_download_size = FALSE)
+download_package(
+  mn,
+  resource_map_pid,
+  download_directory,
+  prefix_file_names = TRUE,
+  download_column_metadata = FALSE,
+  convert_excel_to_csv = FALSE,
+  download_child_packages = TRUE,
+  check_download_size = FALSE
+)
 }
 \arguments{
 \item{mn}{(MNode) The Member Node to download from.}

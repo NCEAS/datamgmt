@@ -4,8 +4,13 @@
 \alias{get_eml_attributes_url}
 \title{Return attribute (column) metadata from a DataONE package URL}
 \usage{
-get_eml_attributes_url(mn, url_path, write_to_csv = FALSE,
-  prefix_file_names = FALSE, download_directory = NULL)
+get_eml_attributes_url(
+  mn,
+  url_path,
+  write_to_csv = FALSE,
+  prefix_file_names = FALSE,
+  download_directory = NULL
+)
 }
 \arguments{
 \item{mn}{(MNode/CNode) The DataONE Node that stores the Metadata object, from \url{https://cn.dataone.org/cn/v2/node}}

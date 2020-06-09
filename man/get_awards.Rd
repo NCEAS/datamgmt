@@ -4,8 +4,7 @@
 \alias{get_awards}
 \title{Get NSF Arctic/Polar program award information}
 \usage{
-get_awards(from_date = NULL, to_date = NULL, query = NULL,
-  print_fields = NULL)
+get_awards(from_date = NULL, to_date = NULL, query = NULL, print_fields = NULL)
 }
 \arguments{
 \item{from_date}{(character) Optional. Returns all

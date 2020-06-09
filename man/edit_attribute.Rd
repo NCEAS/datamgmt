@@ -4,11 +4,20 @@
 \alias{edit_attribute}
 \title{Edit a single attribute}
 \usage{
-edit_attribute(attribute, attributeName = NULL, attributeLabel = NULL,
-  attributeDefinition = NULL, domain = NULL, measurementScale = NULL,
-  unit = NULL, numberType = NULL, definition = NULL,
-  formatString = NULL, missingValueCode = NULL,
-  missingValueCodeExplanation = NULL)
+edit_attribute(
+  attribute,
+  attributeName = NULL,
+  attributeLabel = NULL,
+  attributeDefinition = NULL,
+  domain = NULL,
+  measurementScale = NULL,
+  unit = NULL,
+  numberType = NULL,
+  definition = NULL,
+  formatString = NULL,
+  missingValueCode = NULL,
+  missingValueCodeExplanation = NULL
+)
 }
 \arguments{
 \item{attribute}{(attribute) The attribute in the the attributeList of a data object.}

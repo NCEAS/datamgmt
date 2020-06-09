@@ -4,8 +4,16 @@
 \alias{clone_package}
 \title{Clone packages between DataONE Member Nodes}
 \usage{
-clone_package(resource_map_pid, from, to, add_access_to, change_auth_node,
-  public = FALSE, clone_children = FALSE, new_pid = TRUE)
+clone_package(
+  resource_map_pid,
+  from,
+  to,
+  add_access_to,
+  change_auth_node,
+  public = FALSE,
+  clone_children = FALSE,
+  new_pid = TRUE
+)
 }
 \arguments{
 \item{resource_map_pid}{(character) PID for the package resource map.}

@@ -3,7 +3,6 @@
 \docType{package}
 \name{datamgmt}
 \alias{datamgmt}
-\alias{datamgmt-package}
 \title{Data management utilities for curating, documenting, and publishing data}
 \description{
 The datamgmt R package supports management of data

@@ -4,8 +4,7 @@
 \alias{download_eml_attributes}
 \title{Download attribute (column) metadata from a DataONE metadata object to csv files}
 \usage{
-download_eml_attributes(doc, download_directory,
-  prefix_file_names = FALSE)
+download_eml_attributes(doc, download_directory, prefix_file_names = FALSE)
 }
 \arguments{
 \item{doc}{(emld) EML object.}
