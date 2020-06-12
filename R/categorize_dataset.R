@@ -1,15 +1,15 @@
 # to do fix ability to authenticateon server
-#' Interim method of categorizing datasets
+#' Interim method of categorizing datasets into one of several themes after a doi is issued
 #'
-#' Please ask Jeanette or Jasmine to grant you access to the google sheet (https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
+#' Please ask Jeanette or Jasmine to grant you access to the [google sheet](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 #'
 #' @param doi (character) the doi formatted as doi:10.#####/#########
-#' @param themes (list) themes of the dataset, can classify up to 5 - definition of the themes can be found here: https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118
+#' @param themes (list) themes of the dataset, can classify up to 5 - definition of the [themes](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 #' @param coder (character) your name, this is to identify who coded these themes
-#' @param test (logical) for using the testing google sheet, defaults to FALSE
+#' @param test (logical) for using the test google sheet, defaults to FALSE
 #' @param overwrite (logical) whether or not to update the themes
 #'
-#' @return NULL the result wil be written to an external google sheet
+#' @return NULL the result wil be written to an external [google sheet](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 
 #' @examples
 #' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
