@@ -40,62 +40,39 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   cn <- dataone::CNode("PROD")
   adc <- dataone::getMNode(cn, "urn:node:ARCTIC")
 
-  #Wrap the pid with special characters with escaped backslashes
-  doi_escape <- paste0("id:", '\"', doi, '\"')
-
   #identifier or previous version already in the original heet
   original_sheet <- suppressMessages(googlesheets4::read_sheet(ss))
+  all_versions <- arcticdatautils::get_all_versions(adc, doi) #previous versions
+  #get the rows to look into
+  sheet_index <- unlist(purrr::map(all_versions, ~which(.x == original_sheet$id)))
+  #check themes if they are the same
+  original_themes <- purrr::map(sheet_index, ~original_sheet[.x,7:11]) %>% unlist()
 
-  #check if DOI is in the sheet
-  all_versions <- arcticdatautils::get_all_versions(adc, doi)
-  if(any(all_versions %in% original_sheet$id)){
-    warning("identifiers or previous versions already in sheet")
-
-    #get the rows to look into
-    sheet_index <- unlist(purrr::map(all_versions, ~which(.x == original_sheet$id)))
-
-    #check themes if they are the same
-    for(i in seq_along(sheet_index)){
-
-      original_themes <- as.list(original_sheet[i,7:11])
-
-      if(overwrite){
-        warning("overwriting themes")
-        theme_range <- list("G", "H", "I", "J", "K")
-        purrr::map2(themes,
-             theme_range[1:length(themes)],
-             ~googlesheets4::range_write(ss,
-                                        as.data.frame(.x, stringsAsFactors = F),
-                                        range = paste0(.y, sheet_index[[i]]))
-             )
-      } else if(!any(themes %in% original_themes)){
-        #different
-        warning("themes are the different, set overwrite to TRUE to update")
-      }
-
-      # update the identifier
-      warning("updating identifier")
-      #suppressMessages()
-      doi_df <- as.data.frame(doi, stringsAsFactors = F)
-      do
-      googlesheets4::range_write(ss, , range = paste0("C", (sheet_index[[i]] + 1)))
-    }
+  if(overwrite){
+    warning("overwriting themes")
+    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+  } else if(any(all_versions[1:length(all_versions) - 1 ] %in% original_sheet$id)){  # update the identifier
+    warning("identifiers or previous versions already in sheet, updating identifier")
+    #suppressMessages()
+    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+  } else {
+    stop("already categorized - identifier not added, set overwrite to TRUE to update")
   }
 
-#   #same - warning message
-#   warning("identifier not added, already categorized")
+  #Wrap the pid with special characters with escaped backslashes
+  doi_escape <- paste0("id:", '\"', all_versions[length(all_versions)], '\"')
 
-    # search solr for the submission
-    latest <- dataone::query(adc, list(
-      q = doi_escape,
-      fl = "identifier, dateUploaded, abstract, keywords, title",
-      sort = "dateUploaded+desc",
-      rows = "100"
-    ), as = "data.frame")
+  # search solr for the submission
+  solr <- dataone::query(adc, list(
+    q = doi_escape,
+    fl = "identifier, dateUploaded, abstract, keywords, title",
+    sort = "dateUploaded+desc",
+    rows = "100"
+  ), as = "data.frame")
 
   #identifier and previous versions not in sheet, add row
-  df_query <- latest %>%
-    dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", latest$identifier)) %>%
+  df_query <- solr %>%
+    dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", solr$identifier)) %>%
     dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
     dplyr::mutate(
       theme1 = themes[1],
@@ -106,6 +83,6 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
       coder = coder
     )
 
-  # write to google sheet add
-  googlesheets4::sheet_append(ss, df_query, sheet = 1)
-  }
+  #write to googlesheet
+  suppressMessages(googlesheets4::sheet_append(ss, df_query, sheet = 1))
+}

@@ -14,6 +14,8 @@ categorize_dataset(doi, themes, coder, test = F, overwrite = F)
 \item{coder}{(character) your name, this is to identify who coded these themes}
 
 \item{test}{(logical) for using the testing google sheet, defaults to FALSE}
+
+\item{overwrite}{(logical) whether or not to update the themes}
 }
 \value{
 NULL the result wil be written to an external google sheet
