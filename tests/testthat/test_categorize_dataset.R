@@ -1,11 +1,9 @@
 context("Categorize dataset")
 
-skip_if_no_token <- function() {
-    testthat::skip_if_not(googlesheets4::sheets_has_token(), "No Sheet token")
-}
+testthat::skip_if_not(googlesheets4::gs4_has_token(), "No Sheet token")
+
 
 test_that("spelling is correct", {
-    skip_if_no_token()
 
     expect_error(categorize_dataset("doi:10.18739/A2GH9B946", c("biolog", "oceanogrophy"), "test spelling", T))
 
@@ -15,7 +13,6 @@ test_that("spelling is correct", {
 })
 
 test_that("doi or versions are already in sheet", {
-    skip_if_no_token()
 
     #same doi already in the sheet
     expect_error(categorize_dataset("doi:10.18739/A2CK5B", c("biology", "oceanography"), "test pid", T),
