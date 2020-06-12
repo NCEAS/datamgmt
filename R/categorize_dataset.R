@@ -7,6 +7,7 @@
 #' @param themes (list) themes of the dataset, can classify up to 5 - definition of the themes can be found here: https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118
 #' @param coder (character) your name, this is to identify who coded these themes
 #' @param test (logical) for using the testing google sheet, defaults to FALSE
+#' @param overwrite (logical) whether or not to update the themes
 #'
 #' @return NULL the result wil be written to an external google sheet
 
@@ -14,11 +15,12 @@
 #' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
 #' @author Jasmine Lai
 #' @export
-categorize_dataset <- function(doi, themes, coder, test = F) {
+categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
+
   stopifnot(length(themes) > 0 & length(themes) < 5)
   stopifnot(grepl("doi", doi))
 
-  # for using google sheets on the server - prompts user to copy id into command prompt
+  #for using google sheets on the server - prompts user to copy id into command prompt
   googlesheets4::gs4_auth(use_oob = T)
 
   #Select test sheet
@@ -34,21 +36,64 @@ categorize_dataset <- function(doi, themes, coder, test = F) {
   problem_themes <- which(check_themes == F)
   stopifnot(all(themes %in% accepted_themes$...1) == T)
 
-  # set node
+  #set node
   cn <- dataone::CNode("PROD")
   adc <- dataone::getMNode(cn, "urn:node:ARCTIC")
 
-  # Wrap the pid with special characters with escaped backslashes
+  #Wrap the pid with special characters with escaped backslashes
   doi_escape <- paste0("id:", '\"', doi, '\"')
 
-  # search solr for the submission
-  latest <- dataone::query(adc, list(
-    q = doi_escape,
-    fl = "identifier, dateUploaded, abstract, keywords, title",
-    sort = "dateUploaded+desc",
-    rows = "100"
-  ), as = "data.frame")
+  #identifier or previous version already in the original heet
+  original_sheet <- suppressMessages(googlesheets4::read_sheet(ss))
 
+  #check if DOI is in the sheet
+  all_versions <- arcticdatautils::get_all_versions(adc, doi)
+  if(any(all_versions %in% original_sheet$id)){
+    warning("identifiers or previous versions already in sheet")
+
+    #get the rows to look into
+    sheet_index <- unlist(purrr::map(all_versions, ~which(.x == original_sheet$id)))
+
+    #check themes if they are the same
+    for(i in seq_along(sheet_index)){
+
+      original_themes <- as.list(original_sheet[i,7:11])
+
+      if(overwrite){
+        warning("overwriting themes")
+        theme_range <- list("G", "H", "I", "J", "K")
+        purrr::map2(themes,
+             theme_range[1:length(themes)],
+             ~googlesheets4::range_write(ss,
+                                        as.data.frame(.x, stringsAsFactors = F),
+                                        range = paste0(.y, sheet_index[[i]]))
+             )
+      } else if(!any(themes %in% original_themes)){
+        #different
+        warning("themes are the different, set overwrite to TRUE to update")
+      }
+
+      # update the identifier
+      warning("updating identifier")
+      #suppressMessages()
+      doi_df <- as.data.frame(doi, stringsAsFactors = F)
+      do
+      googlesheets4::range_write(ss, , range = paste0("C", (sheet_index[[i]] + 1)))
+    }
+  }
+
+#   #same - warning message
+#   warning("identifier not added, already categorized")
+
+    # search solr for the submission
+    latest <- dataone::query(adc, list(
+      q = doi_escape,
+      fl = "identifier, dateUploaded, abstract, keywords, title",
+      sort = "dateUploaded+desc",
+      rows = "100"
+    ), as = "data.frame")
+
+  #identifier and previous versions not in sheet, add row
   df_query <- latest %>%
     dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", latest$identifier)) %>%
     dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
@@ -63,4 +108,4 @@ categorize_dataset <- function(doi, themes, coder, test = F) {
 
   # write to google sheet add
   googlesheets4::sheet_append(ss, df_query, sheet = 1)
-}
+  }

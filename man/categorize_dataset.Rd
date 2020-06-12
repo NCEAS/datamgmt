@@ -4,7 +4,7 @@
 \alias{categorize_dataset}
 \title{Interim method of categorizing datasets}
 \usage{
-categorize_dataset(doi, themes, coder, test = F)
+categorize_dataset(doi, themes, coder, test = F, overwrite = F)
 }
 \arguments{
 \item{doi}{(character) the doi formatted as doi:10.#####/#########}
