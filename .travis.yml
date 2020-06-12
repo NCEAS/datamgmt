@@ -10,7 +10,9 @@ addons:
   apt:
     sources:
       - sourceline: 'ppa:ubuntugis/ppa' # for sf
+      - sourceline: 'ppa:chris-lea/libsodium' # for tokens
     packages:
+      - libsodium-dev # for tokens
       - librdf0-dev # for datapack
       - libnetcdf-dev # for ncdf4
       - netcdf-bin # for ncdf4
