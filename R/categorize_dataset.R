@@ -12,7 +12,9 @@
 #' @return NULL the result wil be written to an external [google sheet](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 
 #' @examples
+#' \dontrun{
 #' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
+#' }
 #' @author Jasmine Lai
 #' @export
 categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
