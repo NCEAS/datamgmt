@@ -288,6 +288,10 @@ clone_package <- function(resource_map_pid,
                                                                      metadata_pid = new_eml_pid,
                                                                      data_pids = new_data_pids,
                                                                      child_pids = new_child_pids)
+
+        arcticdatautils::set_access(to@mn,
+                                    pids = new_resource_map_pid,
+                                    subjects = add_access_to)
     } else {
         message("\nCloning resource map: ", resource_map_pid)
         new_resource_map_pid <- clone_object(pid = resource_map_pid,
