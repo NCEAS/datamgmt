@@ -289,9 +289,7 @@ clone_package <- function(resource_map_pid,
                                                                      data_pids = new_data_pids,
                                                                      child_pids = new_child_pids)
 
-        arcticdatautils::set_access(to@mn,
-                                    pids = new_resource_map_pid,
-                                    subjects = add_access_to)
+
     } else {
         message("\nCloning resource map: ", resource_map_pid)
         new_resource_map_pid <- clone_object(pid = resource_map_pid,
@@ -302,7 +300,14 @@ clone_package <- function(resource_map_pid,
                                              new_pid = new_pid,
                                              change_auth_node = change_auth_node)
     }
+
+    arcticdatautils::set_access(to@mn,
+                                pids = new_resource_map_pid,
+                                subjects = add_access_to)
+
     response[["resource_map"]] <- new_resource_map_pid
+
+
 
     return(response)
 }
