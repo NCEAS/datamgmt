@@ -13,7 +13,7 @@
 
 #' @examples
 #' \dontrun{
-#' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
+#' # categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", test = T)
 #' }
 #' @author Jasmine Lai
 #' @export
