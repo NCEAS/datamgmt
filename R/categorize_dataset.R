@@ -58,7 +58,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
     #suppressMessages()
     purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else {
-    stop("already categorized - identifier not added, set overwrite to TRUE to update")
+    stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update.")
   }
 
   #Wrap the pid with special characters with escaped backslashes
