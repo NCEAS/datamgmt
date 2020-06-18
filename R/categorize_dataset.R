@@ -45,20 +45,24 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   #identifier or previous version already in the original heet
   original_sheet <- suppressMessages(googlesheets4::read_sheet(ss))
   all_versions <- arcticdatautils::get_all_versions(adc, doi) #previous versions
-  #get the rows to look into
-  sheet_index <- unlist(purrr::map(all_versions, ~which(.x == original_sheet$id)))
-  #check themes if they are the same
-  original_themes <- purrr::map(sheet_index, ~original_sheet[.x,7:11]) %>% unlist()
+  #get the row(s) to look into
+  sheet_index <- unlist(purrr::map(all_versions,
+                                   ~which(.x == original_sheet$id)))
+  #get the themes
+  original_themes <- unlist(purrr::map(sheet_index,
+                                       ~dplyr::select(original_sheet[1,],
+                                                      `theme1`, `theme2`, `theme3`, `theme4`, `theme5`)))
 
   if(overwrite){
     warning("overwriting themes")
-    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+    purrr::map(sheet_index,
+               ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else if(any(all_versions[1:length(all_versions) - 1 ] %in% original_sheet$id)){  # update the identifier
     warning("identifiers or previous versions already in sheet, updating identifier")
-    #suppressMessages()
-    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+    purrr::map(sheet_index,
+               ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else {
-    stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update.")
+    stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update."))
   }
 
   #Wrap the pid with special characters with escaped backslashes

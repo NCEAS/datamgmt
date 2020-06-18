@@ -16,12 +16,19 @@ test_that("doi or versions are already in sheet", {
 
     #same doi already in the sheet
     expect_error(categorize_dataset("doi:10.18739/A2CK5B", c("biology", "oceanography"), "test pid", T),
-                 "already categorized - identifier not added, set overwrite to TRUE to update")
+                 "Dataset with identifier doi:10.18739/A2CK5B is already categorized - identifier not added. Set overwrite to TRUE to update.")
     #same doi but different themes
     expect_error(categorize_dataset("doi:10.18739/A2CK5B", c("biology", "soil science"), "test pid", T),
-                 "already categorized - identifier not added, set overwrite to TRUE to update")
+                 "Dataset with identifier doi:10.18739/A2CK5B is already categorized - identifier not added. Set overwrite to TRUE to update.")
     #previous version in sheet
     expect_warning(categorize_dataset("doi:10.18739/A2GH9B946" , c("biology", "soil science"), "test pid", T),
+                   "identifiers or previous versions already in sheet, updating identifier") #doi:10.18739/A2QJ77Z09
+
+})
+
+test_that("overwrite themes", {
+#previous version in sheet
+    expect_warning(categorize_dataset("doi:10.18739/A2GH9B946" , c("biology", "soil science"), "test pid", T, T),
                    "identifiers or previous versions already in sheet, updating identifier") #doi:10.18739/A2QJ77Z09
     #update themes
     expect_warning(categorize_dataset("doi:10.18739/A2125Q94Q", c("biology", "soil science"), "test pid", T, T),
