@@ -59,8 +59,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   }
   else if(overwrite){
     warning("overwriting themes")
-    purrr::map(sheet_index,
-               ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else if(any(all_versions[1:length(all_versions) - 1 ] %in% original_sheet$id)){  # update the identifier
     warning("identifiers or previous versions already in sheet, updating identifier")
     purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))

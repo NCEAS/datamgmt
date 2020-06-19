@@ -30,13 +30,16 @@ test_that("doi or versions are already in sheet", {
 
 })
 
-test_that("overwrite themes", {
+test_that("overwrite", {
     #previous version in sheet
     expect_warning(categorize_dataset("doi:10.18739/A2QJ77Z09" , c("biology"), "test pid", T, T),
                    "overwriting themes - identifiers or previous versions already in sheet, updating identifier")
     #update themes
     expect_warning(categorize_dataset("doi:10.18739/A2125Q94Q", c("biology", "soil science"), "test pid", T, T),
                    "overwriting themes")
+    #verifying that if you set overwrite to T works based on previous error
+    expect_warning(categorize_dataset("doi:10.18739/A2CK5B", c("biology", "soil science"), "test pid", T, T),
+                 "overwriting themes")
 
 })
 
