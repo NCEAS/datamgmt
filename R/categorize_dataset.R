@@ -42,7 +42,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   cn <- dataone::CNode("PROD")
   adc <- dataone::getMNode(cn, "urn:node:ARCTIC")
 
-  #identifier or previous version already in the original heet
+  #identifier or previous version already in the original sheet
   original_sheet <- suppressMessages(googlesheets4::read_sheet(ss))
   all_versions <- arcticdatautils::get_all_versions(adc, doi) #previous versions
   #get the row(s) to look into
@@ -53,14 +53,17 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
                                        ~dplyr::select(original_sheet[1,],
                                                       `theme1`, `theme2`, `theme3`, `theme4`, `theme5`)))
 
-  if(overwrite){
+  if(overwrite & doi != all_versions[length(all_versions)]){
+    warning("overwriting themes - identifiers or previous versions already in sheet, updating identifier")
+    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+  }
+  else if(overwrite){
     warning("overwriting themes")
     purrr::map(sheet_index,
                ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else if(any(all_versions[1:length(all_versions) - 1 ] %in% original_sheet$id)){  # update the identifier
     warning("identifiers or previous versions already in sheet, updating identifier")
-    purrr::map(sheet_index,
-               ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
+    purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else {
     stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update."))
   }

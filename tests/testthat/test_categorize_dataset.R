@@ -1,6 +1,10 @@
 context("Categorize dataset")
 
-testthat::skip_if_not(googlesheets4::gs4_has_token(), "No Sheet token")
+# need to get token first for tests to run:
+#googlesheets4::gs4_auth(use_oob = T)
+
+#for travis ci
+testthat::skip_if_not(googlesheets4::gs4_has_token(), "No Google Sheet token")
 
 
 test_that("spelling is correct", {
@@ -27,9 +31,9 @@ test_that("doi or versions are already in sheet", {
 })
 
 test_that("overwrite themes", {
-#previous version in sheet
-    expect_warning(categorize_dataset("doi:10.18739/A2GH9B946" , c("biology", "soil science"), "test pid", T, T),
-                   "identifiers or previous versions already in sheet, updating identifier") #doi:10.18739/A2QJ77Z09
+    #previous version in sheet
+    expect_warning(categorize_dataset("doi:10.18739/A2QJ77Z09" , c("biology"), "test pid", T, T),
+                   "overwriting themes - identifiers or previous versions already in sheet, updating identifier")
     #update themes
     expect_warning(categorize_dataset("doi:10.18739/A2125Q94Q", c("biology", "soil science"), "test pid", T, T),
                    "overwriting themes")
