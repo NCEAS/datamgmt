@@ -65,7 +65,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   } else if(doi %in% original_sheet$id){
     stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update."))
   } else {
-    message("categorizing dataset")
+    message("dataset categorized")
   }
 
   #Wrap the pid with special characters with escaped backslashes
