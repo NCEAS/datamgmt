@@ -24,7 +24,9 @@ NULL the result wil be written to an external \href{https://docs.google.com/spre
 Please ask Jeanette or Jasmine to grant you access to the \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{google sheet}
 }
 \examples{
-# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", T)
+\dontrun{
+# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", test = T)
+}
 }
 \author{
 Jasmine Lai
