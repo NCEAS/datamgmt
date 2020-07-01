@@ -17,7 +17,7 @@ test_that("spelling is correct", {
 })
 
 test_that("works properly", {
-    expect_message(categorize_dataset("doi:10.18739/A2C24QN9B", c("archaeology", "geology/geophysics"), "working", T), "categorizing dataset")
+    expect_message(categorize_dataset("doi:10.18739/A2C24QN9B", c("archaeology", "geology/geophysics"), "working", T), "dataset categorized")
 de})
 
 test_that("doi or versions are already in sheet", {
