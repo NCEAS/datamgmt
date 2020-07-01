@@ -1,6 +1,6 @@
 context("Categorize dataset")
 
-# need to get token first for tests to run:
+# run this to get token first for tests to run:
 #googlesheets4::gs4_auth(use_oob = T)
 
 #for travis ci
@@ -15,6 +15,10 @@ test_that("spelling is correct", {
 
     expect_error(categorize_dataset("not a pid", c("biology", "oceanography", "soil science", "ecology", "biology", "oceanography"), "test pid", T))
 })
+
+test_that("works properly", {
+    expect_warning(categorize_dataset("doi:10.18739/A2C24QN9B", c("archaeology", "geology/geophysics"), "working", T), "categorizing dataset")
+de})
 
 test_that("doi or versions are already in sheet", {
 
@@ -88,3 +92,4 @@ example <- data.frame(
 
 googlesheets4::range_write(data = example,
                            ss = "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118")
+googlesheets4::range_delete(ss, sheet = "dataset_categorization", range = "8", shift = "up")

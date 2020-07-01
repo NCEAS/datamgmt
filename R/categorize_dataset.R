@@ -22,13 +22,13 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   stopifnot(length(themes) > 0 & length(themes) < 5)
   stopifnot(grepl("doi", doi))
 
-  #for using google sheets on the server - prompts user to copy id into command prompt
-  googlesheets4::gs4_auth(use_oob = T)
-
   #Select test sheet
   if (test) {
     ss <- "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118"
   } else {
+    #for using google sheets on the server - prompts user to copy id into command prompt
+    googlesheets4::gs4_auth(use_oob = T)
+
     ss <- "https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118" # offical
   }
 
@@ -56,15 +56,16 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   if(overwrite & doi != all_versions[length(all_versions)]){
     warning("overwriting themes - identifiers or previous versions already in sheet, updating identifier")
     purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
-  }
-  else if(overwrite){
+  } else if(overwrite){
     warning("overwriting themes")
     purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
   } else if(any(all_versions[1:length(all_versions) - 1 ] %in% original_sheet$id)){  # update the identifier
     warning("identifiers or previous versions already in sheet, updating identifier")
     purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
-  } else {
+  } else if(doi %in% original_sheet$id){
     stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update."))
+  } else {
+    warning("categorizing dataset")
   }
 
   #Wrap the pid with special characters with escaped backslashes
