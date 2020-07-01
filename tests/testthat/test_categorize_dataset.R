@@ -17,7 +17,7 @@ test_that("spelling is correct", {
 })
 
 test_that("works properly", {
-    expect_warning(categorize_dataset("doi:10.18739/A2C24QN9B", c("archaeology", "geology/geophysics"), "working", T), "categorizing dataset")
+    expect_message(categorize_dataset("doi:10.18739/A2C24QN9B", c("archaeology", "geology/geophysics"), "working", T), "categorizing dataset")
 de})
 
 test_that("doi or versions are already in sheet", {
@@ -90,6 +90,8 @@ example <- data.frame(
     coder = c("Erin", "Erin", "Erin", "Erin", "test pid", "test pid")
 )
 
+#write to googlesheet
+ss <- "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118"
 googlesheets4::range_write(data = example,
-                           ss = "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118")
+                           ss = ss)
 googlesheets4::range_delete(ss, sheet = "dataset_categorization", range = "8", shift = "up")
