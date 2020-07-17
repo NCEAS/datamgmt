@@ -90,8 +90,6 @@ clone_object <- function(pid,
     }
 
     data_obj@sysmeta@dateUploaded <- as.character(NA)
-    data_obj@sysmeta@obsoletes <- as.character(NA)
-    data_obj@sysmeta@obsoletedBy <- as.character(NA)
 
     # Add rights and access to subjects
     if (!is.null(add_access_to)) {
