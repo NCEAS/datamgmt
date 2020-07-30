@@ -1,15 +1,16 @@
-# to do fix ability to authenticateon server
-#' Interim method of categorizing datasets into one of several themes after a doi is issued
+#' Interim method of categorizing arctic data center datasets into one of several themes after a doi is issued
 #'
 #' Please ask Jeanette or Jasmine to grant you access to the [google sheet](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
+#'
+#' This function will account for older versions of the dataset has been already categorized. Please make sure you have a token from arcticdata.io.
 #'
 #' @param doi (character) the doi formatted as doi:10.#####/#########
 #' @param themes (list) themes of the dataset, can classify up to 5 - definition of the [themes](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 #' @param coder (character) your name, this is to identify who coded these themes
-#' @param test (logical) for using the test google sheet, defaults to FALSE
+#' @param test (logical) for using the test google sheet (mainly for testing purposes), defaults to FALSE
 #' @param overwrite (logical) whether or not to update the themes
 #'
-#' @return NULL the result wil be written to an external [google sheet](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
+#' @return NULL the result will be written to an external [google sheet](https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118)
 
 #' @examples
 #' \dontrun{
@@ -79,19 +80,28 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
     rows = "100"
   ), as = "data.frame")
 
-  #identifier and previous versions not in sheet, add row
+  #do a solr query to retrieve information about the dataset
   df_query <- solr %>%
-    dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", solr$identifier)) %>%
-    dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
-    dplyr::mutate(
-      theme1 = themes[1],
-      theme2 = themes[2],
-      theme3 = themes[3],
-      theme4 = themes[4],
-      theme5 = themes[5],
-      coder = coder
-    )
+    dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", solr$identifier))
 
-  #write to googlesheet
-  suppressMessages(googlesheets4::sheet_append(ss, df_query, sheet = 1))
+  #check if all the columns needed were returned
+  if(all(c("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %in% names(df_query))){
+    #if every column was returned and identifier and previous versions not in sheet
+    df_row <- dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
+      dplyr::mutate(
+        theme1 = themes[1],
+        theme2 = themes[2],
+        theme3 = themes[3],
+        theme4 = themes[4],
+        theme5 = themes[5],
+        coder = coder
+      )
+  }else{
+    #stop to let the user know what column is missing - dataset should be fixed before continuing
+    col_missing <- setdiff(cat_col, names(df_query))
+    stop(paste("the column(s):", col_missing, "is missing, please fix the dataset before continuing"))
+  }
+
+  #write to googlesheet and add a row
+  suppressMessages(googlesheets4::sheet_append(ss, df_row, sheet = 1))
 }
