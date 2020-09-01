@@ -87,7 +87,8 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   #check if all the columns needed were returned
   if(all(c("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %in% names(df_query))){
     #if every column was returned and identifier and previous versions not in sheet
-    df_row <- dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
+    df_row <- df_query %>%
+      dplyr::select("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %>%
       dplyr::mutate(
         theme1 = themes[1],
         theme2 = themes[2],

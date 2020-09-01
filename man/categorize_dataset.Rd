@@ -2,7 +2,7 @@
 % Please edit documentation in R/categorize_dataset.R
 \name{categorize_dataset}
 \alias{categorize_dataset}
-\title{Interim method of categorizing datasets into one of several themes after a doi is issued}
+\title{Interim method of categorizing arctic data center datasets into one of several themes after a doi is issued}
 \usage{
 categorize_dataset(doi, themes, coder, test = F, overwrite = F)
 }
@@ -13,15 +13,18 @@ categorize_dataset(doi, themes, coder, test = F, overwrite = F)
 
 \item{coder}{(character) your name, this is to identify who coded these themes}
 
-\item{test}{(logical) for using the test google sheet, defaults to FALSE}
+\item{test}{(logical) for using the test google sheet (mainly for testing purposes), defaults to FALSE}
 
 \item{overwrite}{(logical) whether or not to update the themes}
 }
 \value{
-NULL the result wil be written to an external \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{google sheet}
+NULL the result will be written to an external \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{google sheet}
 }
 \description{
 Please ask Jeanette or Jasmine to grant you access to the \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{google sheet}
+}
+\details{
+This function will account for older versions of the dataset has been already categorized. Please make sure you have a token from arcticdata.io.
 }
 \examples{
 \dontrun{
