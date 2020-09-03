@@ -23,12 +23,17 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   stopifnot(length(themes) > 0 & length(themes) < 5)
   stopifnot(grepl("doi", doi))
 
+  #check if there is googlesheet token already
+  if(!googlesheets4::gs4_has_token()){
+    #for using googlesheets on the server - prompts user to copy id into command prompt
+    googlesheets4::gs4_auth(use_oob = T)
+  }
+
   #Select test sheet
   if (test) {
     ss <- "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118"
   } else {
-    #for using google sheets on the server - prompts user to copy id into command prompt
-    googlesheets4::gs4_auth(use_oob = T)
+
 
     ss <- "https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118" # offical
   }
