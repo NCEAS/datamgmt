@@ -29,12 +29,10 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
     googlesheets4::gs4_auth(use_oob = T)
   }
 
-  #Select test sheet
+  #choose which sheet we want to work with (test or actual list)
   if (test) {
     ss <- "https://docs.google.com/spreadsheets/d/1GEj9THJdh22KCe1RywewbruUiiVkfZkFH8FO1ib9ysM/edit#gid=1479370118"
   } else {
-
-
     ss <- "https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118" # offical
   }
 
@@ -59,6 +57,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
                                        ~dplyr::select(original_sheet[1,],
                                                       `theme1`, `theme2`, `theme3`, `theme4`, `theme5`)))
 
+  #check for previous mentions or if we want to overwrite all together
   if(overwrite & doi != all_versions[length(all_versions)]){
     warning("overwriting themes - identifiers or previous versions already in sheet, updating identifier")
     purrr::map(sheet_index, ~suppressMessages(googlesheets4::range_delete(ss, range = as.character(.x + 1), shift = "up")))
@@ -77,7 +76,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   #Wrap the pid with special characters with escaped backslashes
   doi_escape <- paste0("id:", '\"', all_versions[length(all_versions)], '\"')
 
-  # search solr for the submission
+  #search solr for the submission
   solr <- dataone::query(adc, list(
     q = doi_escape,
     fl = "identifier, dateUploaded, abstract, keywords, title",
