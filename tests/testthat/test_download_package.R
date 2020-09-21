@@ -82,3 +82,26 @@ test_that("remove_special_characters works correctly", {
     output <- remove_special_characters(input)
     expect_equal(output, "doi1018739A23W02")
 })
+
+test_that("download_all_files downloads all data objects to computer", {
+    cn <- dataone::CNode('PROD')
+    adc <- dataone::getMNode(cn,'urn:node:ARCTIC')
+
+    pids <- dataone::query(adc, list(q = "title:**",
+                            fl="resourceMap",
+                            rows="10"))
+     for (i in 1: length(pids)){
+         package <- arcticdatautils::get_package(adc, pids[[i]]$resourceMap[[1]], file_names = TRUE)
+        if(length(package$data) > 100){
+            pid_over_100 <- package$resource_map
+            break
+        }
+    }
+
+    path = tempfile(fileext = '.sh')
+
+    download_all_files(adc, pid_over_100, path)
+    testthat::expect_true(file.exists(path))
+})
+
+
