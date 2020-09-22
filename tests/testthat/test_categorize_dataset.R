@@ -1,13 +1,12 @@
 context("Categorize dataset")
 
-# run this to get token first for tests to run:
-#googlesheets4::gs4_auth(use_oob = T)
-
 #for travis ci
 testthat::skip_if_not(googlesheets4::gs4_has_token(), "No Google Sheet token")
 
+# run this to get token first for tests to run:
+googlesheets4::gs4_auth(use_oob = T)
 
-test_that("spelling is correct", {
+test_that("spelling is correct and capitalizations don't matter", {
 
     expect_error(categorize_dataset("doi:10.18739/A2GH9B946", c("biolog", "oceanogrophy"), "test spelling", T))
 

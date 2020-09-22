@@ -1,5 +1,7 @@
 context("Get EML attributes")
 
+testthat::skip_on_travis()
+
 cn <- dataone::CNode("PROD")
 mn <- dataone::getMNode(cn,"urn:node:ARCTIC")
 doc <- EML::read_eml(rawToChar(dataone::getObject(mn, "doi:10.18739/A23W02")))

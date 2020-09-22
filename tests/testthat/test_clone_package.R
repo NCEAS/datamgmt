@@ -1,5 +1,7 @@
 context("Clone package")
 
+testthat::skip_on_travis()
+
 # Set test node
 d1c_test <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 
