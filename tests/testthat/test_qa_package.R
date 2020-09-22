@@ -1,5 +1,7 @@
 context("QA package")
 
+testthat::skip_on_travis()
+
 cn_prod <- CNode("PROD")
 adc_prod <- getMNode(cn_prod, "urn:node:ARCTIC")
 
