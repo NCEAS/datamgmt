@@ -9,13 +9,13 @@ categorize_dataset(doi, themes, coder, test = F, overwrite = F)
 \arguments{
 \item{doi}{(character) the doi formatted as doi:10.#####/#########}
 
-\item{themes}{(list) themes of the dataset, can classify up to 5 - definition of the \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{themes}}
+\item{themes}{(list) themes of the dataset and you can classify up to 5. The definitions of the \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{themes}}
 
 \item{coder}{(character) your name, this is to identify who coded these themes}
 
 \item{test}{(logical) for using the test google sheet (mainly for testing purposes), defaults to FALSE}
 
-\item{overwrite}{(logical) whether or not to update the themes}
+\item{overwrite}{(logical) whether or not to update the entry (for example if you want to update the themes)}
 }
 \value{
 NULL the result will be written to an external \href{https://docs.google.com/spreadsheets/d/1S_7iW0UBZLZoJBrHXTW5fbHH-NOuOb6xLghraPA4Kf4/edit#gid=1479370118}{google sheet}
@@ -28,7 +28,7 @@ This function will account for older versions of the dataset has been already ca
 }
 \examples{
 \dontrun{
-# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name", test = T)
+# categorize_dataset("doi:10.18739/A2QJ77Z09", c("biology", "oceanography"), "your name")
 }
 }
 \author{
