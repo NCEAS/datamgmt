@@ -1,6 +1,5 @@
 context("Guess member node")
 
-testthat::skip_on_travis()
 
 test_that("guess_member_node returns correct output", {
     mn_guess <- guess_member_node("doi:10.18739/A2G287", "PROD")
