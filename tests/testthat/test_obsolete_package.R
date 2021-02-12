@@ -1,5 +1,7 @@
 context("Obsolete package")
 
+testthat::skip_on_travis()
+
 cn <- dataone::CNode("STAGING")
 mn <- dataone::getMNode(cn, "urn:node:mnTestARCTIC")
 
