@@ -71,7 +71,7 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   } else if(doi %in% original_sheet$id){
     stop(paste("Dataset with identifier" ,doi, "is already categorized - identifier not added. Set overwrite to TRUE to update."))
   } else {
-    message("dataset categorized")
+    message("categorizing dataset...")
   }
 
   #Wrap the pid with special characters with escaped backslashes
@@ -88,6 +88,13 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
   #do a solr query to retrieve information about the dataset
   df_query <- solr %>%
     dplyr::mutate(url = paste0("http://arcticdata.io/catalog/view/", solr$identifier))
+
+  #make sure keywords is not a list
+  if(is.list(df_query$keywords)){
+    df_query$keywords[[1]] <- paste(df_query$keywords[[1]], collapse = ",")
+
+    df_query$keywords <- as.character(df_query$keywords)
+  }
 
   #check if all the columns needed were returned
   if(all(c("url", "identifier", "dateUploaded", "abstract", "keywords", "title") %in% names(df_query))){
@@ -110,4 +117,5 @@ categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
 
   #write to googlesheet and add a row
   suppressMessages(googlesheets4::sheet_append(ss, df_row, sheet = 1))
+  message("dataset categorized")
 }
