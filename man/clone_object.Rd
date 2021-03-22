@@ -39,7 +39,11 @@ and will only allow DataONE admins with special privileges to edit the package s
 }
 \description{
 Clones objects between DataONE Member Nodes.
-Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+Note:
+\itemize{
+\item the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+\item the limit of the file size is set at a default of 1TB
+}
 }
 \examples{
 \dontrun{
