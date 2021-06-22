@@ -15,6 +15,10 @@ test_that("query_all_versions stops with invalid input", {
 
 test_that("query_solr_metadata returns correct output", {
 
+    if (!arcticdatautils::is_token_set(mn_test)) {
+        skip("No token set. Skipping test.")
+    }
+
     df_fun <- query_solr_metadata(mn, "doi:10.18739/A23R0PS65", c("origin", "id"))
     df_query <- dataone::query(mn, list(q="documents:\"doi:10.18739/A23R0PS65\"",
                                           fl= "origin, id",
