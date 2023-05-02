@@ -1,5 +1,6 @@
 context("Plot package structure")
 
+
 cn <- dataone::CNode("PROD")
 mn <- dataone::getMNode(cn,"urn:node:ARCTIC")
 

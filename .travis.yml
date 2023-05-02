@@ -1,18 +1,13 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
-
+dist: bionic
 language: r
 r:
   - oldrel
 sudo: required
-dist: trusty
 cache: packages
 addons:
   apt:
-    sources:
-      - sourceline: 'ppa:ubuntugis/ppa' # for sf
-      - sourceline: 'ppa:chris-lea/libsodium' # for tokens
     packages:
-      - libsodium-dev # for tokens
       - librdf0-dev # for datapack
       - libnetcdf-dev # for ncdf4
       - netcdf-bin # for ncdf4

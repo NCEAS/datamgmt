@@ -1,5 +1,6 @@
 context("Guess member node")
 
+
 test_that("guess_member_node returns correct output", {
     mn_guess <- guess_member_node("doi:10.18739/A2G287", "PROD")
     mn_guess_url <- guess_member_node("https://arcticdata.io/catalog/#view/doi:10.18739/A2G287")

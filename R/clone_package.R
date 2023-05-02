@@ -1,7 +1,9 @@
 #' Clone objects between DataONE Member Nodes
 #'
 #' Clones objects between DataONE Member Nodes.
-#' Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+#' Note:
+#' - the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+#' - the limit of the file size is set at a default of 1TB
 #'
 #' @param pid (character) Object PID.
 #' @param from (D1Client) D1Client to clone objects from. (Objects must be public)
@@ -78,7 +80,7 @@ clone_object <- function(pid,
     }
 
     # Get DataObject
-    data_obj <- dataone::getDataObject(from, pid)
+    data_obj <- dataone::getDataObject(from, pid, limit = "1TB")
 
     # Adjust sysmeta
     if (new_pid) {

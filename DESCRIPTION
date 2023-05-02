@@ -52,8 +52,7 @@ Suggests:
     igraph,
     purrr,
     rmarkdown,
-    visNetwork,
-    sodium
+    visNetwork
 Remotes:
     NCEAS/arcticdatautils
 Roxygen: list(markdown = TRUE)
