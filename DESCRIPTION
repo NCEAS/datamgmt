@@ -1,9 +1,9 @@
 Package: datamgmt
 Type: Package
 Title: Data Management Utilities for Curating, Documenting, and Publishing Data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
-  person("Matt", "Jones", email = "jones@nceas.ucsb.edu", role = "cre"),
+  person("Matthew B.", "Jones", email = "jones@nceas.ucsb.edu", role = c("cre"), comment=c(ORCID = "0000-0003-0077-4738")),
   person("Dominic", "Mullen", email = "dmullen17@gmail.com", role = "aut"),
   person("Irene", "Steves", comment = "https://github.com/isteves", role = "aut"),
   person("Mitchell", "Maier", email = "mitchell.maier@gmail.com", role = "aut"),
