@@ -21,7 +21,6 @@
 categorize_dataset <- function(doi, themes, coder, test = F, overwrite = F){
 
   stopifnot(length(themes) > 0 & length(themes) < 5)
-  stopifnot(grepl("doi", doi))
 
   #check if there is googlesheet token already
   if(!googlesheets4::gs4_has_token()){
