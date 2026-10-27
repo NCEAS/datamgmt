@@ -2,7 +2,11 @@
 #'
 #' Clones objects between DataONE Member Nodes.
 #' Note:
-#' - the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+#' - the dateUploaded field in the sysmeta will be reset on the cloned object.
+#' - the obsoletes and obsoletedBy fields are carried over from the original object (preserving the version chain)
+#'   unless \code{new_pid = TRUE}, in which case they are reset.
+#' - if \code{new_pid = FALSE} and the object obsoletes a previous version, the previous version on the
+#'   \code{to} node will have its obsoletedBy set to the cloned object (if it is currently empty and writable).
 #' - the limit of the file size is set at a default of 1TB
 #'
 #' @param pid (character) Object PID.
@@ -17,6 +21,7 @@
 #'   and will only allow DataONE admins with special privileges to edit the package system metadata.
 #' @param public (logical) Optional. Will set public read access. Defaults to \code{FALSE}.
 #' @param new_pid (logical) Optional. Will give the clone a new PID. Defaults to \code{TRUE}.
+#'   Set to \code{FALSE} to keep the original PID and carry over obsoletes/obsoletedBy.
 #'
 #' @return (character) PID of cloned object. \code{NULL} if could not clone.
 #'
@@ -92,8 +97,12 @@ clone_object <- function(pid,
     }
 
     data_obj@sysmeta@dateUploaded <- as.character(NA)
-    data_obj@sysmeta@obsoletes <- as.character(NA)
-    data_obj@sysmeta@obsoletedBy <- as.character(NA)
+
+    # With a new PID the old version chain would point at the wrong objects
+    if (new_pid) {
+        data_obj@sysmeta@obsoletes <- as.character(NA)
+        data_obj@sysmeta@obsoletedBy <- as.character(NA)
+    }
 
     # Add rights and access to subjects
     if (!is.null(add_access_to)) {
@@ -121,6 +130,23 @@ clone_object <- function(pid,
         NULL
     })
 
+    # createObject() does not set obsoletedBy on the previous version, so do it here
+    prev_pid <- data_obj@sysmeta@obsoletes
+    if (!new_pid && !is.null(upload_pid) &&
+        length(prev_pid) == 1 && !is.na(prev_pid) && nchar(prev_pid) > 0) {
+        tryCatch({
+            prev_sysmeta <- dataone::getSystemMetadata(to@mn, prev_pid)
+            if (length(prev_sysmeta@obsoletedBy) == 0 || is.na(prev_sysmeta@obsoletedBy)) {
+                prev_sysmeta@obsoletedBy <- upload_pid
+                dataone::updateSystemMetadata(to@mn, prev_pid, prev_sysmeta)
+                message("Set obsoletedBy on previous version ", prev_pid, " to ", upload_pid)
+            }
+        }, error = function(e) {
+            warning("Could not set obsoletedBy on previous version ", prev_pid,
+                    " at ", to@mn@identifier, ": ", conditionMessage(e))
+        })
+    }
+
     message("Output: ", upload_pid)
     return(upload_pid)
 }
@@ -129,7 +155,8 @@ clone_object <- function(pid,
 #' Clone packages between DataONE Member Nodes
 #'
 #' This function copies a data package from one DataONE Member Node to another.
-#' Note: the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+#' Note: the dateUploaded field in the sysmeta will be reset on the cloned object. The obsoletes and obsoletedBy
+#' fields are reset only when \code{new_pid = TRUE}; otherwise they are carried over (see [clone_object()]).
 #' This will not update the information in the metadata object. This can also be used
 #' to restore an older version of a package to a Member Node, provided that the user subsequently
 #' obsoletes the version of the package that they used to create the clone.
