@@ -95,3 +95,81 @@ test_that("clone_package copies a package w - w/o data and children", {
     cloneobj1 <- dataone::getObject(d1c_test@mn, clone_child$data)
     expect_equal(dataobj1, cloneobj1) #cloned data is the same
 })
+
+# Version chain tests: clone between two different nodes so PIDs can be kept
+d1c_to <- dataone::D1Client("STAGING", "urn:node:mnTestKNB")
+
+is_unset <- function(x) length(x) == 0 || is.na(x)
+
+# Creates a two-version chain (pid1 -> pid2) on the source node
+create_chain <- function() {
+    pid1 <- arcticdatautils::create_dummy_object(d1c_test@mn)
+    path <- tempfile(fileext = ".csv")
+    write.csv(data.frame(a = 1:3), path, row.names = FALSE)
+    pid2 <- arcticdatautils::update_object(d1c_test@mn, pid1, path, format_id = "text/csv")
+    list(pid1 = pid1, pid2 = pid2)
+}
+
+skip_if_no_tokens <- function() {
+    if (!arcticdatautils::is_token_set(d1c_test@mn) ||
+        !arcticdatautils::is_token_set(d1c_to@mn)) {
+        skip("No token set. Skipping test.")
+    }
+}
+
+clone_args <- function() {
+    list(from = d1c_test,
+         to = d1c_to,
+         add_access_to = arcticdatautils:::get_token_subject(),
+         change_auth_node = TRUE,
+         public = TRUE)
+}
+
+test_that("new_pid = FALSE keeps obsoletes/obsoletedBy and updates the previous version", {
+    skip_if_no_tokens()
+
+    chain <- create_chain()
+    args <- clone_args()
+
+    cloned1 <- do.call(clone_object, c(list(pid = chain$pid1, new_pid = FALSE), args))
+    cloned2 <- do.call(clone_object, c(list(pid = chain$pid2, new_pid = FALSE), args))
+
+    expect_equal(cloned1, chain$pid1)
+    expect_equal(cloned2, chain$pid2)
+
+    sysmeta2 <- dataone::getSystemMetadata(d1c_to@mn, cloned2)
+    expect_equal(sysmeta2@obsoletes, chain$pid1)
+
+    # The previous version on the destination node now points at the newer one
+    sysmeta1 <- dataone::getSystemMetadata(d1c_to@mn, cloned1)
+    expect_equal(sysmeta1@obsoletedBy, chain$pid2)
+})
+
+test_that("new_pid = TRUE resets obsoletes/obsoletedBy", {
+    skip_if_no_tokens()
+
+    chain <- create_chain()
+    args <- clone_args()
+
+    cloned1 <- do.call(clone_object, c(list(pid = chain$pid1, new_pid = TRUE), args))
+    cloned2 <- do.call(clone_object, c(list(pid = chain$pid2, new_pid = TRUE), args))
+
+    expect_false(cloned1 == chain$pid1)
+    expect_false(cloned2 == chain$pid2)
+
+    expect_true(is_unset(dataone::getSystemMetadata(d1c_to@mn, cloned1)@obsoletedBy))
+    expect_true(is_unset(dataone::getSystemMetadata(d1c_to@mn, cloned2)@obsoletes))
+})
+
+test_that("a missing previous version only warns and the clone still succeeds", {
+    skip_if_no_tokens()
+
+    chain <- create_chain()
+    args <- clone_args()
+
+    # Previous version was never cloned to the destination node
+    expect_warning(
+        cloned2 <- do.call(clone_object, c(list(pid = chain$pid2, new_pid = FALSE), args))
+    )
+    expect_equal(cloned2, chain$pid2)
+})
