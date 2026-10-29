@@ -86,6 +86,8 @@ clone_object <- function(pid,
 
     # Get DataObject
     data_obj <- dataone::getDataObject(from, pid, limit = "1TB")
+    prev_pid <- data_obj@sysmeta@obsoletes
+    next_pid <- data_obj@sysmeta@obsoletedBy
 
     # Adjust sysmeta
     if (new_pid) {
@@ -98,11 +100,9 @@ clone_object <- function(pid,
 
     data_obj@sysmeta@dateUploaded <- as.character(NA)
 
-    # With a new PID the old version chain would point at the wrong objects
-    if (new_pid) {
-        data_obj@sysmeta@obsoletes <- as.character(NA)
-        data_obj@sysmeta@obsoletedBy <- as.character(NA)
-    }
+    # DataONE requires version links to be added after object creation.
+    data_obj@sysmeta@obsoletes <- as.character(NA)
+    data_obj@sysmeta@obsoletedBy <- as.character(NA)
 
     # Add rights and access to subjects
     if (!is.null(add_access_to)) {
@@ -130,21 +130,38 @@ clone_object <- function(pid,
         NULL
     })
 
-    # createObject() does not set obsoletedBy on the previous version, so do it here
-    prev_pid <- data_obj@sysmeta@obsoletes
-    if (!new_pid && !is.null(upload_pid) &&
-        length(prev_pid) == 1 && !is.na(prev_pid) && nchar(prev_pid) > 0) {
-        tryCatch({
-            prev_sysmeta <- dataone::getSystemMetadata(to@mn, prev_pid)
-            if (length(prev_sysmeta@obsoletedBy) == 0 || is.na(prev_sysmeta@obsoletedBy)) {
-                prev_sysmeta@obsoletedBy <- upload_pid
-                dataone::updateSystemMetadata(to@mn, prev_pid, prev_sysmeta)
-                message("Set obsoletedBy on previous version ", prev_pid, " to ", upload_pid)
-            }
-        }, error = function(e) {
-            warning("Could not set obsoletedBy on previous version ", prev_pid,
-                    " at ", to@mn@identifier, ": ", conditionMessage(e))
-        })
+    if (!new_pid && !is.null(upload_pid)) {
+        if (length(prev_pid) == 1 && !is.na(prev_pid) && nchar(prev_pid) > 0) {
+            tryCatch({
+                prev_sysmeta <- dataone::getSystemMetadata(to@mn, prev_pid)
+                cloned_sysmeta <- dataone::getSystemMetadata(to@mn, upload_pid)
+                cloned_sysmeta@obsoletes <- prev_pid
+                dataone::updateSystemMetadata(to@mn, upload_pid, cloned_sysmeta)
+
+                if (length(prev_sysmeta@obsoletedBy) == 0 || is.na(prev_sysmeta@obsoletedBy)) {
+                    prev_sysmeta@obsoletedBy <- upload_pid
+                    dataone::updateSystemMetadata(to@mn, prev_pid, prev_sysmeta)
+                    message("Set obsoletedBy on previous version ", prev_pid, " to ", upload_pid)
+                }
+            }, error = function(e) {
+                warning("Could not set obsoletes on cloned object ", upload_pid,
+                        " from previous version ", prev_pid, " at ",
+                        to@mn@identifier, ": ", conditionMessage(e))
+            })
+        }
+
+        if (length(next_pid) == 1 && !is.na(next_pid) && nchar(next_pid) > 0) {
+            tryCatch({
+                next_sysmeta <- dataone::getSystemMetadata(to@mn, next_pid)
+                if (identical(next_sysmeta@obsoletes, upload_pid)) {
+                    cloned_sysmeta <- dataone::getSystemMetadata(to@mn, upload_pid)
+                    cloned_sysmeta@obsoletedBy <- next_pid
+                    dataone::updateSystemMetadata(to@mn, upload_pid, cloned_sysmeta)
+                }
+            }, error = function(e) {
+                # The next version may be cloned later; its clone will update this link.
+            })
+        }
     }
 
     message("Output: ", upload_pid)
