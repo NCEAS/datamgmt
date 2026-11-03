@@ -191,18 +191,33 @@ clone_object <- function(pid,
         data_obj@sysmeta <- datapack::addAccessRule(data_obj@sysmeta, "public", "read")
     }
 
-    # Upload object
-    upload_pid <- tryCatch({
+    # Reuse an object with the same PID already on the destination. This is
+    # important for packages that share data objects across versions.
+    object_exists_on_target <- function() {
+        isTRUE(arcticdatautils::object_exists(to@mn, data_obj@sysmeta@identifier))
+    }
 
-        dataone::createObject(x = to@mn,
-                              pid = data_obj@sysmeta@identifier,
-                              sysmeta = data_obj@sysmeta,
-                              dataobj = data_obj@data)
+    if (!new_pid && object_exists_on_target()) {
+        message("Reusing existing object: ", data_obj@sysmeta@identifier)
+        upload_pid <- data_obj@sysmeta@identifier
+    } else {
+        # If another process uploads the same PID after the existence check,
+        # treat the resulting create conflict as a reuse if the object is now present.
+        upload_pid <- tryCatch({
+            dataone::createObject(x = to@mn,
+                                  pid = data_obj@sysmeta@identifier,
+                                  sysmeta = data_obj@sysmeta,
+                                  dataobj = data_obj@data)
 
-    }, error = function(e) {
-        warning(e)
-        NULL
-    })
+        }, error = function(e) {
+            if (!new_pid && object_exists_on_target()) {
+                message("Reusing existing object: ", data_obj@sysmeta@identifier)
+                return(data_obj@sysmeta@identifier)
+            }
+            warning(e)
+            NULL
+        })
+    }
 
     # The object is created without version links (avoids validation errors when the
     # neighbouring version doesn't exist yet); links are added only to versions present on `to`.
@@ -228,6 +243,9 @@ clone_object <- function(pid,
 #' This function copies a data package from one DataONE Member Node to another.
 #' Note: the dateUploaded field in the sysmeta will be reset on the cloned object. The obsoletes and obsoletedBy
 #' fields are reset only when \code{new_pid = TRUE}; otherwise they are carried over (see [clone_object()]).
+#' When \code{new_pid = FALSE}, objects already present on the destination Member Node are reused
+#' rather than uploaded again. If a data object cannot be cloned or reused, the function stops
+#' instead of creating a package with missing data objects.
 #' This will not update the information in the metadata object. This can also be used
 #' to restore an older version of a package to a Member Node, provided that the user subsequently
 #' obsoletes the version of the package that they used to create the clone.
@@ -344,7 +362,7 @@ clone_package <- function(resource_map_pid,
     response[["metadata"]] <- new_eml_pid
 
     # Clone data:
-    new_data_pids <- unlist(lapply(package$data, function(x) {
+    cloned_data <- lapply(package$data, function(x) {
         message("\nCloning data object: ", x)
         clone_object(pid = x,
                      from = from,
@@ -353,7 +371,15 @@ clone_package <- function(resource_map_pid,
                      public = public,
                      new_pid = new_pid,
                      change_auth_node = change_auth_node)
-    }))
+    })
+
+    failed_data <- package$data[vapply(cloned_data, is.null, logical(1))]
+    if (length(failed_data) > 0) {
+        stop("Could not clone or reuse data object(s): ",
+             paste(failed_data, collapse = ", "))
+    }
+
+    new_data_pids <- unlist(cloned_data, use.names = FALSE)
 
     if (is.null(new_data_pids)) {
         new_data_pids = character(0)
