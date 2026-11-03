@@ -41,6 +41,9 @@ special privileges to edit package system metadata.}
 This function copies a data package from one DataONE Member Node to another.
 Note: the dateUploaded field in the sysmeta will be reset on the cloned object. The obsoletes and obsoletedBy
 fields are reset only when \code{new_pid = TRUE}; otherwise they are carried over (see \code{\link[=clone_object]{clone_object()}}).
+When \code{new_pid = FALSE}, objects already present on the destination Member Node are reused
+rather than uploaded again. If a data object cannot be cloned or reused, the function stops
+instead of creating a package with missing data objects.
 This will not update the information in the metadata object. This can also be used
 to restore an older version of a package to a Member Node, provided that the user subsequently
 obsoletes the version of the package that they used to create the clone.
