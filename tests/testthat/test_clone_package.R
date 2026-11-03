@@ -7,7 +7,7 @@ d1c_test <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 # It will repeatedly check for the existence of the package until it is found or a timeout is reached.
 # TODO: Fix arcticdatautils::create_dummy_package() to wait for the package to become available before returning.
 # Wait for a newly created package to become visible on its member node.
-wait_for_package <- function(mn, resource_map_pid, timeout = 30, interval = 1) {
+wait_for_package <- function(mn, resource_map_pid, timeout = 60, interval = 1) {
     deadline <- Sys.time() + timeout
 
     repeat {
@@ -156,6 +156,62 @@ clone_args <- function() {
          change_auth_node = TRUE,
          public = TRUE)
 }
+
+test_that("cloning an updated package reuses its existing data objects", {
+    skip_if_no_tokens()
+
+    # size includes metadata; size = 2 creates one data object.
+    pkg <- arcticdatautils::create_dummy_package(d1c_test@mn, size = 2)
+    wait_for_package(d1c_test@mn, pkg$resource_map)
+
+    package_clone_args <- list(
+        from = d1c_test,
+        to = d1c_to,
+        add_access_to = arcticdatautils:::get_token_subject(),
+        change_auth_node = TRUE,
+        public = TRUE,
+        new_pid = FALSE
+    )
+
+    first_clone <- do.call(
+        clone_package,
+        c(list(resource_map_pid = pkg$resource_map), package_clone_args)
+    )
+
+    # Create a new metadata PID and resource map while keeping the data PIDs.
+    updated_metadata_pid <- clone_object(
+        pid = pkg$metadata,
+        from = d1c_test,
+        to = d1c_test,
+        add_access_to = arcticdatautils:::get_token_subject(),
+        change_auth_node = TRUE,
+        public = TRUE,
+        new_pid = TRUE
+    )
+    updated_resource_map_pid <- arcticdatautils::create_resource_map(
+        mn = d1c_test@mn,
+        metadata_pid = updated_metadata_pid,
+        data_pids = pkg$data
+    )
+    wait_for_package(d1c_test@mn, updated_resource_map_pid)
+    updated_package <- arcticdatautils::get_package(d1c_test@mn, updated_resource_map_pid)
+    expect_equal(updated_package$metadata, updated_metadata_pid)
+    expect_equal(updated_package$data, pkg$data)
+
+    second_clone <- do.call(
+        clone_package,
+        c(list(resource_map_pid = updated_resource_map_pid), package_clone_args)
+    )
+
+    expect_length(pkg$data, 1)
+    expect_equal(first_clone$data, pkg$data)
+    expect_equal(second_clone$data, first_clone$data)
+    expect_equal(second_clone$metadata, updated_metadata_pid)
+    expect_equal(second_clone$resource_map, updated_resource_map_pid)
+    expect_false(identical(second_clone$metadata, first_clone$metadata))
+    expect_false(identical(second_clone$resource_map, first_clone$resource_map))
+    expect_true(all(arcticdatautils::object_exists(d1c_to@mn, second_clone$data)))
+})
 
 test_that("new_pid = FALSE keeps obsoletes/obsoletedBy and updates the previous version", {
     skip_if_no_tokens()
