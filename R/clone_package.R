@@ -1,3 +1,77 @@
+is_blank_pid <- function(x) {
+    length(x) != 1 || is.na(x) || !nzchar(x)
+}
+
+# Retry system-metadata lookup for an object just uploaded to a Member Node.
+get_recent_system_metadata <- function(mn, pid, timeout = 30, interval = 1) {
+    deadline <- Sys.time() + timeout
+    last_error <- NULL
+
+    repeat {
+        sysmeta <- tryCatch(
+            dataone::getSystemMetadata(mn, pid),
+            warning = function(w) {
+                last_error <<- conditionMessage(w)
+                NULL
+            },
+            error = function(e) {
+                last_error <<- conditionMessage(e)
+                NULL
+            }
+        )
+
+        if (!is.null(sysmeta)) {
+            return(sysmeta)
+        }
+
+        if (Sys.time() >= deadline) {
+            stop("System metadata for newly uploaded PID ", pid,
+                 " was not available within ", timeout, " seconds",
+                 if (!is.null(last_error)) paste0(": ", last_error))
+        }
+
+        Sys.sleep(interval)
+    }
+}
+
+# Sets old_pid obsoletedBy new_pid and new_pid obsoletes old_pid, only if both exist on mn
+# and neither link is already set. Never errors; warns if the link can't be made.
+link_versions <- function(mn, old_pid, new_pid, recently_uploaded_pid) {
+    tryCatch({
+        if (identical(old_pid, recently_uploaded_pid)) {
+            # A successor may not have been cloned yet. Leave the chain unlinked;
+            # cloning that successor later will link it to this object.
+            new_sysmeta <- suppressWarnings(tryCatch(
+                dataone::getSystemMetadata(mn, new_pid),
+                error = function(e) NULL
+            ))
+            if (is.null(new_sysmeta)) {
+                return(invisible(FALSE))
+            }
+            old_sysmeta <- get_recent_system_metadata(mn, old_pid)
+        } else {
+            old_sysmeta <- dataone::getSystemMetadata(mn, old_pid)
+            new_sysmeta <- get_recent_system_metadata(mn, new_pid)
+        }
+
+        if (!is_blank_pid(old_sysmeta@obsoletedBy) || !is_blank_pid(new_sysmeta@obsoletes)) {
+            return(invisible(FALSE))
+        }
+
+        new_sysmeta@obsoletes <- old_pid
+        dataone::updateSystemMetadata(mn, new_pid, new_sysmeta)
+        old_sysmeta@obsoletedBy <- new_pid
+        dataone::updateSystemMetadata(mn, old_pid, old_sysmeta)
+        message("Linked version chain: ", old_pid, " -> ", new_pid)
+        invisible(TRUE)
+    }, error = function(e) {
+        # Expected when the other version hasn't been cloned to this node yet.
+        warning("Could not link ", old_pid, " -> ", new_pid, " at ",
+                mn@identifier, ": ", conditionMessage(e), call. = FALSE)
+        invisible(FALSE)
+    })
+}
+
 #' Clone objects between DataONE Member Nodes
 #'
 #' Clones objects between DataONE Member Nodes.
@@ -130,37 +204,17 @@ clone_object <- function(pid,
         NULL
     })
 
+    # The object is created without version links (avoids validation errors when the
+    # neighbouring version doesn't exist yet); links are added only to versions present on `to`.
     if (!new_pid && !is.null(upload_pid)) {
-        if (length(prev_pid) == 1 && !is.na(prev_pid) && nchar(prev_pid) > 0) {
-            tryCatch({
-                prev_sysmeta <- dataone::getSystemMetadata(to@mn, prev_pid)
-                cloned_sysmeta <- dataone::getSystemMetadata(to@mn, upload_pid)
-                cloned_sysmeta@obsoletes <- prev_pid
-                dataone::updateSystemMetadata(to@mn, upload_pid, cloned_sysmeta)
-
-                if (length(prev_sysmeta@obsoletedBy) == 0 || is.na(prev_sysmeta@obsoletedBy)) {
-                    prev_sysmeta@obsoletedBy <- upload_pid
-                    dataone::updateSystemMetadata(to@mn, prev_pid, prev_sysmeta)
-                    message("Set obsoletedBy on previous version ", prev_pid, " to ", upload_pid)
-                }
-            }, error = function(e) {
-                warning("Could not set obsoletes on cloned object ", upload_pid,
-                        " from previous version ", prev_pid, " at ",
-                        to@mn@identifier, ": ", conditionMessage(e))
-            })
+        if (!is_blank_pid(prev_pid)) {
+            link_versions(to@mn, old_pid = prev_pid, new_pid = upload_pid,
+                          recently_uploaded_pid = upload_pid)
         }
 
-        if (length(next_pid) == 1 && !is.na(next_pid) && nchar(next_pid) > 0) {
-            tryCatch({
-                next_sysmeta <- dataone::getSystemMetadata(to@mn, next_pid)
-                if (identical(next_sysmeta@obsoletes, upload_pid)) {
-                    cloned_sysmeta <- dataone::getSystemMetadata(to@mn, upload_pid)
-                    cloned_sysmeta@obsoletedBy <- next_pid
-                    dataone::updateSystemMetadata(to@mn, upload_pid, cloned_sysmeta)
-                }
-            }, error = function(e) {
-                # The next version may be cloned later; its clone will update this link.
-            })
+        if (!is_blank_pid(next_pid)) {
+            link_versions(to@mn, old_pid = upload_pid, new_pid = next_pid,
+                          recently_uploaded_pid = upload_pid)
         }
     }
 
