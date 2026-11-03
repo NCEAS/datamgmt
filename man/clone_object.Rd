@@ -32,7 +32,8 @@ and will only allow DataONE admins with special privileges to edit the package s
 
 \item{public}{(logical) Optional. Will set public read access. Defaults to \code{FALSE}.}
 
-\item{new_pid}{(logical) Optional. Will give the clone a new PID. Defaults to \code{TRUE}.}
+\item{new_pid}{(logical) Optional. Will give the clone a new PID. Defaults to \code{TRUE}.
+Set to \code{FALSE} to keep the original PID and carry over obsoletes/obsoletedBy.}
 }
 \value{
 (character) PID of cloned object. \code{NULL} if could not clone.
@@ -41,7 +42,11 @@ and will only allow DataONE admins with special privileges to edit the package s
 Clones objects between DataONE Member Nodes.
 Note:
 \itemize{
-\item the dateUploaded, obsoletes, and obsoletedBy fields in the sysmeta will be reset on the cloned object.
+\item the dateUploaded field in the sysmeta will be reset on the cloned object.
+\item the obsoletes and obsoletedBy fields are carried over from the original object (preserving the version chain)
+unless \code{new_pid = TRUE}, in which case they are reset.
+\item if \code{new_pid = FALSE} and the object obsoletes a previous version, the previous version on the
+\code{to} node will have its obsoletedBy set to the cloned object (if it is currently empty and writable).
 \item the limit of the file size is set at a default of 1TB
 }
 }

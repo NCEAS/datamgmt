@@ -2,6 +2,7 @@
 % Please edit documentation in R/datamgmt_package.R
 \docType{package}
 \name{datamgmt}
+\alias{datamgmt-package}
 \alias{datamgmt}
 \title{Data management utilities for curating, documenting, and publishing data}
 \description{
