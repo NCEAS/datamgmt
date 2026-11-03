@@ -3,6 +3,33 @@ context("Clone package")
 # Set test node
 d1c_test <- dataone::D1Client("STAGING", "urn:node:mnTestARCTIC")
 
+# This is a temporary function to wait for a newly created package to become visible on its member node. 
+# It will repeatedly check for the existence of the package until it is found or a timeout is reached.
+# TODO: Fix arcticdatautils::create_dummy_package() to wait for the package to become available before returning.
+# Wait for a newly created package to become visible on its member node.
+wait_for_package <- function(mn, resource_map_pid, timeout = 30, interval = 1) {
+    deadline <- Sys.time() + timeout
+
+    repeat {
+        package <- tryCatch(
+            arcticdatautils::get_package(mn, resource_map_pid),
+            warning = function(w) NULL,
+            error = function(e) NULL
+        )
+
+        if (!is.null(package)) {
+            return(package)
+        }
+
+        if (Sys.time() >= deadline) {
+            stop("Package resource map did not become available within ", timeout, " seconds: ",
+                 resource_map_pid)
+        }
+
+        Sys.sleep(interval)
+    }
+}
+
 test_that("clone_package errors gracefully", {
     expect_error(clone_package(5, d1c_test, d1c_test))
 
@@ -22,6 +49,7 @@ test_that("we can clone a package", {
     }
 
     pkg <- arcticdatautils::create_dummy_package(d1c_test@mn)
+    wait_for_package(d1c_test@mn, pkg$resource_map)
     pkg2 <- clone_package(pkg$resource_map, d1c_test, d1c_test,
                           add_access_to = arcticdatautils:::get_token_subject(),
                           change_auth_node = TRUE,
@@ -37,6 +65,7 @@ test_that("we can copy a package", {
     }
 
     pkg <- arcticdatautils::create_dummy_package(d1c_test@mn)
+    wait_for_package(d1c_test@mn, pkg$resource_map)
     pkg2 <- copy_package(pkg$resource_map, d1c_test, d1c_test)
 
     expect_length(pkg2, 3)
@@ -49,12 +78,15 @@ test_that("clone_package copies a package w - w/o data and children", {
 
     # Create a child
     child <- arcticdatautils::create_dummy_package(d1c_test@mn, size = 2)
+    wait_for_package(d1c_test@mn, child$resource_map)
 
     # Create a parent
     parent1 <- arcticdatautils::create_dummy_parent_package(d1c_test@mn, child$resource_map)
+    wait_for_package(d1c_test@mn, parent1$parent)
 
     # Create a parent
     parent2 <- arcticdatautils::create_dummy_parent_package(d1c_test@mn, parent1$parent)
+    wait_for_package(d1c_test@mn, parent2$parent)
 
     # Clone package
     clone <- clone_package(resource_map_pid = parent2$parent,
@@ -172,4 +204,41 @@ test_that("a missing previous version only warns and the clone still succeeds", 
         cloned2 <- do.call(clone_object, c(list(pid = chain$pid2, new_pid = FALSE), args))
     )
     expect_equal(cloned2, chain$pid2)
+})
+
+test_that("is_blank_pid detects empty identifiers", {
+    expect_true(is_blank_pid(NA_character_))
+    expect_true(is_blank_pid(character(0)))
+    expect_true(is_blank_pid(""))
+    expect_true(is_blank_pid(c("a", "b")))
+    expect_false(is_blank_pid("urn:uuid:123"))
+})
+
+test_that("cloning the newer version first still links the chain once the older one is cloned", {
+    skip_if_no_tokens()
+
+    chain <- create_chain()
+    args <- clone_args()
+
+    suppressWarnings(
+        cloned2 <- do.call(clone_object, c(list(pid = chain$pid2, new_pid = FALSE), args))
+    )
+    expect_true(is_unset(dataone::getSystemMetadata(d1c_to@mn, cloned2)@obsoletes))
+
+    cloned1 <- do.call(clone_object, c(list(pid = chain$pid1, new_pid = FALSE), args))
+
+    expect_equal(dataone::getSystemMetadata(d1c_to@mn, cloned1)@obsoletedBy, chain$pid2)
+    expect_equal(dataone::getSystemMetadata(d1c_to@mn, cloned2)@obsoletes, chain$pid1)
+})
+
+test_that("cloning in chain order does not warn", {
+    skip_if_no_tokens()
+
+    chain <- create_chain()
+    args <- clone_args()
+
+    expect_no_warning({
+        do.call(clone_object, c(list(pid = chain$pid1, new_pid = FALSE), args))
+        do.call(clone_object, c(list(pid = chain$pid2, new_pid = FALSE), args))
+    })
 })
