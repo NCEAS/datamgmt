@@ -51,7 +51,8 @@ get_awards <- function(from_date = NULL,
     stopifnot(is.character(query) | is.null(query))
     stopifnot(is.character(print_fields) | is.null(print_fields))
 
-    base_url <- "https://api.nsf.gov/services/v1/awards.xml?fundProgramName=ARCTIC|fundProgramName=POLAR|fundProgramName=AON"
+    # Encode the pipe separators: the NSF API rejects raw pipes in request URLs.
+    base_url <- "https://api.nsf.gov/services/v1/awards.xml?fundProgramName=ARCTIC%7CfundProgramName=POLAR%7CfundProgramName=AON"
     if(!is.null(query)) {
         query <- paste0("&", query)
     }
@@ -79,29 +80,57 @@ get_awards <- function(from_date = NULL,
         }
     }
 
-    xml1 <- RCurl::getURL(paste0(query_url, "&offset=", 1))
-    if(stringr::str_detect(xml1, "ERROR")){
-        stop("The query parameters are invalid.")
-    }
-    xml_df1 <- XML::xmlToDataFrame(xml1, stringsAsFactors = FALSE)
+    requested_fields <- strsplit(print_fields, ",", fixed = TRUE)[[1]]
 
-    # since we can only download 25 entries at a time, we need to loop through the query using different offsets
-    n <- 1
-    repeat {
-        start <- 1 + 25 * n
-        xml <- RCurl::getURL(paste0(query_url, "&offset=", start))
-        xml_df <- XML::xmlToDataFrame(xml, stringsAsFactors = FALSE)
-        if (length(xml_df) == 0) {break}
-
-        #check column names, add in missing one
-        missing <- colnames(xml_df1)[!colnames(xml_df1) %in% colnames(xml_df)]
-        if(length(missing) > 0){
-            xml_df[[missing]] <- NA
+    parse_page <- function(offset) {
+        xml <- getURL(paste0(query_url, "&offset=", offset))
+        if (stringr::str_detect(xml, "ERROR")) {
+            stop("The query parameters are invalid.")
         }
 
-        xml_df1 <- rbind(xml_df1, xml_df)
-        n <- n + 1
+        # The API occasionally includes a Windows-1252 byte in otherwise UTF-8
+        # XML; RCurl represents these bytes as strings such as <9d>.
+        xml <- gsub("<[[:xdigit:]]{2}>", "", xml)
+        if (!stringr::str_detect(xml, "^\\s*<\\?xml") &&
+            !stringr::str_detect(xml, "^\\s*<response(?:\\s|>)")) {
+            stop("The NSF API returned a non-XML response. Please retry later.")
+        }
+
+        doc <- XML::xmlParse(xml, asText = TRUE)
+        awards <- XML::getNodeSet(doc, "//award")
+        rows <- lapply(awards, function(award) {
+            values <- lapply(requested_fields, function(field) {
+                nodes <- XML::getNodeSet(award, paste0("./", field))
+                if (length(nodes)) XML::xmlValue(nodes[[1]]) else NA_character_
+            })
+            stats::setNames(as.data.frame(values, stringsAsFactors = FALSE), requested_fields)
+        })
+        data <- if (length(rows)) do.call(rbind, rows) else
+            as.data.frame(stats::setNames(rep(list(character()), length(requested_fields)),
+                                          requested_fields), stringsAsFactors = FALSE)
+
+        total_node <- XML::getNodeSet(doc, "//metadata/totalCount")
+        total <- if (length(total_node)) suppressWarnings(as.integer(XML::xmlValue(total_node[[1]]))) else NA_integer_
+        list(data = data, total = total, n = length(awards))
     }
 
-    return(xml_df1)
+    page_size <- 25L
+    offset <- 1L
+    page <- parse_page(offset)
+    result <- page$data
+
+    repeat {
+        next_offset <- offset + page_size
+        if (page$n == 0L ||
+            (!is.na(page$total) && next_offset > page$total) ||
+            (is.na(page$total) && page$n < page_size)) {
+            break
+        }
+
+        offset <- next_offset
+        page <- parse_page(offset)
+        result <- rbind(result, page$data)
+    }
+
+    return(result)
 }
