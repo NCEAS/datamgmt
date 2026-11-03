@@ -4,10 +4,8 @@
 #' packages on the Arctic Data Center (ADC) and State
 #' of Alaska's Salmon and People (SASAP) data portals.
 #'
-#' @docType package
-#' @rdname datamgmt
-#' @name datamgmt
 #' @author NCEAS Data Science Fellows
+#' @keywords internal
 #'
 #' @seealso \href{https://nceas.github.io/datamgmt/}{datamgmt pkgdown website}
-NULL
+"_PACKAGE"
